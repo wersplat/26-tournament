@@ -37,7 +37,7 @@ export default function ApiTest() {
       
       {!loading && !error && topPlayers.length === 0 && (
         <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
-          <p>No players found. The API connection may be working, but there's no data.</p>
+          <p>No players found. The API connection may be working, but there&apos;s no data.</p>
         </div>
       )}
       

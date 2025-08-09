@@ -81,7 +81,9 @@ export default function PlayersPage() {
           <Users className="h-8 w-8 text-blue-600" />
           <h1 className="text-3xl font-bold text-gray-900">Players</h1>
         </div>
-        <p className="text-gray-600">Browse all players and their statistics</p>
+        <p className="text-muted-foreground">
+          View player profiles, statistics, and rankings. Click on a player to see their detailed profile.
+        </p>
       </div>
 
       {/* Search */}
@@ -153,7 +155,7 @@ export default function PlayersPage() {
       {filteredPlayers.length === 0 && searchTerm && (
         <div className="text-center py-12">
           <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600">No players found matching "{searchTerm}"</p>
+          <p className="text-gray-600">No players found matching &quot;{searchTerm}&quot;</p>
           <button
             onClick={() => setSearchTerm('')}
             className="mt-2 text-blue-600 hover:text-blue-700"
