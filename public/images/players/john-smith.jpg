@@ -1,0 +1,13 @@
+<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100%" height="100%" fill="#374151"/>
+  <circle cx="200" cy="150" r="80" fill="#6b7280"/>
+  <text x="50%" y="280" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#ffffff">
+    John Smith
+  </text>
+  <text x="50%" y="310" font-family="Arial, sans-serif" font-size="16" text-anchor="middle" fill="#9ca3af">
+    Point Guard
+  </text>
+  <text x="50%" y="340" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#9ca3af">
+    Franchise Alpha
+  </text>
+</svg> 

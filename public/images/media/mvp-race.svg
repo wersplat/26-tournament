@@ -1,0 +1,9 @@
+<svg width="800" height="400" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100%" height="100%" fill="#1f2937"/>
+  <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="48" font-weight="bold" text-anchor="middle" fill="#ffffff">
+    MVP Race
+  </text>
+  <text x="50%" y="70%" font-family="Arial, sans-serif" font-size="24" text-anchor="middle" fill="#9ca3af">
+    Placeholder Image
+  </text>
+</svg> 

@@ -1,0 +1,167 @@
+[
+  {
+    "id": "player-1",
+    "gamertag": "ProGamer123",
+    "platform": "PlayStation",
+    "region": "NA",
+    "current_rp": 2500,
+    "peak_rp": 2750,
+    "wins": 120,
+    "losses": 45,
+    "tier": "Diamond"
+  },
+  {
+    "id": "player-2",
+    "gamertag": "NinjaWarrior",
+    "platform": "Xbox",
+    "region": "EU",
+    "current_rp": 2300,
+    "peak_rp": 2450,
+    "wins": 98,
+    "losses": 52,
+    "tier": "Platinum"
+  },
+  {
+    "id": "player-3",
+    "gamertag": "ShadowStrike",
+    "platform": "PC",
+    "region": "NA",
+    "current_rp": 2100,
+    "peak_rp": 2250,
+    "wins": 85,
+    "losses": 65,
+    "tier": "Gold"
+  },
+  {
+    "id": "player-4",
+    "gamertag": "ThunderBolt",
+    "platform": "PlayStation",
+    "region": "ASIA",
+    "current_rp": 1900,
+    "peak_rp": 2050,
+    "wins": 72,
+    "losses": 58,
+    "tier": "Silver"
+  },
+  {
+    "id": "player-5",
+    "gamertag": "FrostByte",
+    "platform": "Xbox",
+    "region": "NA",
+    "current_rp": 1700,
+    "peak_rp": 1850,
+    "wins": 65,
+    "losses": 75,
+    "tier": "Bronze"
+  },
+  {
+    "id": "player-6",
+    "gamertag": "DragonSlayer",
+    "platform": "PC",
+    "region": "EU",
+    "current_rp": 2600,
+    "peak_rp": 2650,
+    "wins": 135,
+    "losses": 40,
+    "tier": "Diamond"
+  },
+  {
+    "id": "player-7",
+    "gamertag": "CyberNinja",
+    "platform": "PlayStation",
+    "region": "NA",
+    "current_rp": 2400,
+    "peak_rp": 2550,
+    "wins": 110,
+    "losses": 50,
+    "tier": "Platinum"
+  },
+  {
+    "id": "player-8",
+    "gamertag": "PhantomAssassin",
+    "platform": "Xbox",
+    "region": "ASIA",
+    "current_rp": 2200,
+    "peak_rp": 2350,
+    "wins": 95,
+    "losses": 55,
+    "tier": "Gold"
+  },
+  {
+    "id": "player-9",
+    "gamertag": "VenomStrike",
+    "platform": "PC",
+    "region": "EU",
+    "current_rp": 2000,
+    "peak_rp": 2150,
+    "wins": 80,
+    "losses": 70,
+    "tier": "Silver"
+  },
+  {
+    "id": "player-10",
+    "gamertag": "BlazeRunner",
+    "platform": "PlayStation",
+    "region": "NA",
+    "current_rp": 1800,
+    "peak_rp": 1950,
+    "wins": 68,
+    "losses": 82,
+    "tier": "Bronze"
+  },
+  {
+    "id": "player-11",
+    "gamertag": "StormChaser",
+    "platform": "Xbox",
+    "region": "EU",
+    "current_rp": 2700,
+    "peak_rp": 2750,
+    "wins": 142,
+    "losses": 38,
+    "tier": "Diamond"
+  },
+  {
+    "id": "player-12",
+    "gamertag": "IronFist",
+    "platform": "PC",
+    "region": "NA",
+    "current_rp": 2500,
+    "peak_rp": 2650,
+    "wins": 128,
+    "losses": 42,
+    "tier": "Platinum"
+  },
+  {
+    "id": "player-13",
+    "gamertag": "NightHawk",
+    "platform": "PlayStation",
+    "region": "ASIA",
+    "current_rp": 2300,
+    "peak_rp": 2450,
+    "wins": 105,
+    "losses": 55,
+    "tier": "Gold"
+  },
+  {
+    "id": "player-14",
+    "gamertag": "GhostRider",
+    "platform": "Xbox",
+    "region": "EU",
+    "current_rp": 2100,
+    "peak_rp": 2250,
+    "wins": 88,
+    "losses": 62,
+    "tier": "Silver"
+  },
+  {
+    "id": "player-15",
+    "gamertag": "DarkKnight",
+    "platform": "PC",
+    "region": "NA",
+    "current_rp": 1900,
+    "peak_rp": 2050,
+    "wins": 75,
+    "losses": 85,
+    "tier": "Bronze"
+  }
+]
