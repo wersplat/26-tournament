@@ -7,7 +7,14 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { adminGraphqlService } from "@/services/admin-graphql-service";
-import { PlayerMatchStatsInput } from "@/types/graphql";
+import type { PlayerMatchStats } from "@/types/graphql";
+
+type PlayerMatchStatsInput = Partial<Omit<PlayerMatchStats, 'id' | 'match_id'>> & {
+  playerId: string;
+  teamId: string;
+  minutesPlayed?: number;
+  plusMinus?: number;
+};
 
 interface PlayerStatsFormProps {
   matchId: string;
@@ -39,8 +46,8 @@ export function PlayerStatsForm({
     fouls: 0,
     fgm: 0,
     fga: 0,
-    threePointsMade: 0,
-    threePointsAttempted: 0,
+    three_points_made: 0,
+    three_points_attempted: 0,
     ftm: 0,
     fta: 0,
     plusMinus: 0,
@@ -183,23 +190,23 @@ export function PlayerStatsForm({
                 />
               </div>
               <div>
-                <Label htmlFor="three_points_made">3PT Made</Label>
+              <Label htmlFor="three_points_made">3PT Made</Label>
                 <Input
                   id="three_points_made"
                   type="number"
                   min="0"
-                  value={stats.threePointsMade}
-                  onChange={(e) => handleInputChange('threePointsMade', parseInt(e.target.value) || 0)}
+                  value={stats.three_points_made}
+                  onChange={(e) => handleInputChange('three_points_made', parseInt(e.target.value) || 0)}
                 />
               </div>
               <div>
-                <Label htmlFor="three_points_attempted">3PT Attempted</Label>
+              <Label htmlFor="three_points_attempted">3PT Attempted</Label>
                 <Input
                   id="three_points_attempted"
                   type="number"
                   min="0"
-                  value={stats.threePointsAttempted}
-                  onChange={(e) => handleInputChange('threePointsAttempted', parseInt(e.target.value) || 0)}
+                  value={stats.three_points_attempted}
+                  onChange={(e) => handleInputChange('three_points_attempted', parseInt(e.target.value) || 0)}
                 />
               </div>
               <div>
@@ -235,7 +242,7 @@ export function PlayerStatsForm({
               </div>
               <div>
                 <span className="font-medium">3PT%: </span>
-                <span>{(stats.threePointsAttempted || 0) > 0 ? ((stats.threePointsMade || 0) / (stats.threePointsAttempted || 1) * 100).toFixed(1) : '0.0'}%</span>
+                <span>{(stats.three_points_attempted || 0) > 0 ? ((stats.three_points_made || 0) / (stats.three_points_attempted || 1) * 100).toFixed(1) : '0.0'}%</span>
               </div>
               <div>
                 <span className="font-medium">FT%: </span>

@@ -84,7 +84,7 @@ export const leaderboardService = {
     const orderBy = ['player_rp DESC'];
     const players = await graphqlService.getPlayers(limit, 0, {}, orderBy);
     
-    return players.map((player, index) => ({
+    return players.map((player: players, index: number) => ({
       ...player,
       rank: index + 1,
       wins: 0,
@@ -115,7 +115,7 @@ export const leaderboardService = {
     
     const players = await graphqlService.getPlayers(limit, offset, filter, orderBy);
     
-    return players.map((player, index) => ({
+    return players.map((player: players, index: number) => ({
       ...player,
       rank: offset + index + 1,
       wins: 0,
@@ -135,7 +135,7 @@ export const leaderboardService = {
     
     const players = await graphqlService.getPlayers(100, 0, filter, orderBy);
     
-    return players.map((player, index) => ({
+    return players.map((player: players, index: number) => ({
       ...player,
       rank: index + 1,
       wins: 0,
@@ -154,7 +154,7 @@ export const leaderboardService = {
     const orderBy = ['player_rank_score DESC'];
     const players = await graphqlService.getPlayers(limit, offset, {}, orderBy);
     
-    return players.map((player, index) => ({
+    return players.map((player: players, index: number) => ({
       ...player,
       rank: offset + index + 1,
       wins: 0,
@@ -177,7 +177,7 @@ export const leaderboardService = {
     
     const players = await graphqlService.getPlayers(limit, offset, filter, orderBy);
     
-    return players.map((player, index) => ({
+    return players.map((player: players, index: number) => ({
       ...player,
       rank: offset + index + 1,
       wins: 0,

@@ -63,6 +63,8 @@ Cypress.Commands.add('logout', () => {
   cy.url().should('include', '/login');
 });
 
+import 'cypress-axe';
+
 // Custom command to check for accessibility issues
 Cypress.Commands.add('checkA11yWithLogs', () => {
   cy.injectAxe();

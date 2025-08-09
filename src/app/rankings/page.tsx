@@ -66,7 +66,7 @@ export default function RankingsPage() {
 
   // Calculate player rankings based on stats
   const playerRankings: PlayerRanking[] = players
-    .map(player => ({
+    .map((player: PlayerRanking) => ({
       ...player,
       mvpPoints: Math.round((player.stats.ppg * 2 + player.stats.rpg + player.stats.apg * 1.5) * 10)
     }))
@@ -75,7 +75,7 @@ export default function RankingsPage() {
 
   // Calculate team rankings based on player stats
   const teamRankings: TeamRanking[] = teams
-    .map(team => {
+    .map((team: TeamRanking) => {
       const avgPpg = team.players.length > 0 
         ? team.players.reduce((sum, p) => sum + p.stats.ppg, 0) / team.players.length 
         : 0;
@@ -88,7 +88,7 @@ export default function RankingsPage() {
         netRating: 0
       };
     })
-    .sort((a, b) => (b.ppg || 0) - (a.ppg || 0))
+    .sort((a: TeamRanking, b: TeamRanking) => (b.ppg || 0) - (a.ppg || 0))
     .slice(0, 20); // Top 20 teams
 
   if (loading) {

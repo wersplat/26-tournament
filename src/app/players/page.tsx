@@ -1,7 +1,6 @@
 'use client'
 
-import { useQuery } from '@apollo/client'
-import { GET_PLAYERS } from '@/lib/graphql/queries'
+import { gql, useQuery } from '@apollo/client'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -18,18 +17,27 @@ import {
 import { useState } from 'react'
 import { players } from '@/types/graphql'
 
-interface GetPlayersData {
-  playersCollection: {
-    edges: Array<{
-      node: players
-    }>
+const GET_PLAYERS_LIST = gql`
+  query GetPlayersList($first: Int, $offset: Int) {
+    playersCollection(first: $first, offset: $offset, orderBy: ["player_rp DESC"]) {
+      edges {
+        node {
+          id
+          gamertag
+          position
+          player_rp
+          player_rank_score
+          teams { id name }
+        }
+      }
+    }
   }
-}
+`
 
 export default function PlayersPage() {
   const [searchTerm, setSearchTerm] = useState('')
   
-  const { loading, error, data } = useQuery<GetPlayersData>(GET_PLAYERS, {
+  const { loading, error, data } = useQuery(GET_PLAYERS_LIST, {
     errorPolicy: 'all',
   })
 
@@ -56,7 +64,7 @@ export default function PlayersPage() {
     )
   }
 
-  const playersList = data?.playersCollection?.edges?.map(edge => edge.node) || []
+  const playersList: players[] = data?.playersCollection?.edges?.map((edge: { node: players }) => edge.node) || []
 
   if (!playersList.length) {
     return (
