@@ -15,10 +15,49 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
+  /** Custom scalar for handling BigFloat values. */
+  BigFloat: { input: any; output: any; }
+  /** Custom scalar for handling BigInt values. */
+  BigInt: { input: any; output: any; }
   /** Custom scalar for handling date and time values in ISO 8601 format. */
   DateTime: { input: any; output: any; }
+  /** Custom scalar for handling JSON values. */
+  JSON: { input: any; output: any; }
   /** Custom scalar for handling UUID values. */
   UUID: { input: any; output: any; }
+};
+
+/** Basic dashboard statistics. */
+export type DashboardStats = {
+  __typename?: 'DashboardStats';
+  /** Number of active players */
+  activePlayers: Scalars['Int']['output'];
+  /** Number of active teams */
+  activeTeams: Scalars['Int']['output'];
+  /** Average player RP */
+  averagePlayerRP: Scalars['Float']['output'];
+  /** Average team size */
+  averageTeamSize: Scalars['Float']['output'];
+  /** Number of completed matches */
+  completedMatches: Scalars['Int']['output'];
+  /** Most active team */
+  mostActiveTeam?: Maybe<Team>;
+  /** Recent matches */
+  recentMatches: Array<Match>;
+  /** Recent players */
+  recentPlayers: Array<Player>;
+  /** Top performing player */
+  topPerformingPlayer?: Maybe<Player>;
+  /** Total number of events */
+  totalEvents: Scalars['Int']['output'];
+  /** Total number of matches */
+  totalMatches: Scalars['Int']['output'];
+  /** Total number of players */
+  totalPlayers: Scalars['Int']['output'];
+  /** Total number of teams */
+  totalTeams: Scalars['Int']['output'];
+  /** Number of upcoming events */
+  upcomingEvents: Scalars['Int']['output'];
 };
 
 /**
@@ -57,6 +96,28 @@ export type Event = {
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
 };
 
+/** Input type for creating a new event. */
+export type EventInput = {
+  /** ID of the user who created the event */
+  createdBy: Scalars['ID']['input'];
+  /** Event description */
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** When the event ends */
+  endDate: Scalars['DateTime']['input'];
+  /** Entry fee for participants */
+  entryFee?: InputMaybe<Scalars['Float']['input']>;
+  /** Type of event */
+  eventType: EventType;
+  /** Maximum number of participants */
+  maxParticipants?: InputMaybe<Scalars['Int']['input']>;
+  /** Event name */
+  name: Scalars['String']['input'];
+  /** When the event starts */
+  startDate: Scalars['DateTime']['input'];
+  /** Event tier */
+  tier: EventTier;
+};
+
 /** Status of an event indicating its current phase. */
 export enum EventStatus {
   /** Event was cancelled */
@@ -91,6 +152,69 @@ export enum EventType {
   League = 'League',
   /** Single elimination or double elimination tournament */
   Tournament = 'Tournament'
+}
+
+/** Input type for updating an existing event. */
+export type EventUpdateInput = {
+  /** Updated event description */
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** Updated end date */
+  endDate?: InputMaybe<Scalars['DateTime']['input']>;
+  /** Updated entry fee */
+  entryFee?: InputMaybe<Scalars['Float']['input']>;
+  /** Updated event type */
+  eventType?: InputMaybe<EventType>;
+  /** Updated max participants */
+  maxParticipants?: InputMaybe<Scalars['Int']['input']>;
+  /** Updated event name */
+  name?: InputMaybe<Scalars['String']['input']>;
+  /** Updated start date */
+  startDate?: InputMaybe<Scalars['DateTime']['input']>;
+  /** Updated event status */
+  status?: InputMaybe<EventStatus>;
+  /** Updated event tier */
+  tier?: InputMaybe<EventTier>;
+};
+
+/** Basic leaderboard entry. */
+export type LeaderboardEntry = {
+  __typename?: 'LeaderboardEntry';
+  /** Average assists per game */
+  averageAssists: Scalars['Float']['output'];
+  /** Average points per game */
+  averagePoints: Scalars['Float']['output'];
+  /** Average rebounds per game */
+  averageRebounds: Scalars['Float']['output'];
+  /** Number of losses */
+  losses: Scalars['Int']['output'];
+  /** Player information */
+  player: Player;
+  /** Player's rank */
+  rank: Scalars['Int']['output'];
+  /** Total matches played */
+  totalMatches: Scalars['Int']['output'];
+  /** Win rate percentage */
+  winRate: Scalars['Float']['output'];
+  /** Number of wins */
+  wins: Scalars['Int']['output'];
+};
+
+/** Sort options for leaderboard. */
+export enum LeaderboardSortBy {
+  /** Sort by average assists */
+  AverageAssists = 'AVERAGE_ASSISTS',
+  /** Sort by average points */
+  AveragePoints = 'AVERAGE_POINTS',
+  /** Sort by average rebounds */
+  AverageRebounds = 'AVERAGE_REBOUNDS',
+  /** Sort by current RP */
+  CurrentRp = 'CURRENT_RP',
+  /** Sort by peak RP */
+  PeakRp = 'PEAK_RP',
+  /** Sort by number of wins */
+  Wins = 'WINS',
+  /** Sort by win rate */
+  WinRate = 'WIN_RATE'
 }
 
 /**
@@ -160,21 +284,27 @@ export type Match = {
 /** Input type for creating a new match. */
 export type MatchInput = {
   /** ID of the event this match belongs to */
-  eventId?: InputMaybe<Scalars['UUID']['input']>;
-  /** Game number within the match series (defaults to 1) */
-  gameNumber?: InputMaybe<Scalars['Int']['input']>;
+  eventId: Scalars['UUID']['input'];
+  /** Game number within the event */
+  gameNumber: Scalars['Int']['input'];
+  /** Optional notes about the match */
+  notes?: InputMaybe<Scalars['String']['input']>;
   /** When the match is scheduled to start */
-  scheduledAt?: InputMaybe<Scalars['DateTime']['input']>;
-  /** Stage of the match (defaults to GROUP) */
-  stage?: InputMaybe<MatchStage>;
-  /** ID of the first team */
-  teamAId: Scalars['UUID']['input'];
-  /** Name of the first team */
+  scheduledAt: Scalars['DateTime']['input'];
+  /** Match stage (group, quarterfinal, semifinal, final) */
+  stage: MatchStage;
+  /** Optional stream URL for the match */
+  streamUrl?: InputMaybe<Scalars['String']['input']>;
+  /** ID of team A */
+  teamAId: Scalars['ID']['input'];
+  /** Name of team A */
   teamAName: Scalars['String']['input'];
-  /** ID of the second team */
-  teamBId: Scalars['UUID']['input'];
-  /** Name of the second team */
+  /** ID of team B */
+  teamBId: Scalars['ID']['input'];
+  /** Name of team B */
   teamBName: Scalars['String']['input'];
+  /** Optional venue where the match will be played */
+  venue?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** Stages of a tournament or competition indicating the round or phase. */
@@ -237,22 +367,44 @@ export enum MatchStatus {
 
 /** Input type for updating an existing match. */
 export type MatchUpdateInput = {
-  /** URL to the match boxscore/stats */
+  /** Updated boxscore URL */
   boxscoreUrl?: InputMaybe<Scalars['String']['input']>;
+  /** Updated end time */
+  endedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  /** Updated event ID */
+  eventId?: InputMaybe<Scalars['UUID']['input']>;
   /** Updated game number */
   gameNumber?: InputMaybe<Scalars['Int']['input']>;
-  /** When the match was played */
-  playedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  /** Updated notes */
+  notes?: InputMaybe<Scalars['String']['input']>;
+  /** Updated scheduled time */
+  scheduledAt?: InputMaybe<Scalars['DateTime']['input']>;
   /** Updated score for team A */
   scoreA?: InputMaybe<Scalars['Int']['input']>;
   /** Updated score for team B */
   scoreB?: InputMaybe<Scalars['Int']['input']>;
-  /** Updated stage of the match */
+  /** Updated match stage */
   stage?: InputMaybe<MatchStage>;
-  /** New status of the match */
+  /** Updated start time */
+  startedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  /** Updated match status */
   status?: InputMaybe<MatchStatus>;
-  /** ID of the winning team */
-  winnerId?: InputMaybe<Scalars['UUID']['input']>;
+  /** Updated stream URL */
+  streamUrl?: InputMaybe<Scalars['String']['input']>;
+  /** Updated team A ID */
+  teamAId?: InputMaybe<Scalars['ID']['input']>;
+  /** Updated team A name */
+  teamAName?: InputMaybe<Scalars['String']['input']>;
+  /** Updated team B ID */
+  teamBId?: InputMaybe<Scalars['ID']['input']>;
+  /** Updated team B name */
+  teamBName?: InputMaybe<Scalars['String']['input']>;
+  /** Updated venue */
+  venue?: InputMaybe<Scalars['String']['input']>;
+  /** Updated winner ID */
+  winnerId?: InputMaybe<Scalars['ID']['input']>;
+  /** Updated winner name */
+  winnerName?: InputMaybe<Scalars['String']['input']>;
 };
 
 /**
@@ -261,20 +413,143 @@ export type MatchUpdateInput = {
  */
 export type Mutation = {
   __typename?: 'Mutation';
+  /** Add a player to a team */
+  addPlayerToTeam: Team;
+  /** Assign a player to a team */
+  assignPlayerToTeam: Player;
+  /** Cancel an event */
+  cancelEvent: Event;
+  /** Cancel a match */
+  cancelMatch: Match;
+  /** Create a new event */
+  createEvent: Event;
+  /** Create a new player */
+  createPlayer: Player;
+  /** Create a new team */
+  createTeam: Team;
   /** Create a new user (admin only) */
   createUser: User;
+  /** Delete an event */
+  deleteEvent: Scalars['Boolean']['output'];
   /** Delete a match */
   deleteMatch: Scalars['Boolean']['output'];
+  /** Delete a player */
+  deletePlayer: Scalars['Boolean']['output'];
+  /** Delete a team */
+  deleteTeam: Scalars['Boolean']['output'];
   /** Delete a user (admin only) */
   deleteUser: Scalars['Boolean']['output'];
+  /** End an event */
+  endEvent: Event;
+  /** End a match with final scores */
+  endMatch: Match;
+  /** Pause a match */
+  pauseMatch: Match;
+  /** Register a team for an event */
+  registerTeamForEvent: Event;
+  /** Remove a player from their current team */
+  removePlayerFromCurrentTeam: Player;
+  /** Remove a player from a team */
+  removePlayerFromTeam: Team;
+  /** Resume a paused match */
+  resumeMatch: Match;
+  /** Set a player as team captain */
+  setTeamCaptain: Team;
+  /** Start an event */
+  startEvent: Event;
+  /** Start a match */
+  startMatch: Match;
   /** Create a new match */
   submitMatch: Match;
   /** Submit player statistics for a match */
   submitMatchStats: Array<PlayerMatchStats>;
+  /** Unregister a team from an event */
+  unregisterTeamFromEvent: Event;
+  /** Update an existing event */
+  updateEvent: Event;
   /** Update an existing match */
   updateMatch: Match;
+  /** Update match score */
+  updateMatchScore: Match;
+  /** Update match time elapsed */
+  updateMatchTime: Match;
+  /** Update an existing player */
+  updatePlayer: Player;
+  /** Update player ranking points */
+  updatePlayerRP: Player;
+  /** Update an existing team */
+  updateTeam: Team;
   /** Update an existing user (admin only) */
   updateUser: User;
+  /** Verify a player account */
+  verifyPlayer: Player;
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
+export type MutationAddPlayerToTeamArgs = {
+  playerId: Scalars['ID']['input'];
+  teamId: Scalars['ID']['input'];
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
+export type MutationAssignPlayerToTeamArgs = {
+  playerId: Scalars['ID']['input'];
+  teamId: Scalars['ID']['input'];
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
+export type MutationCancelEventArgs = {
+  id: Scalars['ID']['input'];
+  reason: Scalars['String']['input'];
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
+export type MutationCancelMatchArgs = {
+  id: Scalars['ID']['input'];
+  reason: Scalars['String']['input'];
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
+export type MutationCreateEventArgs = {
+  input: EventInput;
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
+export type MutationCreatePlayerArgs = {
+  input: PlayerInput;
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
+export type MutationCreateTeamArgs = {
+  input: TeamInput;
 };
 
 
@@ -291,6 +566,15 @@ export type MutationCreateUserArgs = {
  * Root mutation type for the Bodega Cats GC GraphQL API.
  * Provides access to all write operations for creating, updating, and deleting data.
  */
+export type MutationDeleteEventArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
 export type MutationDeleteMatchArgs = {
   id: Scalars['ID']['input'];
 };
@@ -300,7 +584,120 @@ export type MutationDeleteMatchArgs = {
  * Root mutation type for the Bodega Cats GC GraphQL API.
  * Provides access to all write operations for creating, updating, and deleting data.
  */
+export type MutationDeletePlayerArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
+export type MutationDeleteTeamArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
 export type MutationDeleteUserArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
+export type MutationEndEventArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
+export type MutationEndMatchArgs = {
+  id: Scalars['ID']['input'];
+  scoreA: Scalars['Int']['input'];
+  scoreB: Scalars['Int']['input'];
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
+export type MutationPauseMatchArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
+export type MutationRegisterTeamForEventArgs = {
+  eventId: Scalars['ID']['input'];
+  teamId: Scalars['ID']['input'];
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
+export type MutationRemovePlayerFromCurrentTeamArgs = {
+  playerId: Scalars['ID']['input'];
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
+export type MutationRemovePlayerFromTeamArgs = {
+  playerId: Scalars['ID']['input'];
+  teamId: Scalars['ID']['input'];
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
+export type MutationResumeMatchArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
+export type MutationSetTeamCaptainArgs = {
+  playerId: Scalars['ID']['input'];
+  teamId: Scalars['ID']['input'];
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
+export type MutationStartEventArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
+export type MutationStartMatchArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -328,9 +725,81 @@ export type MutationSubmitMatchStatsArgs = {
  * Root mutation type for the Bodega Cats GC GraphQL API.
  * Provides access to all write operations for creating, updating, and deleting data.
  */
+export type MutationUnregisterTeamFromEventArgs = {
+  eventId: Scalars['ID']['input'];
+  teamId: Scalars['ID']['input'];
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
+export type MutationUpdateEventArgs = {
+  id: Scalars['ID']['input'];
+  input: EventUpdateInput;
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
 export type MutationUpdateMatchArgs = {
   id: Scalars['ID']['input'];
   input: MatchUpdateInput;
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
+export type MutationUpdateMatchScoreArgs = {
+  id: Scalars['ID']['input'];
+  scoreA: Scalars['Int']['input'];
+  scoreB: Scalars['Int']['input'];
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
+export type MutationUpdateMatchTimeArgs = {
+  id: Scalars['ID']['input'];
+  timeElapsed: Scalars['Int']['input'];
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
+export type MutationUpdatePlayerArgs = {
+  id: Scalars['ID']['input'];
+  input: PlayerUpdateInput;
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
+export type MutationUpdatePlayerRpArgs = {
+  playerId: Scalars['ID']['input'];
+  reason: Scalars['String']['input'];
+  rpChange: Scalars['Float']['input'];
+};
+
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
+export type MutationUpdateTeamArgs = {
+  id: Scalars['ID']['input'];
+  input: TeamUpdateInput;
 };
 
 
@@ -343,6 +812,15 @@ export type MutationUpdateUserArgs = {
   input: UserUpdateInput;
 };
 
+
+/**
+ * Root mutation type for the Bodega Cats GC GraphQL API.
+ * Provides access to all write operations for creating, updating, and deleting data.
+ */
+export type MutationVerifyPlayerArgs = {
+  id: Scalars['ID']['input'];
+};
+
 /**
  * Represents a player profile with gaming statistics and achievements.
  * Each player is associated with a user account.
@@ -353,6 +831,8 @@ export type Player = {
   createdAt: Scalars['DateTime']['output'];
   /** Current ranking points */
   currentRp?: Maybe<Scalars['Float']['output']>;
+  /** Current team information */
+  current_teams?: Maybe<Team>;
   /** Gaming handle/username used in matches */
   gamertag: Scalars['String']['output'];
   /** Unique identifier for the player */
@@ -377,6 +857,24 @@ export type Player = {
   user: User;
   /** ID of the associated user account */
   userId: Scalars['ID']['output'];
+};
+
+/** Input type for creating a new player. */
+export type PlayerInput = {
+  /** Gaming handle/username used in matches */
+  gamertag: Scalars['String']['input'];
+  /** Whether the player account has been verified */
+  isVerified?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Player position on the court */
+  position?: InputMaybe<PlayerPosition>;
+  /** Geographic region for matchmaking */
+  region?: InputMaybe<Scalars['String']['input']>;
+  /** Salary tier indicating player value */
+  salaryTier?: InputMaybe<SalaryTier>;
+  /** Name of the team the player is currently on */
+  teamName?: InputMaybe<Scalars['String']['input']>;
+  /** ID of the associated user account */
+  userId: Scalars['ID']['input'];
 };
 
 /**
@@ -429,42 +927,42 @@ export type PlayerMatchStats = {
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
 };
 
-/** Input type for submitting player match statistics. */
+/** Input type for player match statistics. */
 export type PlayerMatchStatsInput = {
-  /** Number of assists (defaults to 0) */
-  assists?: InputMaybe<Scalars['Int']['input']>;
-  /** Number of blocks (defaults to 0) */
-  blocks?: InputMaybe<Scalars['Int']['input']>;
-  /** Field goals attempted (defaults to 0) */
-  fga?: InputMaybe<Scalars['Int']['input']>;
-  /** Field goals made (defaults to 0) */
-  fgm?: InputMaybe<Scalars['Int']['input']>;
-  /** Number of fouls (defaults to 0) */
-  fouls?: InputMaybe<Scalars['Int']['input']>;
-  /** Free throws attempted (defaults to 0) */
-  fta?: InputMaybe<Scalars['Int']['input']>;
-  /** Free throws made (defaults to 0) */
-  ftm?: InputMaybe<Scalars['Int']['input']>;
-  /** Minutes played in the match (defaults to 0) */
-  minutesPlayed?: InputMaybe<Scalars['Int']['input']>;
+  /** Assists made */
+  assists: Scalars['Int']['input'];
+  /** Blocks made */
+  blocks: Scalars['Int']['input'];
+  /** Field goals attempted */
+  fga: Scalars['Int']['input'];
+  /** Field goals made */
+  fgm: Scalars['Int']['input'];
+  /** Fouls committed */
+  fouls: Scalars['Int']['input'];
+  /** Free throws attempted */
+  fta: Scalars['Int']['input'];
+  /** Free throws made */
+  ftm: Scalars['Int']['input'];
+  /** Minutes played */
+  minutesPlayed: Scalars['Int']['input'];
   /** ID of the player */
-  playerId: Scalars['UUID']['input'];
-  /** Plus/minus rating (defaults to 0) */
-  plusMinus?: InputMaybe<Scalars['Int']['input']>;
-  /** Total points scored (defaults to 0) */
-  points?: InputMaybe<Scalars['Int']['input']>;
-  /** Number of rebounds (defaults to 0) */
-  rebounds?: InputMaybe<Scalars['Int']['input']>;
-  /** Number of steals (defaults to 0) */
-  steals?: InputMaybe<Scalars['Int']['input']>;
-  /** ID of the team the player was on */
-  teamId: Scalars['UUID']['input'];
-  /** Three-point shots attempted (defaults to 0) */
-  threePointsAttempted?: InputMaybe<Scalars['Int']['input']>;
-  /** Three-point shots made (defaults to 0) */
-  threePointsMade?: InputMaybe<Scalars['Int']['input']>;
-  /** Number of turnovers (defaults to 0) */
-  turnovers?: InputMaybe<Scalars['Int']['input']>;
+  playerId: Scalars['ID']['input'];
+  /** Plus/minus rating */
+  plusMinus: Scalars['Int']['input'];
+  /** Points scored */
+  points: Scalars['Int']['input'];
+  /** Rebounds grabbed */
+  rebounds: Scalars['Int']['input'];
+  /** Steals made */
+  steals: Scalars['Int']['input'];
+  /** ID of the team the player is on */
+  teamId: Scalars['ID']['input'];
+  /** Three-point shots attempted */
+  threePointsAttempted: Scalars['Int']['input'];
+  /** Three-point shots made */
+  threePointsMade: Scalars['Int']['input'];
+  /** Turnovers committed */
+  turnovers: Scalars['Int']['input'];
 };
 
 /** Player positions on the court. */
@@ -502,16 +1000,42 @@ export enum PlayerTier {
   Silver = 'silver'
 }
 
+/** Input type for updating an existing player. */
+export type PlayerUpdateInput = {
+  /** Updated current ranking points */
+  currentRp?: InputMaybe<Scalars['Float']['input']>;
+  /** Updated gaming handle */
+  gamertag?: InputMaybe<Scalars['String']['input']>;
+  /** Updated verification status */
+  isVerified?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Updated highest ranking points achieved */
+  peakRp?: InputMaybe<Scalars['Float']['input']>;
+  /** Updated player position */
+  position?: InputMaybe<PlayerPosition>;
+  /** Updated geographic region */
+  region?: InputMaybe<Scalars['String']['input']>;
+  /** Updated salary tier */
+  salaryTier?: InputMaybe<SalaryTier>;
+  /** Updated team name */
+  teamName?: InputMaybe<Scalars['String']['input']>;
+  /** Updated player tier */
+  tier?: InputMaybe<PlayerTier>;
+};
+
 /**
  * Root query type for the Bodega Cats GC GraphQL API.
  * Provides access to all read operations for users, matches, teams, events, and players.
  */
 export type Query = {
   __typename?: 'Query';
+  /** Get dashboard statistics */
+  getDashboardStats: DashboardStats;
   /** Get a specific event by ID */
   getEvent?: Maybe<Event>;
   /** Get a list of events with optional filtering and pagination */
   getEvents: Array<Event>;
+  /** Get leaderboard with sorting and filtering options */
+  getLeaderboard: Array<LeaderboardEntry>;
   /** Get a specific match by ID */
   getMatch?: Maybe<Match>;
   /** Get a list of matches with optional filtering and pagination */
@@ -524,6 +1048,8 @@ export type Query = {
   getTeam?: Maybe<Team>;
   /** Get a list of teams with pagination */
   getTeams: Array<Team>;
+  /** Get top performing players */
+  getTopPlayers: Array<LeaderboardEntry>;
   /** Get a specific user by ID */
   getUser?: Maybe<User>;
   /** Get a list of users with pagination */
@@ -549,6 +1075,19 @@ export type QueryGetEventsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   status?: InputMaybe<EventStatus>;
+};
+
+
+/**
+ * Root query type for the Bodega Cats GC GraphQL API.
+ * Provides access to all read operations for users, matches, teams, events, and players.
+ */
+export type QueryGetLeaderboardArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  region?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<LeaderboardSortBy>;
+  tier?: InputMaybe<PlayerTier>;
 };
 
 
@@ -619,6 +1158,16 @@ export type QueryGetTeamsArgs = {
  * Root query type for the Bodega Cats GC GraphQL API.
  * Provides access to all read operations for users, matches, teams, events, and players.
  */
+export type QueryGetTopPlayersArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  tier?: InputMaybe<PlayerTier>;
+};
+
+
+/**
+ * Root query type for the Bodega Cats GC GraphQL API.
+ * Provides access to all read operations for users, matches, teams, events, and players.
+ */
 export type QueryGetUserArgs = {
   id: Scalars['ID']['input'];
 };
@@ -670,6 +1219,50 @@ export type Team = {
   /** When the team was last updated */
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
 };
+
+/** Input type for creating a new team. */
+export type TeamInput = {
+  /** Team description */
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** Whether the team is active */
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  /** URL to team logo */
+  logoUrl?: InputMaybe<Scalars['String']['input']>;
+  /** Team name */
+  name: Scalars['String']['input'];
+  /** Geographic region */
+  region?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Input type for updating an existing team. */
+export type TeamUpdateInput = {
+  /** Updated team description */
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** Updated active status */
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Updated logo URL */
+  logoUrl?: InputMaybe<Scalars['String']['input']>;
+  /** Updated team name */
+  name?: InputMaybe<Scalars['String']['input']>;
+  /** Updated region */
+  region?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Time range options for analytics. */
+export enum TimeRange {
+  /** All time */
+  AllTime = 'ALL_TIME',
+  /** Last 6 months */
+  Last_6Months = 'LAST_6_MONTHS',
+  /** Last 7 days */
+  Last_7Days = 'LAST_7_DAYS',
+  /** Last 30 days */
+  Last_30Days = 'LAST_30_DAYS',
+  /** Last 90 days */
+  Last_90Days = 'LAST_90_DAYS',
+  /** Last year */
+  LastYear = 'LAST_YEAR'
+}
 
 /**
  * Represents a user in the Bodega Cats GC platform.
@@ -767,6 +1360,50 @@ export type GetMatchQueryVariables = Exact<{
 
 export type GetMatchQuery = { __typename?: 'Query', getMatch?: { __typename?: 'Match', id: string, eventId?: any | null, gameNumber: number, scheduledAt?: any | null, startedAt?: any | null, endedAt?: any | null, playedAt?: any | null, status: MatchStatus, stage: MatchStage, isLive: boolean, timeElapsed?: string | null, scoreA?: number | null, scoreB?: number | null, winnerId?: any | null, winnerName?: string | null, teamAId: any, teamAName: string, teamBId: any, teamBName: string, boxscoreUrl?: string | null, createdAt: any, updatedAt?: any | null, event?: { __typename?: 'Event', id: string, name: string, eventType?: EventType | null, status?: EventStatus | null, tier?: EventTier | null } | null, teamA?: { __typename?: 'Team', id: string, name: string, logoUrl?: string | null } | null, teamB?: { __typename?: 'Team', id: string, name: string, logoUrl?: string | null } | null, winner?: { __typename?: 'Team', id: string, name: string, logoUrl?: string | null } | null, teamAPlayers: Array<{ __typename?: 'PlayerMatchStats', id: string, playerId: string, teamId: string, matchId: string, points: number, assists: number, rebounds: number, steals: number, blocks: number, turnovers: number, fouls: number, fgm: number, fga: number, threePointsMade: number, threePointsAttempted: number, ftm: number, fta: number, plusMinus: number, minutesPlayed: number, createdAt: any, updatedAt?: any | null }>, teamBPlayers: Array<{ __typename?: 'PlayerMatchStats', id: string, playerId: string, teamId: string, matchId: string, points: number, assists: number, rebounds: number, steals: number, blocks: number, turnovers: number, fouls: number, fgm: number, fga: number, threePointsMade: number, threePointsAttempted: number, ftm: number, fta: number, plusMinus: number, minutesPlayed: number, createdAt: any, updatedAt?: any | null }> } | null };
 
+export type CreateEventMutationVariables = Exact<{
+  input: EventInput;
+}>;
+
+
+export type CreateEventMutation = { __typename?: 'Mutation', createEvent: { __typename?: 'Event', id: string, name: string, description?: string | null, eventType?: EventType | null, status?: EventStatus | null, tier?: EventTier | null, startDate?: any | null, endDate?: any | null, entryFee: number, maxParticipants?: number | null, currentParticipants: number, createdBy: string, createdAt: any, updatedAt?: any | null } };
+
+export type UpdateEventMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: EventUpdateInput;
+}>;
+
+
+export type UpdateEventMutation = { __typename?: 'Mutation', updateEvent: { __typename?: 'Event', id: string, name: string, description?: string | null, eventType?: EventType | null, status?: EventStatus | null, tier?: EventTier | null, startDate?: any | null, endDate?: any | null, entryFee: number, maxParticipants?: number | null, currentParticipants: number, createdBy: string, createdAt: any, updatedAt?: any | null } };
+
+export type DeleteEventMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteEventMutation = { __typename?: 'Mutation', deleteEvent: boolean };
+
+export type StartEventMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type StartEventMutation = { __typename?: 'Mutation', startEvent: { __typename?: 'Event', id: string, name: string, status?: EventStatus | null, startDate?: any | null, updatedAt?: any | null } };
+
+export type EndEventMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type EndEventMutation = { __typename?: 'Mutation', endEvent: { __typename?: 'Event', id: string, name: string, status?: EventStatus | null, endDate?: any | null, updatedAt?: any | null } };
+
+export type CancelEventMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  reason: Scalars['String']['input'];
+}>;
+
+
+export type CancelEventMutation = { __typename?: 'Mutation', cancelEvent: { __typename?: 'Event', id: string, name: string, status?: EventStatus | null, updatedAt?: any | null } };
+
 export type SubmitMatchMutationVariables = Exact<{
   input: MatchInput;
 }>;
@@ -796,6 +1433,145 @@ export type SubmitMatchStatsMutationVariables = Exact<{
 
 
 export type SubmitMatchStatsMutation = { __typename?: 'Mutation', submitMatchStats: Array<{ __typename?: 'PlayerMatchStats', id: string, playerId: string, teamId: string, matchId: string, points: number, assists: number, rebounds: number, steals: number, blocks: number, turnovers: number, fouls: number, fgm: number, fga: number, threePointsMade: number, threePointsAttempted: number, ftm: number, fta: number, plusMinus: number, minutesPlayed: number, createdAt: any, updatedAt?: any | null }> };
+
+export type StartMatchMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type StartMatchMutation = { __typename?: 'Mutation', startMatch: { __typename?: 'Match', id: string, status: MatchStatus, startedAt?: any | null, isLive: boolean, updatedAt?: any | null } };
+
+export type EndMatchMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  scoreA: Scalars['Int']['input'];
+  scoreB: Scalars['Int']['input'];
+}>;
+
+
+export type EndMatchMutation = { __typename?: 'Mutation', endMatch: { __typename?: 'Match', id: string, status: MatchStatus, endedAt?: any | null, scoreA?: number | null, scoreB?: number | null, winnerId?: any | null, winnerName?: string | null, isLive: boolean, updatedAt?: any | null } };
+
+export type PauseMatchMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type PauseMatchMutation = { __typename?: 'Mutation', pauseMatch: { __typename?: 'Match', id: string, status: MatchStatus, isLive: boolean, updatedAt?: any | null } };
+
+export type ResumeMatchMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type ResumeMatchMutation = { __typename?: 'Mutation', resumeMatch: { __typename?: 'Match', id: string, status: MatchStatus, isLive: boolean, updatedAt?: any | null } };
+
+export type CancelMatchMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  reason: Scalars['String']['input'];
+}>;
+
+
+export type CancelMatchMutation = { __typename?: 'Mutation', cancelMatch: { __typename?: 'Match', id: string, status: MatchStatus, updatedAt?: any | null } };
+
+export type UpdateMatchScoreMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  scoreA: Scalars['Int']['input'];
+  scoreB: Scalars['Int']['input'];
+}>;
+
+
+export type UpdateMatchScoreMutation = { __typename?: 'Mutation', updateMatchScore: { __typename?: 'Match', id: string, scoreA?: number | null, scoreB?: number | null, winnerId?: any | null, winnerName?: string | null, updatedAt?: any | null } };
+
+export type UpdateMatchTimeMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  timeElapsed: Scalars['Int']['input'];
+}>;
+
+
+export type UpdateMatchTimeMutation = { __typename?: 'Mutation', updateMatchTime: { __typename?: 'Match', id: string, timeElapsed?: string | null, updatedAt?: any | null } };
+
+export type CreatePlayerMutationVariables = Exact<{
+  input: PlayerInput;
+}>;
+
+
+export type CreatePlayerMutation = { __typename?: 'Mutation', createPlayer: { __typename?: 'Player', id: string, userId: string, gamertag: string, region?: string | null, currentRp?: number | null, peakRp?: number | null, tier?: PlayerTier | null, position?: PlayerPosition | null, salaryTier?: SalaryTier | null, teamName?: string | null, isVerified?: boolean | null, createdAt: any, updatedAt?: any | null, user: { __typename?: 'User', id: string, username: string, email: string, fullName?: string | null, isActive: boolean, isAdmin: boolean, discordId?: string | null, createdAt: any, updatedAt?: any | null } } };
+
+export type UpdatePlayerMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: PlayerUpdateInput;
+}>;
+
+
+export type UpdatePlayerMutation = { __typename?: 'Mutation', updatePlayer: { __typename?: 'Player', id: string, userId: string, gamertag: string, region?: string | null, currentRp?: number | null, peakRp?: number | null, tier?: PlayerTier | null, position?: PlayerPosition | null, salaryTier?: SalaryTier | null, teamName?: string | null, isVerified?: boolean | null, createdAt: any, updatedAt?: any | null, user: { __typename?: 'User', id: string, username: string, email: string, fullName?: string | null, isActive: boolean, isAdmin: boolean, discordId?: string | null, createdAt: any, updatedAt?: any | null } } };
+
+export type DeletePlayerMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeletePlayerMutation = { __typename?: 'Mutation', deletePlayer: boolean };
+
+export type UpdatePlayerRpMutationVariables = Exact<{
+  playerId: Scalars['ID']['input'];
+  rpChange: Scalars['Float']['input'];
+  reason: Scalars['String']['input'];
+}>;
+
+
+export type UpdatePlayerRpMutation = { __typename?: 'Mutation', updatePlayerRP: { __typename?: 'Player', id: string, gamertag: string, currentRp?: number | null, peakRp?: number | null, tier?: PlayerTier | null, updatedAt?: any | null } };
+
+export type VerifyPlayerMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type VerifyPlayerMutation = { __typename?: 'Mutation', verifyPlayer: { __typename?: 'Player', id: string, gamertag: string, isVerified?: boolean | null, updatedAt?: any | null } };
+
+export type CreateTeamMutationVariables = Exact<{
+  input: TeamInput;
+}>;
+
+
+export type CreateTeamMutation = { __typename?: 'Mutation', createTeam: { __typename?: 'Team', id: string, name: string, description?: string | null, isActive: boolean, logoUrl?: string | null, region?: string | null, createdAt: any, updatedAt?: any | null } };
+
+export type UpdateTeamMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: TeamUpdateInput;
+}>;
+
+
+export type UpdateTeamMutation = { __typename?: 'Mutation', updateTeam: { __typename?: 'Team', id: string, name: string, description?: string | null, isActive: boolean, logoUrl?: string | null, region?: string | null, createdAt: any, updatedAt?: any | null } };
+
+export type DeleteTeamMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteTeamMutation = { __typename?: 'Mutation', deleteTeam: boolean };
+
+export type AddPlayerToTeamMutationVariables = Exact<{
+  teamId: Scalars['ID']['input'];
+  playerId: Scalars['ID']['input'];
+}>;
+
+
+export type AddPlayerToTeamMutation = { __typename?: 'Mutation', addPlayerToTeam: { __typename?: 'Team', id: string, name: string, description?: string | null, isActive: boolean, logoUrl?: string | null, region?: string | null, createdAt: any, updatedAt?: any | null } };
+
+export type RemovePlayerFromTeamRosterMutationVariables = Exact<{
+  teamId: Scalars['ID']['input'];
+  playerId: Scalars['ID']['input'];
+}>;
+
+
+export type RemovePlayerFromTeamRosterMutation = { __typename?: 'Mutation', removePlayerFromTeam: { __typename?: 'Team', id: string, name: string, description?: string | null, isActive: boolean, logoUrl?: string | null, region?: string | null, createdAt: any, updatedAt?: any | null } };
+
+export type SetTeamCaptainMutationVariables = Exact<{
+  teamId: Scalars['ID']['input'];
+  playerId: Scalars['ID']['input'];
+}>;
+
+
+export type SetTeamCaptainMutation = { __typename?: 'Mutation', setTeamCaptain: { __typename?: 'Team', id: string, name: string, description?: string | null, isActive: boolean, logoUrl?: string | null, region?: string | null, createdAt: any, updatedAt?: any | null } };
 
 export type CreateUserMutationVariables = Exact<{
   input: UserInput;
@@ -828,6 +1604,30 @@ export type GetPlayersQueryVariables = Exact<{
 
 
 export type GetPlayersQuery = { __typename?: 'Query', getPlayers: Array<{ __typename?: 'Player', id: string, gamertag: string, position?: PlayerPosition | null, currentRp?: number | null, peakRp?: number | null, salaryTier?: SalaryTier | null, teamName?: string | null, tier?: PlayerTier | null, region?: string | null, isVerified?: boolean | null, createdAt: any, updatedAt?: any | null, user: { __typename?: 'User', id: string, username: string, email: string, fullName?: string | null, isActive: boolean, isAdmin: boolean } }> };
+
+export type GetDashboardStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetDashboardStatsQuery = { __typename?: 'Query', getDashboardStats: { __typename?: 'DashboardStats', totalPlayers: number, totalTeams: number, totalMatches: number, totalEvents: number, activePlayers: number, activeTeams: number, completedMatches: number, upcomingEvents: number, averagePlayerRP: number, averageTeamSize: number, topPerformingPlayer?: { __typename?: 'Player', id: string, gamertag: string, currentRp?: number | null, peakRp?: number | null, tier?: PlayerTier | null, position?: PlayerPosition | null, teamName?: string | null } | null, mostActiveTeam?: { __typename?: 'Team', id: string, name: string, description?: string | null, logoUrl?: string | null, region?: string | null } | null, recentMatches: Array<{ __typename?: 'Match', id: string, teamAName: string, teamBName: string, scoreA?: number | null, scoreB?: number | null, winnerName?: string | null, playedAt?: any | null, status: MatchStatus }>, recentPlayers: Array<{ __typename?: 'Player', id: string, gamertag: string, currentRp?: number | null, tier?: PlayerTier | null, teamName?: string | null, createdAt: any }> } };
+
+export type GetLeaderboardQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  tier?: InputMaybe<PlayerTier>;
+  region?: InputMaybe<Scalars['String']['input']>;
+  sortBy?: InputMaybe<LeaderboardSortBy>;
+}>;
+
+
+export type GetLeaderboardQuery = { __typename?: 'Query', getLeaderboard: Array<{ __typename?: 'LeaderboardEntry', rank: number, wins: number, losses: number, winRate: number, totalMatches: number, averagePoints: number, averageAssists: number, averageRebounds: number, player: { __typename?: 'Player', id: string, gamertag: string, currentRp?: number | null, peakRp?: number | null, tier?: PlayerTier | null, position?: PlayerPosition | null, region?: string | null, teamName?: string | null, isVerified?: boolean | null, createdAt: any, user: { __typename?: 'User', id: string, username: string, fullName?: string | null } } }> };
+
+export type GetTopPlayersQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  tier?: InputMaybe<PlayerTier>;
+}>;
+
+
+export type GetTopPlayersQuery = { __typename?: 'Query', getTopPlayers: Array<{ __typename?: 'LeaderboardEntry', rank: number, wins: number, losses: number, winRate: number, player: { __typename?: 'Player', id: string, gamertag: string, currentRp?: number | null, peakRp?: number | null, tier?: PlayerTier | null, position?: PlayerPosition | null, teamName?: string | null, isVerified?: boolean | null } }> };
 
 export type GetEventWithDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -1267,6 +2067,241 @@ export type GetMatchQueryHookResult = ReturnType<typeof useGetMatchQuery>;
 export type GetMatchLazyQueryHookResult = ReturnType<typeof useGetMatchLazyQuery>;
 export type GetMatchSuspenseQueryHookResult = ReturnType<typeof useGetMatchSuspenseQuery>;
 export type GetMatchQueryResult = Apollo.QueryResult<GetMatchQuery, GetMatchQueryVariables>;
+export const CreateEventDocument = gql`
+    mutation CreateEvent($input: EventInput!) {
+  createEvent(input: $input) {
+    id
+    name
+    description
+    eventType
+    status
+    tier
+    startDate
+    endDate
+    entryFee
+    maxParticipants
+    currentParticipants
+    createdBy
+    createdAt
+    updatedAt
+  }
+}
+    `;
+export type CreateEventMutationFn = Apollo.MutationFunction<CreateEventMutation, CreateEventMutationVariables>;
+
+/**
+ * __useCreateEventMutation__
+ *
+ * To run a mutation, you first call `useCreateEventMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateEventMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createEventMutation, { data, loading, error }] = useCreateEventMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateEventMutation(baseOptions?: Apollo.MutationHookOptions<CreateEventMutation, CreateEventMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateEventMutation, CreateEventMutationVariables>(CreateEventDocument, options);
+      }
+export type CreateEventMutationHookResult = ReturnType<typeof useCreateEventMutation>;
+export type CreateEventMutationResult = Apollo.MutationResult<CreateEventMutation>;
+export type CreateEventMutationOptions = Apollo.BaseMutationOptions<CreateEventMutation, CreateEventMutationVariables>;
+export const UpdateEventDocument = gql`
+    mutation UpdateEvent($id: ID!, $input: EventUpdateInput!) {
+  updateEvent(id: $id, input: $input) {
+    id
+    name
+    description
+    eventType
+    status
+    tier
+    startDate
+    endDate
+    entryFee
+    maxParticipants
+    currentParticipants
+    createdBy
+    createdAt
+    updatedAt
+  }
+}
+    `;
+export type UpdateEventMutationFn = Apollo.MutationFunction<UpdateEventMutation, UpdateEventMutationVariables>;
+
+/**
+ * __useUpdateEventMutation__
+ *
+ * To run a mutation, you first call `useUpdateEventMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateEventMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateEventMutation, { data, loading, error }] = useUpdateEventMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateEventMutation(baseOptions?: Apollo.MutationHookOptions<UpdateEventMutation, UpdateEventMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateEventMutation, UpdateEventMutationVariables>(UpdateEventDocument, options);
+      }
+export type UpdateEventMutationHookResult = ReturnType<typeof useUpdateEventMutation>;
+export type UpdateEventMutationResult = Apollo.MutationResult<UpdateEventMutation>;
+export type UpdateEventMutationOptions = Apollo.BaseMutationOptions<UpdateEventMutation, UpdateEventMutationVariables>;
+export const DeleteEventDocument = gql`
+    mutation DeleteEvent($id: ID!) {
+  deleteEvent(id: $id)
+}
+    `;
+export type DeleteEventMutationFn = Apollo.MutationFunction<DeleteEventMutation, DeleteEventMutationVariables>;
+
+/**
+ * __useDeleteEventMutation__
+ *
+ * To run a mutation, you first call `useDeleteEventMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteEventMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteEventMutation, { data, loading, error }] = useDeleteEventMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteEventMutation(baseOptions?: Apollo.MutationHookOptions<DeleteEventMutation, DeleteEventMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteEventMutation, DeleteEventMutationVariables>(DeleteEventDocument, options);
+      }
+export type DeleteEventMutationHookResult = ReturnType<typeof useDeleteEventMutation>;
+export type DeleteEventMutationResult = Apollo.MutationResult<DeleteEventMutation>;
+export type DeleteEventMutationOptions = Apollo.BaseMutationOptions<DeleteEventMutation, DeleteEventMutationVariables>;
+export const StartEventDocument = gql`
+    mutation StartEvent($id: ID!) {
+  startEvent(id: $id) {
+    id
+    name
+    status
+    startDate
+    updatedAt
+  }
+}
+    `;
+export type StartEventMutationFn = Apollo.MutationFunction<StartEventMutation, StartEventMutationVariables>;
+
+/**
+ * __useStartEventMutation__
+ *
+ * To run a mutation, you first call `useStartEventMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useStartEventMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [startEventMutation, { data, loading, error }] = useStartEventMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useStartEventMutation(baseOptions?: Apollo.MutationHookOptions<StartEventMutation, StartEventMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<StartEventMutation, StartEventMutationVariables>(StartEventDocument, options);
+      }
+export type StartEventMutationHookResult = ReturnType<typeof useStartEventMutation>;
+export type StartEventMutationResult = Apollo.MutationResult<StartEventMutation>;
+export type StartEventMutationOptions = Apollo.BaseMutationOptions<StartEventMutation, StartEventMutationVariables>;
+export const EndEventDocument = gql`
+    mutation EndEvent($id: ID!) {
+  endEvent(id: $id) {
+    id
+    name
+    status
+    endDate
+    updatedAt
+  }
+}
+    `;
+export type EndEventMutationFn = Apollo.MutationFunction<EndEventMutation, EndEventMutationVariables>;
+
+/**
+ * __useEndEventMutation__
+ *
+ * To run a mutation, you first call `useEndEventMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useEndEventMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [endEventMutation, { data, loading, error }] = useEndEventMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useEndEventMutation(baseOptions?: Apollo.MutationHookOptions<EndEventMutation, EndEventMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<EndEventMutation, EndEventMutationVariables>(EndEventDocument, options);
+      }
+export type EndEventMutationHookResult = ReturnType<typeof useEndEventMutation>;
+export type EndEventMutationResult = Apollo.MutationResult<EndEventMutation>;
+export type EndEventMutationOptions = Apollo.BaseMutationOptions<EndEventMutation, EndEventMutationVariables>;
+export const CancelEventDocument = gql`
+    mutation CancelEvent($id: ID!, $reason: String!) {
+  cancelEvent(id: $id, reason: $reason) {
+    id
+    name
+    status
+    updatedAt
+  }
+}
+    `;
+export type CancelEventMutationFn = Apollo.MutationFunction<CancelEventMutation, CancelEventMutationVariables>;
+
+/**
+ * __useCancelEventMutation__
+ *
+ * To run a mutation, you first call `useCancelEventMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCancelEventMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [cancelEventMutation, { data, loading, error }] = useCancelEventMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      reason: // value for 'reason'
+ *   },
+ * });
+ */
+export function useCancelEventMutation(baseOptions?: Apollo.MutationHookOptions<CancelEventMutation, CancelEventMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CancelEventMutation, CancelEventMutationVariables>(CancelEventDocument, options);
+      }
+export type CancelEventMutationHookResult = ReturnType<typeof useCancelEventMutation>;
+export type CancelEventMutationResult = Apollo.MutationResult<CancelEventMutation>;
+export type CancelEventMutationOptions = Apollo.BaseMutationOptions<CancelEventMutation, CancelEventMutationVariables>;
 export const SubmitMatchDocument = gql`
     mutation SubmitMatch($input: MatchInput!) {
   submitMatch(input: $input) {
@@ -1461,6 +2496,725 @@ export function useSubmitMatchStatsMutation(baseOptions?: Apollo.MutationHookOpt
 export type SubmitMatchStatsMutationHookResult = ReturnType<typeof useSubmitMatchStatsMutation>;
 export type SubmitMatchStatsMutationResult = Apollo.MutationResult<SubmitMatchStatsMutation>;
 export type SubmitMatchStatsMutationOptions = Apollo.BaseMutationOptions<SubmitMatchStatsMutation, SubmitMatchStatsMutationVariables>;
+export const StartMatchDocument = gql`
+    mutation StartMatch($id: ID!) {
+  startMatch(id: $id) {
+    id
+    status
+    startedAt
+    isLive
+    updatedAt
+  }
+}
+    `;
+export type StartMatchMutationFn = Apollo.MutationFunction<StartMatchMutation, StartMatchMutationVariables>;
+
+/**
+ * __useStartMatchMutation__
+ *
+ * To run a mutation, you first call `useStartMatchMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useStartMatchMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [startMatchMutation, { data, loading, error }] = useStartMatchMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useStartMatchMutation(baseOptions?: Apollo.MutationHookOptions<StartMatchMutation, StartMatchMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<StartMatchMutation, StartMatchMutationVariables>(StartMatchDocument, options);
+      }
+export type StartMatchMutationHookResult = ReturnType<typeof useStartMatchMutation>;
+export type StartMatchMutationResult = Apollo.MutationResult<StartMatchMutation>;
+export type StartMatchMutationOptions = Apollo.BaseMutationOptions<StartMatchMutation, StartMatchMutationVariables>;
+export const EndMatchDocument = gql`
+    mutation EndMatch($id: ID!, $scoreA: Int!, $scoreB: Int!) {
+  endMatch(id: $id, scoreA: $scoreA, scoreB: $scoreB) {
+    id
+    status
+    endedAt
+    scoreA
+    scoreB
+    winnerId
+    winnerName
+    isLive
+    updatedAt
+  }
+}
+    `;
+export type EndMatchMutationFn = Apollo.MutationFunction<EndMatchMutation, EndMatchMutationVariables>;
+
+/**
+ * __useEndMatchMutation__
+ *
+ * To run a mutation, you first call `useEndMatchMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useEndMatchMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [endMatchMutation, { data, loading, error }] = useEndMatchMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      scoreA: // value for 'scoreA'
+ *      scoreB: // value for 'scoreB'
+ *   },
+ * });
+ */
+export function useEndMatchMutation(baseOptions?: Apollo.MutationHookOptions<EndMatchMutation, EndMatchMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<EndMatchMutation, EndMatchMutationVariables>(EndMatchDocument, options);
+      }
+export type EndMatchMutationHookResult = ReturnType<typeof useEndMatchMutation>;
+export type EndMatchMutationResult = Apollo.MutationResult<EndMatchMutation>;
+export type EndMatchMutationOptions = Apollo.BaseMutationOptions<EndMatchMutation, EndMatchMutationVariables>;
+export const PauseMatchDocument = gql`
+    mutation PauseMatch($id: ID!) {
+  pauseMatch(id: $id) {
+    id
+    status
+    isLive
+    updatedAt
+  }
+}
+    `;
+export type PauseMatchMutationFn = Apollo.MutationFunction<PauseMatchMutation, PauseMatchMutationVariables>;
+
+/**
+ * __usePauseMatchMutation__
+ *
+ * To run a mutation, you first call `usePauseMatchMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePauseMatchMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [pauseMatchMutation, { data, loading, error }] = usePauseMatchMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function usePauseMatchMutation(baseOptions?: Apollo.MutationHookOptions<PauseMatchMutation, PauseMatchMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<PauseMatchMutation, PauseMatchMutationVariables>(PauseMatchDocument, options);
+      }
+export type PauseMatchMutationHookResult = ReturnType<typeof usePauseMatchMutation>;
+export type PauseMatchMutationResult = Apollo.MutationResult<PauseMatchMutation>;
+export type PauseMatchMutationOptions = Apollo.BaseMutationOptions<PauseMatchMutation, PauseMatchMutationVariables>;
+export const ResumeMatchDocument = gql`
+    mutation ResumeMatch($id: ID!) {
+  resumeMatch(id: $id) {
+    id
+    status
+    isLive
+    updatedAt
+  }
+}
+    `;
+export type ResumeMatchMutationFn = Apollo.MutationFunction<ResumeMatchMutation, ResumeMatchMutationVariables>;
+
+/**
+ * __useResumeMatchMutation__
+ *
+ * To run a mutation, you first call `useResumeMatchMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useResumeMatchMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [resumeMatchMutation, { data, loading, error }] = useResumeMatchMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useResumeMatchMutation(baseOptions?: Apollo.MutationHookOptions<ResumeMatchMutation, ResumeMatchMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ResumeMatchMutation, ResumeMatchMutationVariables>(ResumeMatchDocument, options);
+      }
+export type ResumeMatchMutationHookResult = ReturnType<typeof useResumeMatchMutation>;
+export type ResumeMatchMutationResult = Apollo.MutationResult<ResumeMatchMutation>;
+export type ResumeMatchMutationOptions = Apollo.BaseMutationOptions<ResumeMatchMutation, ResumeMatchMutationVariables>;
+export const CancelMatchDocument = gql`
+    mutation CancelMatch($id: ID!, $reason: String!) {
+  cancelMatch(id: $id, reason: $reason) {
+    id
+    status
+    updatedAt
+  }
+}
+    `;
+export type CancelMatchMutationFn = Apollo.MutationFunction<CancelMatchMutation, CancelMatchMutationVariables>;
+
+/**
+ * __useCancelMatchMutation__
+ *
+ * To run a mutation, you first call `useCancelMatchMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCancelMatchMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [cancelMatchMutation, { data, loading, error }] = useCancelMatchMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      reason: // value for 'reason'
+ *   },
+ * });
+ */
+export function useCancelMatchMutation(baseOptions?: Apollo.MutationHookOptions<CancelMatchMutation, CancelMatchMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CancelMatchMutation, CancelMatchMutationVariables>(CancelMatchDocument, options);
+      }
+export type CancelMatchMutationHookResult = ReturnType<typeof useCancelMatchMutation>;
+export type CancelMatchMutationResult = Apollo.MutationResult<CancelMatchMutation>;
+export type CancelMatchMutationOptions = Apollo.BaseMutationOptions<CancelMatchMutation, CancelMatchMutationVariables>;
+export const UpdateMatchScoreDocument = gql`
+    mutation UpdateMatchScore($id: ID!, $scoreA: Int!, $scoreB: Int!) {
+  updateMatchScore(id: $id, scoreA: $scoreA, scoreB: $scoreB) {
+    id
+    scoreA
+    scoreB
+    winnerId
+    winnerName
+    updatedAt
+  }
+}
+    `;
+export type UpdateMatchScoreMutationFn = Apollo.MutationFunction<UpdateMatchScoreMutation, UpdateMatchScoreMutationVariables>;
+
+/**
+ * __useUpdateMatchScoreMutation__
+ *
+ * To run a mutation, you first call `useUpdateMatchScoreMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateMatchScoreMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateMatchScoreMutation, { data, loading, error }] = useUpdateMatchScoreMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      scoreA: // value for 'scoreA'
+ *      scoreB: // value for 'scoreB'
+ *   },
+ * });
+ */
+export function useUpdateMatchScoreMutation(baseOptions?: Apollo.MutationHookOptions<UpdateMatchScoreMutation, UpdateMatchScoreMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateMatchScoreMutation, UpdateMatchScoreMutationVariables>(UpdateMatchScoreDocument, options);
+      }
+export type UpdateMatchScoreMutationHookResult = ReturnType<typeof useUpdateMatchScoreMutation>;
+export type UpdateMatchScoreMutationResult = Apollo.MutationResult<UpdateMatchScoreMutation>;
+export type UpdateMatchScoreMutationOptions = Apollo.BaseMutationOptions<UpdateMatchScoreMutation, UpdateMatchScoreMutationVariables>;
+export const UpdateMatchTimeDocument = gql`
+    mutation UpdateMatchTime($id: ID!, $timeElapsed: Int!) {
+  updateMatchTime(id: $id, timeElapsed: $timeElapsed) {
+    id
+    timeElapsed
+    updatedAt
+  }
+}
+    `;
+export type UpdateMatchTimeMutationFn = Apollo.MutationFunction<UpdateMatchTimeMutation, UpdateMatchTimeMutationVariables>;
+
+/**
+ * __useUpdateMatchTimeMutation__
+ *
+ * To run a mutation, you first call `useUpdateMatchTimeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateMatchTimeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateMatchTimeMutation, { data, loading, error }] = useUpdateMatchTimeMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      timeElapsed: // value for 'timeElapsed'
+ *   },
+ * });
+ */
+export function useUpdateMatchTimeMutation(baseOptions?: Apollo.MutationHookOptions<UpdateMatchTimeMutation, UpdateMatchTimeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateMatchTimeMutation, UpdateMatchTimeMutationVariables>(UpdateMatchTimeDocument, options);
+      }
+export type UpdateMatchTimeMutationHookResult = ReturnType<typeof useUpdateMatchTimeMutation>;
+export type UpdateMatchTimeMutationResult = Apollo.MutationResult<UpdateMatchTimeMutation>;
+export type UpdateMatchTimeMutationOptions = Apollo.BaseMutationOptions<UpdateMatchTimeMutation, UpdateMatchTimeMutationVariables>;
+export const CreatePlayerDocument = gql`
+    mutation CreatePlayer($input: PlayerInput!) {
+  createPlayer(input: $input) {
+    id
+    userId
+    gamertag
+    region
+    currentRp
+    peakRp
+    tier
+    position
+    salaryTier
+    teamName
+    isVerified
+    createdAt
+    updatedAt
+    user {
+      id
+      username
+      email
+      fullName
+      isActive
+      isAdmin
+      discordId
+      createdAt
+      updatedAt
+    }
+  }
+}
+    `;
+export type CreatePlayerMutationFn = Apollo.MutationFunction<CreatePlayerMutation, CreatePlayerMutationVariables>;
+
+/**
+ * __useCreatePlayerMutation__
+ *
+ * To run a mutation, you first call `useCreatePlayerMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreatePlayerMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createPlayerMutation, { data, loading, error }] = useCreatePlayerMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreatePlayerMutation(baseOptions?: Apollo.MutationHookOptions<CreatePlayerMutation, CreatePlayerMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreatePlayerMutation, CreatePlayerMutationVariables>(CreatePlayerDocument, options);
+      }
+export type CreatePlayerMutationHookResult = ReturnType<typeof useCreatePlayerMutation>;
+export type CreatePlayerMutationResult = Apollo.MutationResult<CreatePlayerMutation>;
+export type CreatePlayerMutationOptions = Apollo.BaseMutationOptions<CreatePlayerMutation, CreatePlayerMutationVariables>;
+export const UpdatePlayerDocument = gql`
+    mutation UpdatePlayer($id: ID!, $input: PlayerUpdateInput!) {
+  updatePlayer(id: $id, input: $input) {
+    id
+    userId
+    gamertag
+    region
+    currentRp
+    peakRp
+    tier
+    position
+    salaryTier
+    teamName
+    isVerified
+    createdAt
+    updatedAt
+    user {
+      id
+      username
+      email
+      fullName
+      isActive
+      isAdmin
+      discordId
+      createdAt
+      updatedAt
+    }
+  }
+}
+    `;
+export type UpdatePlayerMutationFn = Apollo.MutationFunction<UpdatePlayerMutation, UpdatePlayerMutationVariables>;
+
+/**
+ * __useUpdatePlayerMutation__
+ *
+ * To run a mutation, you first call `useUpdatePlayerMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePlayerMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePlayerMutation, { data, loading, error }] = useUpdatePlayerMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdatePlayerMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePlayerMutation, UpdatePlayerMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePlayerMutation, UpdatePlayerMutationVariables>(UpdatePlayerDocument, options);
+      }
+export type UpdatePlayerMutationHookResult = ReturnType<typeof useUpdatePlayerMutation>;
+export type UpdatePlayerMutationResult = Apollo.MutationResult<UpdatePlayerMutation>;
+export type UpdatePlayerMutationOptions = Apollo.BaseMutationOptions<UpdatePlayerMutation, UpdatePlayerMutationVariables>;
+export const DeletePlayerDocument = gql`
+    mutation DeletePlayer($id: ID!) {
+  deletePlayer(id: $id)
+}
+    `;
+export type DeletePlayerMutationFn = Apollo.MutationFunction<DeletePlayerMutation, DeletePlayerMutationVariables>;
+
+/**
+ * __useDeletePlayerMutation__
+ *
+ * To run a mutation, you first call `useDeletePlayerMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeletePlayerMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deletePlayerMutation, { data, loading, error }] = useDeletePlayerMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeletePlayerMutation(baseOptions?: Apollo.MutationHookOptions<DeletePlayerMutation, DeletePlayerMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeletePlayerMutation, DeletePlayerMutationVariables>(DeletePlayerDocument, options);
+      }
+export type DeletePlayerMutationHookResult = ReturnType<typeof useDeletePlayerMutation>;
+export type DeletePlayerMutationResult = Apollo.MutationResult<DeletePlayerMutation>;
+export type DeletePlayerMutationOptions = Apollo.BaseMutationOptions<DeletePlayerMutation, DeletePlayerMutationVariables>;
+export const UpdatePlayerRpDocument = gql`
+    mutation UpdatePlayerRP($playerId: ID!, $rpChange: Float!, $reason: String!) {
+  updatePlayerRP(playerId: $playerId, rpChange: $rpChange, reason: $reason) {
+    id
+    gamertag
+    currentRp
+    peakRp
+    tier
+    updatedAt
+  }
+}
+    `;
+export type UpdatePlayerRpMutationFn = Apollo.MutationFunction<UpdatePlayerRpMutation, UpdatePlayerRpMutationVariables>;
+
+/**
+ * __useUpdatePlayerRpMutation__
+ *
+ * To run a mutation, you first call `useUpdatePlayerRpMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePlayerRpMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePlayerRpMutation, { data, loading, error }] = useUpdatePlayerRpMutation({
+ *   variables: {
+ *      playerId: // value for 'playerId'
+ *      rpChange: // value for 'rpChange'
+ *      reason: // value for 'reason'
+ *   },
+ * });
+ */
+export function useUpdatePlayerRpMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePlayerRpMutation, UpdatePlayerRpMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePlayerRpMutation, UpdatePlayerRpMutationVariables>(UpdatePlayerRpDocument, options);
+      }
+export type UpdatePlayerRpMutationHookResult = ReturnType<typeof useUpdatePlayerRpMutation>;
+export type UpdatePlayerRpMutationResult = Apollo.MutationResult<UpdatePlayerRpMutation>;
+export type UpdatePlayerRpMutationOptions = Apollo.BaseMutationOptions<UpdatePlayerRpMutation, UpdatePlayerRpMutationVariables>;
+export const VerifyPlayerDocument = gql`
+    mutation VerifyPlayer($id: ID!) {
+  verifyPlayer(id: $id) {
+    id
+    gamertag
+    isVerified
+    updatedAt
+  }
+}
+    `;
+export type VerifyPlayerMutationFn = Apollo.MutationFunction<VerifyPlayerMutation, VerifyPlayerMutationVariables>;
+
+/**
+ * __useVerifyPlayerMutation__
+ *
+ * To run a mutation, you first call `useVerifyPlayerMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useVerifyPlayerMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [verifyPlayerMutation, { data, loading, error }] = useVerifyPlayerMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useVerifyPlayerMutation(baseOptions?: Apollo.MutationHookOptions<VerifyPlayerMutation, VerifyPlayerMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<VerifyPlayerMutation, VerifyPlayerMutationVariables>(VerifyPlayerDocument, options);
+      }
+export type VerifyPlayerMutationHookResult = ReturnType<typeof useVerifyPlayerMutation>;
+export type VerifyPlayerMutationResult = Apollo.MutationResult<VerifyPlayerMutation>;
+export type VerifyPlayerMutationOptions = Apollo.BaseMutationOptions<VerifyPlayerMutation, VerifyPlayerMutationVariables>;
+export const CreateTeamDocument = gql`
+    mutation CreateTeam($input: TeamInput!) {
+  createTeam(input: $input) {
+    id
+    name
+    description
+    isActive
+    logoUrl
+    region
+    createdAt
+    updatedAt
+  }
+}
+    `;
+export type CreateTeamMutationFn = Apollo.MutationFunction<CreateTeamMutation, CreateTeamMutationVariables>;
+
+/**
+ * __useCreateTeamMutation__
+ *
+ * To run a mutation, you first call `useCreateTeamMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateTeamMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createTeamMutation, { data, loading, error }] = useCreateTeamMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateTeamMutation(baseOptions?: Apollo.MutationHookOptions<CreateTeamMutation, CreateTeamMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateTeamMutation, CreateTeamMutationVariables>(CreateTeamDocument, options);
+      }
+export type CreateTeamMutationHookResult = ReturnType<typeof useCreateTeamMutation>;
+export type CreateTeamMutationResult = Apollo.MutationResult<CreateTeamMutation>;
+export type CreateTeamMutationOptions = Apollo.BaseMutationOptions<CreateTeamMutation, CreateTeamMutationVariables>;
+export const UpdateTeamDocument = gql`
+    mutation UpdateTeam($id: ID!, $input: TeamUpdateInput!) {
+  updateTeam(id: $id, input: $input) {
+    id
+    name
+    description
+    isActive
+    logoUrl
+    region
+    createdAt
+    updatedAt
+  }
+}
+    `;
+export type UpdateTeamMutationFn = Apollo.MutationFunction<UpdateTeamMutation, UpdateTeamMutationVariables>;
+
+/**
+ * __useUpdateTeamMutation__
+ *
+ * To run a mutation, you first call `useUpdateTeamMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateTeamMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateTeamMutation, { data, loading, error }] = useUpdateTeamMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateTeamMutation(baseOptions?: Apollo.MutationHookOptions<UpdateTeamMutation, UpdateTeamMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateTeamMutation, UpdateTeamMutationVariables>(UpdateTeamDocument, options);
+      }
+export type UpdateTeamMutationHookResult = ReturnType<typeof useUpdateTeamMutation>;
+export type UpdateTeamMutationResult = Apollo.MutationResult<UpdateTeamMutation>;
+export type UpdateTeamMutationOptions = Apollo.BaseMutationOptions<UpdateTeamMutation, UpdateTeamMutationVariables>;
+export const DeleteTeamDocument = gql`
+    mutation DeleteTeam($id: ID!) {
+  deleteTeam(id: $id)
+}
+    `;
+export type DeleteTeamMutationFn = Apollo.MutationFunction<DeleteTeamMutation, DeleteTeamMutationVariables>;
+
+/**
+ * __useDeleteTeamMutation__
+ *
+ * To run a mutation, you first call `useDeleteTeamMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteTeamMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteTeamMutation, { data, loading, error }] = useDeleteTeamMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteTeamMutation(baseOptions?: Apollo.MutationHookOptions<DeleteTeamMutation, DeleteTeamMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteTeamMutation, DeleteTeamMutationVariables>(DeleteTeamDocument, options);
+      }
+export type DeleteTeamMutationHookResult = ReturnType<typeof useDeleteTeamMutation>;
+export type DeleteTeamMutationResult = Apollo.MutationResult<DeleteTeamMutation>;
+export type DeleteTeamMutationOptions = Apollo.BaseMutationOptions<DeleteTeamMutation, DeleteTeamMutationVariables>;
+export const AddPlayerToTeamDocument = gql`
+    mutation AddPlayerToTeam($teamId: ID!, $playerId: ID!) {
+  addPlayerToTeam(teamId: $teamId, playerId: $playerId) {
+    id
+    name
+    description
+    isActive
+    logoUrl
+    region
+    createdAt
+    updatedAt
+  }
+}
+    `;
+export type AddPlayerToTeamMutationFn = Apollo.MutationFunction<AddPlayerToTeamMutation, AddPlayerToTeamMutationVariables>;
+
+/**
+ * __useAddPlayerToTeamMutation__
+ *
+ * To run a mutation, you first call `useAddPlayerToTeamMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddPlayerToTeamMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addPlayerToTeamMutation, { data, loading, error }] = useAddPlayerToTeamMutation({
+ *   variables: {
+ *      teamId: // value for 'teamId'
+ *      playerId: // value for 'playerId'
+ *   },
+ * });
+ */
+export function useAddPlayerToTeamMutation(baseOptions?: Apollo.MutationHookOptions<AddPlayerToTeamMutation, AddPlayerToTeamMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddPlayerToTeamMutation, AddPlayerToTeamMutationVariables>(AddPlayerToTeamDocument, options);
+      }
+export type AddPlayerToTeamMutationHookResult = ReturnType<typeof useAddPlayerToTeamMutation>;
+export type AddPlayerToTeamMutationResult = Apollo.MutationResult<AddPlayerToTeamMutation>;
+export type AddPlayerToTeamMutationOptions = Apollo.BaseMutationOptions<AddPlayerToTeamMutation, AddPlayerToTeamMutationVariables>;
+export const RemovePlayerFromTeamRosterDocument = gql`
+    mutation RemovePlayerFromTeamRoster($teamId: ID!, $playerId: ID!) {
+  removePlayerFromTeam(teamId: $teamId, playerId: $playerId) {
+    id
+    name
+    description
+    isActive
+    logoUrl
+    region
+    createdAt
+    updatedAt
+  }
+}
+    `;
+export type RemovePlayerFromTeamRosterMutationFn = Apollo.MutationFunction<RemovePlayerFromTeamRosterMutation, RemovePlayerFromTeamRosterMutationVariables>;
+
+/**
+ * __useRemovePlayerFromTeamRosterMutation__
+ *
+ * To run a mutation, you first call `useRemovePlayerFromTeamRosterMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemovePlayerFromTeamRosterMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removePlayerFromTeamRosterMutation, { data, loading, error }] = useRemovePlayerFromTeamRosterMutation({
+ *   variables: {
+ *      teamId: // value for 'teamId'
+ *      playerId: // value for 'playerId'
+ *   },
+ * });
+ */
+export function useRemovePlayerFromTeamRosterMutation(baseOptions?: Apollo.MutationHookOptions<RemovePlayerFromTeamRosterMutation, RemovePlayerFromTeamRosterMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemovePlayerFromTeamRosterMutation, RemovePlayerFromTeamRosterMutationVariables>(RemovePlayerFromTeamRosterDocument, options);
+      }
+export type RemovePlayerFromTeamRosterMutationHookResult = ReturnType<typeof useRemovePlayerFromTeamRosterMutation>;
+export type RemovePlayerFromTeamRosterMutationResult = Apollo.MutationResult<RemovePlayerFromTeamRosterMutation>;
+export type RemovePlayerFromTeamRosterMutationOptions = Apollo.BaseMutationOptions<RemovePlayerFromTeamRosterMutation, RemovePlayerFromTeamRosterMutationVariables>;
+export const SetTeamCaptainDocument = gql`
+    mutation SetTeamCaptain($teamId: ID!, $playerId: ID!) {
+  setTeamCaptain(teamId: $teamId, playerId: $playerId) {
+    id
+    name
+    description
+    isActive
+    logoUrl
+    region
+    createdAt
+    updatedAt
+  }
+}
+    `;
+export type SetTeamCaptainMutationFn = Apollo.MutationFunction<SetTeamCaptainMutation, SetTeamCaptainMutationVariables>;
+
+/**
+ * __useSetTeamCaptainMutation__
+ *
+ * To run a mutation, you first call `useSetTeamCaptainMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetTeamCaptainMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setTeamCaptainMutation, { data, loading, error }] = useSetTeamCaptainMutation({
+ *   variables: {
+ *      teamId: // value for 'teamId'
+ *      playerId: // value for 'playerId'
+ *   },
+ * });
+ */
+export function useSetTeamCaptainMutation(baseOptions?: Apollo.MutationHookOptions<SetTeamCaptainMutation, SetTeamCaptainMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SetTeamCaptainMutation, SetTeamCaptainMutationVariables>(SetTeamCaptainDocument, options);
+      }
+export type SetTeamCaptainMutationHookResult = ReturnType<typeof useSetTeamCaptainMutation>;
+export type SetTeamCaptainMutationResult = Apollo.MutationResult<SetTeamCaptainMutation>;
+export type SetTeamCaptainMutationOptions = Apollo.BaseMutationOptions<SetTeamCaptainMutation, SetTeamCaptainMutationVariables>;
 export const CreateUserDocument = gql`
     mutation CreateUser($input: UserInput!) {
   createUser(input: $input) {
@@ -1653,6 +3407,216 @@ export type GetPlayersQueryHookResult = ReturnType<typeof useGetPlayersQuery>;
 export type GetPlayersLazyQueryHookResult = ReturnType<typeof useGetPlayersLazyQuery>;
 export type GetPlayersSuspenseQueryHookResult = ReturnType<typeof useGetPlayersSuspenseQuery>;
 export type GetPlayersQueryResult = Apollo.QueryResult<GetPlayersQuery, GetPlayersQueryVariables>;
+export const GetDashboardStatsDocument = gql`
+    query GetDashboardStats {
+  getDashboardStats {
+    totalPlayers
+    totalTeams
+    totalMatches
+    totalEvents
+    activePlayers
+    activeTeams
+    completedMatches
+    upcomingEvents
+    averagePlayerRP
+    averageTeamSize
+    topPerformingPlayer {
+      id
+      gamertag
+      currentRp
+      peakRp
+      tier
+      position
+      teamName
+    }
+    mostActiveTeam {
+      id
+      name
+      description
+      logoUrl
+      region
+    }
+    recentMatches {
+      id
+      teamAName
+      teamBName
+      scoreA
+      scoreB
+      winnerName
+      playedAt
+      status
+    }
+    recentPlayers {
+      id
+      gamertag
+      currentRp
+      tier
+      teamName
+      createdAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetDashboardStatsQuery__
+ *
+ * To run a query within a React component, call `useGetDashboardStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetDashboardStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetDashboardStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetDashboardStatsQuery(baseOptions?: Apollo.QueryHookOptions<GetDashboardStatsQuery, GetDashboardStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetDashboardStatsQuery, GetDashboardStatsQueryVariables>(GetDashboardStatsDocument, options);
+      }
+export function useGetDashboardStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetDashboardStatsQuery, GetDashboardStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetDashboardStatsQuery, GetDashboardStatsQueryVariables>(GetDashboardStatsDocument, options);
+        }
+export function useGetDashboardStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetDashboardStatsQuery, GetDashboardStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetDashboardStatsQuery, GetDashboardStatsQueryVariables>(GetDashboardStatsDocument, options);
+        }
+export type GetDashboardStatsQueryHookResult = ReturnType<typeof useGetDashboardStatsQuery>;
+export type GetDashboardStatsLazyQueryHookResult = ReturnType<typeof useGetDashboardStatsLazyQuery>;
+export type GetDashboardStatsSuspenseQueryHookResult = ReturnType<typeof useGetDashboardStatsSuspenseQuery>;
+export type GetDashboardStatsQueryResult = Apollo.QueryResult<GetDashboardStatsQuery, GetDashboardStatsQueryVariables>;
+export const GetLeaderboardDocument = gql`
+    query GetLeaderboard($limit: Int = 50, $offset: Int = 0, $tier: PlayerTier, $region: String, $sortBy: LeaderboardSortBy = CURRENT_RP) {
+  getLeaderboard(
+    limit: $limit
+    offset: $offset
+    tier: $tier
+    region: $region
+    sortBy: $sortBy
+  ) {
+    rank
+    player {
+      id
+      gamertag
+      currentRp
+      peakRp
+      tier
+      position
+      region
+      teamName
+      isVerified
+      createdAt
+      user {
+        id
+        username
+        fullName
+      }
+    }
+    wins
+    losses
+    winRate
+    totalMatches
+    averagePoints
+    averageAssists
+    averageRebounds
+  }
+}
+    `;
+
+/**
+ * __useGetLeaderboardQuery__
+ *
+ * To run a query within a React component, call `useGetLeaderboardQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetLeaderboardQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetLeaderboardQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      offset: // value for 'offset'
+ *      tier: // value for 'tier'
+ *      region: // value for 'region'
+ *      sortBy: // value for 'sortBy'
+ *   },
+ * });
+ */
+export function useGetLeaderboardQuery(baseOptions?: Apollo.QueryHookOptions<GetLeaderboardQuery, GetLeaderboardQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetLeaderboardQuery, GetLeaderboardQueryVariables>(GetLeaderboardDocument, options);
+      }
+export function useGetLeaderboardLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetLeaderboardQuery, GetLeaderboardQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetLeaderboardQuery, GetLeaderboardQueryVariables>(GetLeaderboardDocument, options);
+        }
+export function useGetLeaderboardSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetLeaderboardQuery, GetLeaderboardQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetLeaderboardQuery, GetLeaderboardQueryVariables>(GetLeaderboardDocument, options);
+        }
+export type GetLeaderboardQueryHookResult = ReturnType<typeof useGetLeaderboardQuery>;
+export type GetLeaderboardLazyQueryHookResult = ReturnType<typeof useGetLeaderboardLazyQuery>;
+export type GetLeaderboardSuspenseQueryHookResult = ReturnType<typeof useGetLeaderboardSuspenseQuery>;
+export type GetLeaderboardQueryResult = Apollo.QueryResult<GetLeaderboardQuery, GetLeaderboardQueryVariables>;
+export const GetTopPlayersDocument = gql`
+    query GetTopPlayers($limit: Int = 10, $tier: PlayerTier) {
+  getTopPlayers(limit: $limit, tier: $tier) {
+    rank
+    player {
+      id
+      gamertag
+      currentRp
+      peakRp
+      tier
+      position
+      teamName
+      isVerified
+    }
+    wins
+    losses
+    winRate
+  }
+}
+    `;
+
+/**
+ * __useGetTopPlayersQuery__
+ *
+ * To run a query within a React component, call `useGetTopPlayersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTopPlayersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTopPlayersQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      tier: // value for 'tier'
+ *   },
+ * });
+ */
+export function useGetTopPlayersQuery(baseOptions?: Apollo.QueryHookOptions<GetTopPlayersQuery, GetTopPlayersQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetTopPlayersQuery, GetTopPlayersQueryVariables>(GetTopPlayersDocument, options);
+      }
+export function useGetTopPlayersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetTopPlayersQuery, GetTopPlayersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetTopPlayersQuery, GetTopPlayersQueryVariables>(GetTopPlayersDocument, options);
+        }
+export function useGetTopPlayersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTopPlayersQuery, GetTopPlayersQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetTopPlayersQuery, GetTopPlayersQueryVariables>(GetTopPlayersDocument, options);
+        }
+export type GetTopPlayersQueryHookResult = ReturnType<typeof useGetTopPlayersQuery>;
+export type GetTopPlayersLazyQueryHookResult = ReturnType<typeof useGetTopPlayersLazyQuery>;
+export type GetTopPlayersSuspenseQueryHookResult = ReturnType<typeof useGetTopPlayersSuspenseQuery>;
+export type GetTopPlayersQueryResult = Apollo.QueryResult<GetTopPlayersQuery, GetTopPlayersQueryVariables>;
 export const GetEventWithDetailsDocument = gql`
     query GetEventWithDetails($id: ID!) {
   getEvent(id: $id) {

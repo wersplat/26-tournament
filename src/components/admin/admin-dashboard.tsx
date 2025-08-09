@@ -4,49 +4,75 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { usePlayers, useTeams, useMatches, handleGraphQLError } from "@/hooks/useGraphQL";
+import { useGetPlayersQuery, useGetTeamsQuery, useGetMatchesQuery, useGetEventsQuery } from "@/types/generated/graphql";
 import { Loader2, AlertCircle, RefreshCw } from "lucide-react";
 
 export function AdminDashboard() {
   const { 
-    players, 
+    data: playersData, 
     loading: playersLoading, 
     error: playersError, 
     refetch: refetchPlayers 
-  } = usePlayers();
+  } = useGetPlayersQuery({
+    variables: { limit: 100, offset: 0 },
+    errorPolicy: 'all',
+  });
 
   const { 
-    teams, 
+    data: teamsData, 
     loading: teamsLoading, 
     error: teamsError, 
     refetch: refetchTeams 
-  } = useTeams();
+  } = useGetTeamsQuery({
+    variables: { limit: 50, offset: 0 },
+    errorPolicy: 'all',
+  });
 
   const { 
-    matches, 
+    data: matchesData, 
     loading: matchesLoading, 
     error: matchesError, 
     refetch: refetchMatches 
-  } = useMatches();
+  } = useGetMatchesQuery({
+    variables: { limit: 50, offset: 0 },
+    errorPolicy: 'all',
+  });
 
-  const loading = playersLoading || teamsLoading || matchesLoading;
-  const error = playersError || teamsError || matchesError;
-  const errorMessage = handleGraphQLError(error);
+  const { 
+    data: eventsData, 
+    loading: eventsLoading, 
+    error: eventsError, 
+    refetch: refetchEvents 
+  } = useGetEventsQuery({
+    variables: { limit: 50, offset: 0 },
+    errorPolicy: 'all',
+  });
+
+  const loading = playersLoading || teamsLoading || matchesLoading || eventsLoading;
+  const error = playersError || teamsError || matchesError || eventsError;
+
+  // Extract data
+  const players = playersData?.getPlayers || [];
+  const teams = teamsData?.getTeams || [];
+  const matches = matchesData?.getMatches || [];
+  const events = eventsData?.getEvents || [];
 
   // Calculate stats
   const stats = {
     totalPlayers: players.length,
     totalTeams: teams.length,
-    totalEvents: 0, // Not available in current GraphQL schema
+    totalEvents: events.length,
     totalMatches: matches.length,
-    activeEvents: 0, // Not available in current GraphQL schema
-    upcomingEvents: 0 // Not available in current GraphQL schema
+    activeEvents: events.filter(e => e.status === 'in_progress').length,
+    upcomingEvents: events.filter(e => e.status === 'open').length,
+    completedMatches: matches.filter(m => m.status === 'completed').length
   };
 
   // Get recent items (first 5)
   const recentPlayers = players.slice(0, 5);
   const recentTeams = teams.slice(0, 5);
   const recentMatches = matches.slice(0, 5);
+  const recentEvents = events.slice(0, 5);
 
   if (loading) {
     return (
@@ -64,7 +90,7 @@ export function AdminDashboard() {
       <div className="flex items-center justify-center h-64">
         <div className="flex flex-col items-center space-y-4">
           <AlertCircle className="h-8 w-8 text-red-600" />
-          <div className="text-lg text-red-600">{errorMessage}</div>
+          <div className="text-lg text-red-600">{error.message}</div>
           <div className="flex space-x-4">
             <Button onClick={() => refetchPlayers()} variant="outline">
               <RefreshCw className="h-4 w-4 mr-2" />
@@ -77,6 +103,10 @@ export function AdminDashboard() {
             <Button onClick={() => refetchMatches()} variant="outline">
               <RefreshCw className="h-4 w-4 mr-2" />
               Retry Matches
+            </Button>
+            <Button onClick={() => refetchEvents()} variant="outline">
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Retry Events
             </Button>
           </div>
         </div>
@@ -108,29 +138,36 @@ export function AdminDashboard() {
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Matches</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Events</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalMatches}</div>
+            <div className="text-2xl font-bold">{stats.totalEvents}</div>
+            <div className="text-xs text-muted-foreground">
+              {stats.activeEvents} active, {stats.upcomingEvents} upcoming
+            </div>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Players</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Matches</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{players.filter((p: any) => p.stats.ppg > 0).length}</div>
+            <div className="text-2xl font-bold">{stats.totalMatches}</div>
+            <div className="text-xs text-muted-foreground">
+              {stats.completedMatches} completed
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Recent Activity */}
-      <Tabs defaultValue="players" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="players">Recent Players</TabsTrigger>
-          <TabsTrigger value="teams">Recent Teams</TabsTrigger>
-          <TabsTrigger value="matches">Recent Matches</TabsTrigger>
+      {/* Detailed Views */}
+      <Tabs defaultValue="players" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="players">Players</TabsTrigger>
+          <TabsTrigger value="teams">Teams</TabsTrigger>
+          <TabsTrigger value="events">Events</TabsTrigger>
+          <TabsTrigger value="matches">Matches</TabsTrigger>
         </TabsList>
         
         <TabsContent value="players" className="space-y-4">
@@ -140,17 +177,20 @@ export function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {recentPlayers.map((player: any) => (
+                {recentPlayers.map((player) => (
                   <div key={player.id} className="flex items-center justify-between p-2 border rounded">
                     <div>
                       <div className="font-medium">{player.gamertag}</div>
                       <div className="text-sm text-muted-foreground">
-                        Team: {player.team.name} | PPG: {player.stats.ppg.toFixed(1)} | RPG: {player.stats.rpg.toFixed(1)}
+                        {player.teamName || 'No Team'} • {player.tier || 'Unranked'}
                       </div>
                     </div>
-                    <Button variant="outline" size="sm">
-                      View Details
-                    </Button>
+                    <div className="text-right">
+                      <div className="text-sm font-medium">{player.currentRp || 0} RP</div>
+                      <div className="text-xs text-muted-foreground">
+                        Peak: {player.peakRp || 0}
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -165,21 +205,50 @@ export function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {recentTeams.map((team: any) => (
+                {recentTeams.map((team) => (
                   <div key={team.id} className="flex items-center justify-between p-2 border rounded">
                     <div>
                       <div className="font-medium">{team.name}</div>
                       <div className="text-sm text-muted-foreground">
-                        Players: {team.players.length} | Avg PPG: {
-                          team.players.length > 0 
-                            ? (team.players.reduce((sum: number, p: any) => sum + p.stats.ppg, 0) / team.players.length).toFixed(1)
-                            : '0.0'
-                        }
+                        {team.region || 'No Region'} • {team.description || 'No description'}
                       </div>
                     </div>
-                    <Button variant="outline" size="sm">
-                      View Details
-                    </Button>
+                    <div className="text-right">
+                      <Badge variant={team.isActive ? "default" : "secondary"}>
+                        {team.isActive ? "Active" : "Inactive"}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="events" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Events</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {recentEvents.map((event) => (
+                  <div key={event.id} className="flex items-center justify-between p-2 border rounded">
+                    <div>
+                      <div className="font-medium">{event.name}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {event.eventType || 'Unknown Type'} • {event.tier || 'No Tier'}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <Badge variant={
+                        event.status === 'in_progress' ? "default" : 
+                        event.status === 'open' ? "secondary" : 
+                        event.status === 'completed' ? "outline" : "destructive"
+                      }>
+                        {event.status || 'Unknown'}
+                      </Badge>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -194,24 +263,22 @@ export function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {recentMatches.map((match: any) => (
+                {recentMatches.map((match) => (
                   <div key={match.id} className="flex items-center justify-between p-2 border rounded">
                     <div>
-                      <div className="font-medium">
-                        {match.homeTeam.name} vs {match.awayTeam.name}
-                      </div>
-                      <div className="text-sm text-muted-foreground flex items-center gap-2">
-                        <Badge variant={match.status === 'completed' ? 'default' : 'secondary'}>
-                          {match.status}
-                        </Badge>
-                        {match.status === 'completed' && match.homeScore !== null && match.awayScore !== null && (
-                          <span>{match.homeScore} - {match.awayScore}</span>
-                        )}
+                      <div className="font-medium">{match.teamAName} vs {match.teamBName}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {match.stage} • {match.status}
                       </div>
                     </div>
-                    <Button variant="outline" size="sm">
-                      View Details
-                    </Button>
+                    <div className="text-right">
+                      <div className="text-sm font-medium">
+                        {match.scoreA || 0} - {match.scoreB || 0}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {match.winnerName || 'No winner'}
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -219,26 +286,6 @@ export function AdminDashboard() {
           </Card>
         </TabsContent>
       </Tabs>
-
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button className="w-full">
-              Add New Player
-            </Button>
-            <Button className="w-full">
-              Create New Team
-            </Button>
-            <Button className="w-full">
-              Schedule Match
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }

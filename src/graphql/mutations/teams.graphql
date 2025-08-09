@@ -1,0 +1,72 @@
+# Team mutations that work with the current schema
+# Note: Some advanced mutations may not be available yet in the backend
+
+mutation CreateTeam($input: TeamInput!) {
+  createTeam(input: $input) {
+    id
+    name
+    description
+    isActive
+    logoUrl
+    region
+    createdAt
+    updatedAt
+  }
+}
+
+mutation UpdateTeam($id: ID!, $input: TeamUpdateInput!) {
+  updateTeam(id: $id, input: $input) {
+    id
+    name
+    description
+    isActive
+    logoUrl
+    region
+    createdAt
+    updatedAt
+  }
+}
+
+mutation DeleteTeam($id: ID!) {
+  deleteTeam(id: $id)
+}
+
+# Team roster management mutations
+mutation AddPlayerToTeam($teamId: ID!, $playerId: ID!) {
+  addPlayerToTeam(teamId: $teamId, playerId: $playerId) {
+    id
+    name
+    description
+    isActive
+    logoUrl
+    region
+    createdAt
+    updatedAt
+  }
+}
+
+mutation RemovePlayerFromTeamRoster($teamId: ID!, $playerId: ID!) {
+  removePlayerFromTeam(teamId: $teamId, playerId: $playerId) {
+    id
+    name
+    description
+    isActive
+    logoUrl
+    region
+    createdAt
+    updatedAt
+  }
+}
+
+mutation SetTeamCaptain($teamId: ID!, $playerId: ID!) {
+  setTeamCaptain(teamId: $teamId, playerId: $playerId) {
+    id
+    name
+    description
+    isActive
+    logoUrl
+    region
+    createdAt
+    updatedAt
+  }
+}
