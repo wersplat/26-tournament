@@ -1,0 +1,56 @@
+query GetEventWithDetails($id: ID!) {
+  getEvent(id: $id) {
+    id
+    name
+    description
+    eventType
+    status
+    tier
+    startDate
+    endDate
+    entryFee
+    maxParticipants
+    currentParticipants
+    createdBy
+    createdAt
+    updatedAt
+  }
+}
+
+query GetEventsByStatus($status: EventStatus!, $limit: Int = 10, $offset: Int = 0) {
+  getEvents(status: $status, limit: $limit, offset: $offset) {
+    id
+    name
+    description
+    eventType
+    status
+    tier
+    startDate
+    endDate
+    entryFee
+    maxParticipants
+    currentParticipants
+    createdBy
+    createdAt
+    updatedAt
+  }
+}
+
+query GetEventsByType($eventType: EventType!, $limit: Int = 10, $offset: Int = 0) {
+  getEvents(eventType: $eventType, limit: $limit, offset: $offset) {
+    id
+    name
+    description
+    eventType
+    status
+    tier
+    startDate
+    endDate
+    entryFee
+    maxParticipants
+    currentParticipants
+    createdBy
+    createdAt
+    updatedAt
+  }
+}

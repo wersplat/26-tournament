@@ -1,0 +1,429 @@
+# Phase 1 Schema Expansion - High Priority Operations
+# This file contains the missing input types and new mutations for Phase 1 implementation
+
+# =============================================================================
+# MISSING INPUT TYPES (Required for existing mutations)
+# =============================================================================
+
+"""
+Input type for creating a new match.
+"""
+input MatchInput {
+  "ID of the event this match belongs to"
+  eventId: UUID!
+  "Game number within the event"
+  gameNumber: Int!
+  "When the match is scheduled to start"
+  scheduledAt: DateTime!
+  "Match stage (group, quarterfinal, semifinal, final)"
+  stage: MatchStage!
+  "ID of team A"
+  teamAId: ID!
+  "Name of team A"
+  teamAName: String!
+  "ID of team B"
+  teamBId: ID!
+  "Name of team B"
+  teamBName: String!
+  "Optional venue where the match will be played"
+  venue: String
+  "Optional stream URL for the match"
+  streamUrl: String
+  "Optional notes about the match"
+  notes: String
+}
+
+"""
+Input type for updating an existing match.
+"""
+input MatchUpdateInput {
+  "Updated event ID"
+  eventId: UUID
+  "Updated game number"
+  gameNumber: Int
+  "Updated scheduled time"
+  scheduledAt: DateTime
+  "Updated match stage"
+  stage: MatchStage
+  "Updated team A ID"
+  teamAId: ID
+  "Updated team A name"
+  teamAName: String
+  "Updated team B ID"
+  teamBId: ID
+  "Updated team B name"
+  teamBName: String
+  "Updated venue"
+  venue: String
+  "Updated stream URL"
+  streamUrl: String
+  "Updated notes"
+  notes: String
+  "Updated match status"
+  status: MatchStatus
+  "Updated start time"
+  startedAt: DateTime
+  "Updated end time"
+  endedAt: DateTime
+  "Updated score for team A"
+  scoreA: Int
+  "Updated score for team B"
+  scoreB: Int
+  "Updated winner ID"
+  winnerId: ID
+  "Updated winner name"
+  winnerName: String
+  "Updated boxscore URL"
+  boxscoreUrl: String
+}
+
+"""
+Input type for player match statistics.
+"""
+input PlayerMatchStatsInput {
+  "ID of the player"
+  playerId: ID!
+  "ID of the team the player is on"
+  teamId: ID!
+  "Points scored"
+  points: Int!
+  "Assists made"
+  assists: Int!
+  "Rebounds grabbed"
+  rebounds: Int!
+  "Steals made"
+  steals: Int!
+  "Blocks made"
+  blocks: Int!
+  "Turnovers committed"
+  turnovers: Int!
+  "Fouls committed"
+  fouls: Int!
+  "Field goals made"
+  fgm: Int!
+  "Field goals attempted"
+  fga: Int!
+  "Three-point shots made"
+  threePointsMade: Int!
+  "Three-point shots attempted"
+  threePointsAttempted: Int!
+  "Free throws made"
+  ftm: Int!
+  "Free throws attempted"
+  fta: Int!
+  "Plus/minus rating"
+  plusMinus: Int!
+  "Minutes played"
+  minutesPlayed: Int!
+}
+
+# =============================================================================
+# PHASE 1: ENHANCED PLAYER OPERATIONS
+# =============================================================================
+
+"""
+Input type for creating a new player.
+"""
+input PlayerInput {
+  "ID of the associated user account"
+  userId: ID!
+  "Gaming handle/username used in matches"
+  gamertag: String!
+  "Geographic region for matchmaking"
+  region: String
+  "Player position on the court"
+  position: PlayerPosition
+  "Salary tier indicating player value"
+  salaryTier: SalaryTier
+  "Name of the team the player is currently on"
+  teamName: String
+  "Whether the player account has been verified"
+  isVerified: Boolean = false
+}
+
+"""
+Input type for updating an existing player.
+"""
+input PlayerUpdateInput {
+  "Updated gaming handle"
+  gamertag: String
+  "Updated geographic region"
+  region: String
+  "Updated current ranking points"
+  currentRp: Float
+  "Updated highest ranking points achieved"
+  peakRp: Float
+  "Updated player tier"
+  tier: PlayerTier
+  "Updated player position"
+  position: PlayerPosition
+  "Updated salary tier"
+  salaryTier: SalaryTier
+  "Updated team name"
+  teamName: String
+  "Updated verification status"
+  isVerified: Boolean
+}
+
+# =============================================================================
+# PHASE 1: ENHANCED TEAM OPERATIONS
+# =============================================================================
+
+"""
+Input type for creating a new team.
+"""
+input TeamInput {
+  "Team name"
+  name: String!
+  "Team description"
+  description: String
+  "URL to team logo"
+  logoUrl: String
+  "Geographic region"
+  region: String
+  "Whether the team is active"
+  isActive: Boolean = true
+}
+
+"""
+Input type for updating an existing team.
+"""
+input TeamUpdateInput {
+  "Updated team name"
+  name: String
+  "Updated team description"
+  description: String
+  "Updated logo URL"
+  logoUrl: String
+  "Updated region"
+  region: String
+  "Updated active status"
+  isActive: Boolean
+}
+
+# =============================================================================
+# PHASE 1: ENHANCED EVENT OPERATIONS
+# =============================================================================
+
+"""
+Input type for creating a new event.
+"""
+input EventInput {
+  "Event name"
+  name: String!
+  "Event description"
+  description: String
+  "Type of event"
+  eventType: EventType!
+  "Event tier"
+  tier: EventTier!
+  "When the event starts"
+  startDate: DateTime!
+  "When the event ends"
+  endDate: DateTime!
+  "Entry fee for participants"
+  entryFee: Float
+  "Maximum number of participants"
+  maxParticipants: Int
+  "ID of the user who created the event"
+  createdBy: ID!
+}
+
+"""
+Input type for updating an existing event.
+"""
+input EventUpdateInput {
+  "Updated event name"
+  name: String
+  "Updated event description"
+  description: String
+  "Updated event type"
+  eventType: EventType
+  "Updated event tier"
+  tier: EventTier
+  "Updated start date"
+  startDate: DateTime
+  "Updated end date"
+  endDate: DateTime
+  "Updated entry fee"
+  entryFee: Float
+  "Updated max participants"
+  maxParticipants: Int
+  "Updated event status"
+  status: EventStatus
+}
+
+# =============================================================================
+# PHASE 1: BASIC ANALYTICS TYPES
+# =============================================================================
+
+"""
+Basic dashboard statistics.
+"""
+type DashboardStats {
+  "Total number of players"
+  totalPlayers: Int!
+  "Total number of teams"
+  totalTeams: Int!
+  "Total number of matches"
+  totalMatches: Int!
+  "Total number of events"
+  totalEvents: Int!
+  "Number of active players"
+  activePlayers: Int!
+  "Number of active teams"
+  activeTeams: Int!
+  "Number of completed matches"
+  completedMatches: Int!
+  "Number of upcoming events"
+  upcomingEvents: Int!
+  "Average player RP"
+  averagePlayerRP: Float!
+  "Average team size"
+  averageTeamSize: Float!
+  "Top performing player"
+  topPerformingPlayer: Player
+  "Most active team"
+  mostActiveTeam: Team
+  "Recent matches"
+  recentMatches: [Match!]!
+  "Recent players"
+  recentPlayers: [Player!]!
+}
+
+"""
+Basic leaderboard entry.
+"""
+type LeaderboardEntry {
+  "Player's rank"
+  rank: Int!
+  "Player information"
+  player: Player!
+  "Number of wins"
+  wins: Int!
+  "Number of losses"
+  losses: Int!
+  "Win rate percentage"
+  winRate: Float!
+  "Total matches played"
+  totalMatches: Int!
+  "Average points per game"
+  averagePoints: Float!
+  "Average assists per game"
+  averageAssists: Float!
+  "Average rebounds per game"
+  averageRebounds: Float!
+}
+
+"""
+Sort options for leaderboard.
+"""
+enum LeaderboardSortBy {
+  "Sort by current RP"
+  CURRENT_RP
+  "Sort by peak RP"
+  PEAK_RP
+  "Sort by number of wins"
+  WINS
+  "Sort by win rate"
+  WIN_RATE
+  "Sort by average points"
+  AVERAGE_POINTS
+  "Sort by average assists"
+  AVERAGE_ASSISTS
+  "Sort by average rebounds"
+  AVERAGE_REBOUNDS
+}
+
+"""
+Time range options for analytics.
+"""
+enum TimeRange {
+  "Last 7 days"
+  LAST_7_DAYS
+  "Last 30 days"
+  LAST_30_DAYS
+  "Last 90 days"
+  LAST_90_DAYS
+  "Last 6 months"
+  LAST_6_MONTHS
+  "Last year"
+  LAST_YEAR
+  "All time"
+  ALL_TIME
+}
+
+# =============================================================================
+# PHASE 1: NEW MUTATIONS TO ADD TO MUTATION TYPE
+# =============================================================================
+
+# Add these to the existing Mutation type:
+
+# Player Management
+# createPlayer(input: PlayerInput!): Player!
+# updatePlayer(id: ID!, input: PlayerUpdateInput!): Player!
+# deletePlayer(id: ID!): Boolean!
+
+# Player Statistics
+# updatePlayerRP(playerId: ID!, rpChange: Float!, reason: String!): Player!
+# verifyPlayer(id: ID!): Player!
+# assignPlayerToTeam(playerId: ID!, teamId: ID!): Player!
+# removePlayerFromTeam(playerId: ID!): Player!
+
+# Team Management
+# createTeam(input: TeamInput!): Team!
+# updateTeam(id: ID!, input: TeamUpdateInput!): Team!
+# deleteTeam(id: ID!): Boolean!
+
+# Team Roster Management
+# addPlayerToTeam(teamId: ID!, playerId: ID!): Team!
+# removePlayerFromTeam(teamId: ID!, playerId: ID!): Team!
+# setTeamCaptain(teamId: ID!, playerId: ID!): Team!
+
+# Event Management
+# createEvent(input: EventInput!): Event!
+# updateEvent(id: ID!, input: EventUpdateInput!): Event!
+# deleteEvent(id: ID!): Boolean!
+
+# Event Registration
+# registerTeamForEvent(eventId: ID!, teamId: ID!): Event!
+# unregisterTeamFromEvent(eventId: ID!, teamId: ID!): Event!
+
+# Event Lifecycle
+# startEvent(id: ID!): Event!
+# endEvent(id: ID!): Event!
+# cancelEvent(id: ID!, reason: String!): Event!
+
+# Enhanced Match Operations
+# startMatch(id: ID!): Match!
+# endMatch(id: ID!, scoreA: Int!, scoreB: Int!): Match!
+# pauseMatch(id: ID!): Match!
+# resumeMatch(id: ID!): Match!
+# cancelMatch(id: ID!, reason: String!): Match!
+# updateMatchScore(id: ID!, scoreA: Int!, scoreB: Int!): Match!
+# updateMatchTime(id: ID!, timeElapsed: Int!): Match!
+
+# =============================================================================
+# PHASE 1: NEW QUERIES TO ADD TO QUERY TYPE
+# =============================================================================
+
+# Add these to the existing Query type:
+
+# Dashboard Analytics
+# getDashboardStats: DashboardStats!
+
+# Leaderboard Enhancements
+# getLeaderboard(
+#   limit: Int = 50
+#   offset: Int = 0
+#   tier: PlayerTier
+#   region: String
+#   sortBy: LeaderboardSortBy = CURRENT_RP
+# ): [LeaderboardEntry!]!
+
+# getTopPlayers(limit: Int = 10, tier: PlayerTier): [LeaderboardEntry!]!
+
+# Basic Analytics
+# getPlayerStats(playerId: ID!): PlayerStats!
+# getTeamStats(teamId: ID!): TeamStats!
+# getEventStats(eventId: ID!): EventStats!

@@ -1,0 +1,47 @@
+mutation CreateUser($input: UserInput!) {
+  createUser(input: $input) {
+    id
+    username
+    email
+    fullName
+    isActive
+    isAdmin
+    discordId
+    createdAt
+    updatedAt
+    player {
+      id
+      gamertag
+      currentRp
+      peakRp
+      tier
+      position
+    }
+  }
+}
+
+mutation UpdateUser($id: ID!, $input: UserUpdateInput!) {
+  updateUser(id: $id, input: $input) {
+    id
+    username
+    email
+    fullName
+    isActive
+    isAdmin
+    discordId
+    createdAt
+    updatedAt
+    player {
+      id
+      gamertag
+      currentRp
+      peakRp
+      tier
+      position
+    }
+  }
+}
+
+mutation DeleteUser($id: ID!) {
+  deleteUser(id: $id)
+}

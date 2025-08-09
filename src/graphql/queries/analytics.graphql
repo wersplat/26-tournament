@@ -1,0 +1,249 @@
+query GetDashboardStats {
+  getDashboardStats {
+    totalPlayers
+    totalTeams
+    totalMatches
+    totalEvents
+    activePlayers
+    activeTeams
+    completedMatches
+    upcomingEvents
+    averagePlayerRP
+    averageTeamSize
+    topPerformingPlayer {
+      id
+      gamertag
+      currentRp
+      peakRp
+      tier
+      position
+      teamName
+    }
+    mostActiveTeam {
+      id
+      name
+      description
+      logoUrl
+      region
+    }
+    recentMatches {
+      id
+      teamAName
+      teamBName
+      scoreA
+      scoreB
+      winnerName
+      playedAt
+      status
+    }
+    recentPlayers {
+      id
+      gamertag
+      currentRp
+      tier
+      teamName
+      createdAt
+    }
+  }
+}
+
+query GetLeaderboard($limit: Int = 50, $offset: Int = 0, $tier: PlayerTier, $region: String, $sortBy: LeaderboardSortBy = CURRENT_RP) {
+  getLeaderboard(limit: $limit, offset: $offset, tier: $tier, region: $region, sortBy: $sortBy) {
+    rank
+    player {
+      id
+      gamertag
+      currentRp
+      peakRp
+      tier
+      position
+      region
+      teamName
+      isVerified
+      createdAt
+      user {
+        id
+        username
+        fullName
+      }
+    }
+    wins
+    losses
+    winRate
+    totalMatches
+    averagePoints
+    averageAssists
+    averageRebounds
+  }
+}
+
+query GetTopPlayers($limit: Int = 10, $tier: PlayerTier) {
+  getTopPlayers(limit: $limit, tier: $tier) {
+    rank
+    player {
+      id
+      gamertag
+      currentRp
+      peakRp
+      tier
+      position
+      teamName
+      isVerified
+    }
+    wins
+    losses
+    winRate
+  }
+}
+
+query GetPlayerStats($playerId: ID!) {
+  getPlayerStats(playerId: $playerId) {
+    player {
+      id
+      gamertag
+      currentRp
+      peakRp
+      tier
+      position
+      region
+      teamName
+      isVerified
+      createdAt
+      user {
+        id
+        username
+        fullName
+      }
+    }
+    totalMatches
+    wins
+    losses
+    winRate
+    averagePoints
+    averageAssists
+    averageRebounds
+    averageSteals
+    averageBlocks
+    averageTurnovers
+    averageFouls
+    fieldGoalPercentage
+    threePointPercentage
+    freeThrowPercentage
+    recentMatches {
+      id
+      teamAName
+      teamBName
+      scoreA
+      scoreB
+      winnerName
+      playedAt
+      points
+      assists
+      rebounds
+      steals
+      blocks
+      turnovers
+      fouls
+    }
+  }
+}
+
+query GetTeamStats($teamId: ID!) {
+  getTeamStats(teamId: $teamId) {
+    team {
+      id
+      name
+      description
+      logoUrl
+      region
+      isActive
+      createdAt
+      updatedAt
+    }
+    totalMatches
+    wins
+    losses
+    winRate
+    averageScore
+    averagePointsAgainst
+    totalPoints
+    totalAssists
+    totalRebounds
+    recentMatches {
+      id
+      teamAName
+      teamBName
+      scoreA
+      scoreB
+      winnerName
+      playedAt
+      status
+    }
+    playerStats {
+      player {
+        id
+        gamertag
+        currentRp
+        position
+      }
+      matches
+      averagePoints
+      averageAssists
+      averageRebounds
+      totalPoints
+      totalAssists
+      totalRebounds
+    }
+  }
+}
+
+query GetEventStats($eventId: ID!) {
+  getEventStats(eventId: $eventId) {
+    event {
+      id
+      name
+      description
+      eventType
+      status
+      tier
+      startDate
+      endDate
+      entryFee
+      maxParticipants
+      currentParticipants
+      createdBy
+      createdAt
+      updatedAt
+    }
+    totalMatches
+    completedMatches
+    averageScore
+    highestScore
+    participantStats {
+      team {
+        id
+        name
+        logoUrl
+      }
+      matches
+      wins
+      losses
+      winRate
+      averageScore
+      totalPoints
+    }
+    leaderboard {
+      rank
+      team {
+        id
+        name
+        logoUrl
+      }
+      wins
+      losses
+      winRate
+      totalPoints
+      averageScore
+    }
+  }
+}

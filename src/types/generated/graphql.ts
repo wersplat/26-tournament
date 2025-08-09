@@ -767,6 +767,58 @@ export type GetMatchQueryVariables = Exact<{
 
 export type GetMatchQuery = { __typename?: 'Query', getMatch?: { __typename?: 'Match', id: string, eventId?: any | null, gameNumber: number, scheduledAt?: any | null, startedAt?: any | null, endedAt?: any | null, playedAt?: any | null, status: MatchStatus, stage: MatchStage, isLive: boolean, timeElapsed?: string | null, scoreA?: number | null, scoreB?: number | null, winnerId?: any | null, winnerName?: string | null, teamAId: any, teamAName: string, teamBId: any, teamBName: string, boxscoreUrl?: string | null, createdAt: any, updatedAt?: any | null, event?: { __typename?: 'Event', id: string, name: string, eventType?: EventType | null, status?: EventStatus | null, tier?: EventTier | null } | null, teamA?: { __typename?: 'Team', id: string, name: string, logoUrl?: string | null } | null, teamB?: { __typename?: 'Team', id: string, name: string, logoUrl?: string | null } | null, winner?: { __typename?: 'Team', id: string, name: string, logoUrl?: string | null } | null, teamAPlayers: Array<{ __typename?: 'PlayerMatchStats', id: string, playerId: string, teamId: string, matchId: string, points: number, assists: number, rebounds: number, steals: number, blocks: number, turnovers: number, fouls: number, fgm: number, fga: number, threePointsMade: number, threePointsAttempted: number, ftm: number, fta: number, plusMinus: number, minutesPlayed: number, createdAt: any, updatedAt?: any | null }>, teamBPlayers: Array<{ __typename?: 'PlayerMatchStats', id: string, playerId: string, teamId: string, matchId: string, points: number, assists: number, rebounds: number, steals: number, blocks: number, turnovers: number, fouls: number, fgm: number, fga: number, threePointsMade: number, threePointsAttempted: number, ftm: number, fta: number, plusMinus: number, minutesPlayed: number, createdAt: any, updatedAt?: any | null }> } | null };
 
+export type SubmitMatchMutationVariables = Exact<{
+  input: MatchInput;
+}>;
+
+
+export type SubmitMatchMutation = { __typename?: 'Mutation', submitMatch: { __typename?: 'Match', id: string, eventId?: any | null, gameNumber: number, scheduledAt?: any | null, startedAt?: any | null, endedAt?: any | null, playedAt?: any | null, status: MatchStatus, stage: MatchStage, isLive: boolean, timeElapsed?: string | null, scoreA?: number | null, scoreB?: number | null, winnerId?: any | null, winnerName?: string | null, teamAId: any, teamAName: string, teamBId: any, teamBName: string, boxscoreUrl?: string | null, createdAt: any, updatedAt?: any | null } };
+
+export type UpdateMatchMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: MatchUpdateInput;
+}>;
+
+
+export type UpdateMatchMutation = { __typename?: 'Mutation', updateMatch: { __typename?: 'Match', id: string, eventId?: any | null, gameNumber: number, scheduledAt?: any | null, startedAt?: any | null, endedAt?: any | null, playedAt?: any | null, status: MatchStatus, stage: MatchStage, isLive: boolean, timeElapsed?: string | null, scoreA?: number | null, scoreB?: number | null, winnerId?: any | null, winnerName?: string | null, teamAId: any, teamAName: string, teamBId: any, teamBName: string, boxscoreUrl?: string | null, createdAt: any, updatedAt?: any | null } };
+
+export type DeleteMatchMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteMatchMutation = { __typename?: 'Mutation', deleteMatch: boolean };
+
+export type SubmitMatchStatsMutationVariables = Exact<{
+  matchId: Scalars['ID']['input'];
+  stats: Array<PlayerMatchStatsInput> | PlayerMatchStatsInput;
+}>;
+
+
+export type SubmitMatchStatsMutation = { __typename?: 'Mutation', submitMatchStats: Array<{ __typename?: 'PlayerMatchStats', id: string, playerId: string, teamId: string, matchId: string, points: number, assists: number, rebounds: number, steals: number, blocks: number, turnovers: number, fouls: number, fgm: number, fga: number, threePointsMade: number, threePointsAttempted: number, ftm: number, fta: number, plusMinus: number, minutesPlayed: number, createdAt: any, updatedAt?: any | null }> };
+
+export type CreateUserMutationVariables = Exact<{
+  input: UserInput;
+}>;
+
+
+export type CreateUserMutation = { __typename?: 'Mutation', createUser: { __typename?: 'User', id: string, username: string, email: string, fullName?: string | null, isActive: boolean, isAdmin: boolean, discordId?: string | null, createdAt: any, updatedAt?: any | null, player?: { __typename?: 'Player', id: string, gamertag: string, currentRp?: number | null, peakRp?: number | null, tier?: PlayerTier | null, position?: PlayerPosition | null } | null } };
+
+export type UpdateUserMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: UserUpdateInput;
+}>;
+
+
+export type UpdateUserMutation = { __typename?: 'Mutation', updateUser: { __typename?: 'User', id: string, username: string, email: string, fullName?: string | null, isActive: boolean, isAdmin: boolean, discordId?: string | null, createdAt: any, updatedAt?: any | null, player?: { __typename?: 'Player', id: string, gamertag: string, currentRp?: number | null, peakRp?: number | null, tier?: PlayerTier | null, position?: PlayerPosition | null } | null } };
+
+export type DeleteUserMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteUserMutation = { __typename?: 'Mutation', deleteUser: boolean };
+
 export type GetPlayersQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
@@ -776,6 +828,90 @@ export type GetPlayersQueryVariables = Exact<{
 
 
 export type GetPlayersQuery = { __typename?: 'Query', getPlayers: Array<{ __typename?: 'Player', id: string, gamertag: string, position?: PlayerPosition | null, currentRp?: number | null, peakRp?: number | null, salaryTier?: SalaryTier | null, teamName?: string | null, tier?: PlayerTier | null, region?: string | null, isVerified?: boolean | null, createdAt: any, updatedAt?: any | null, user: { __typename?: 'User', id: string, username: string, email: string, fullName?: string | null, isActive: boolean, isAdmin: boolean } }> };
+
+export type GetEventWithDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetEventWithDetailsQuery = { __typename?: 'Query', getEvent?: { __typename?: 'Event', id: string, name: string, description?: string | null, eventType?: EventType | null, status?: EventStatus | null, tier?: EventTier | null, startDate?: any | null, endDate?: any | null, entryFee: number, maxParticipants?: number | null, currentParticipants: number, createdBy: string, createdAt: any, updatedAt?: any | null } | null };
+
+export type GetEventsByStatusQueryVariables = Exact<{
+  status: EventStatus;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetEventsByStatusQuery = { __typename?: 'Query', getEvents: Array<{ __typename?: 'Event', id: string, name: string, description?: string | null, eventType?: EventType | null, status?: EventStatus | null, tier?: EventTier | null, startDate?: any | null, endDate?: any | null, entryFee: number, maxParticipants?: number | null, currentParticipants: number, createdBy: string, createdAt: any, updatedAt?: any | null }> };
+
+export type GetEventsByTypeQueryVariables = Exact<{
+  eventType: EventType;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetEventsByTypeQuery = { __typename?: 'Query', getEvents: Array<{ __typename?: 'Event', id: string, name: string, description?: string | null, eventType?: EventType | null, status?: EventStatus | null, tier?: EventTier | null, startDate?: any | null, endDate?: any | null, entryFee: number, maxParticipants?: number | null, currentParticipants: number, createdBy: string, createdAt: any, updatedAt?: any | null }> };
+
+export type GetMatchWithDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetMatchWithDetailsQuery = { __typename?: 'Query', getMatch?: { __typename?: 'Match', id: string, eventId?: any | null, gameNumber: number, scheduledAt?: any | null, startedAt?: any | null, endedAt?: any | null, playedAt?: any | null, status: MatchStatus, stage: MatchStage, isLive: boolean, timeElapsed?: string | null, scoreA?: number | null, scoreB?: number | null, winnerId?: any | null, winnerName?: string | null, teamAId: any, teamAName: string, teamBId: any, teamBName: string, boxscoreUrl?: string | null, createdAt: any, updatedAt?: any | null } | null };
+
+export type GetMatchesByEventQueryVariables = Exact<{
+  eventId: Scalars['UUID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetMatchesByEventQuery = { __typename?: 'Query', getMatches: Array<{ __typename?: 'Match', id: string, eventId?: any | null, gameNumber: number, scheduledAt?: any | null, startedAt?: any | null, endedAt?: any | null, playedAt?: any | null, status: MatchStatus, stage: MatchStage, isLive: boolean, timeElapsed?: string | null, scoreA?: number | null, scoreB?: number | null, winnerId?: any | null, winnerName?: string | null, teamAId: any, teamAName: string, teamBId: any, teamBName: string, boxscoreUrl?: string | null, createdAt: any, updatedAt?: any | null }> };
+
+export type GetMatchesByTeamQueryVariables = Exact<{
+  teamId: Scalars['ID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetMatchesByTeamQuery = { __typename?: 'Query', getMatches: Array<{ __typename?: 'Match', id: string, eventId?: any | null, gameNumber: number, scheduledAt?: any | null, startedAt?: any | null, endedAt?: any | null, playedAt?: any | null, status: MatchStatus, stage: MatchStage, isLive: boolean, timeElapsed?: string | null, scoreA?: number | null, scoreB?: number | null, winnerId?: any | null, winnerName?: string | null, teamAId: any, teamAName: string, teamBId: any, teamBName: string, boxscoreUrl?: string | null, createdAt: any, updatedAt?: any | null }> };
+
+export type GetMatchesByStatusQueryVariables = Exact<{
+  status: MatchStatus;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetMatchesByStatusQuery = { __typename?: 'Query', getMatches: Array<{ __typename?: 'Match', id: string, eventId?: any | null, gameNumber: number, scheduledAt?: any | null, startedAt?: any | null, endedAt?: any | null, playedAt?: any | null, status: MatchStatus, stage: MatchStage, isLive: boolean, timeElapsed?: string | null, scoreA?: number | null, scoreB?: number | null, winnerId?: any | null, winnerName?: string | null, teamAId: any, teamAName: string, teamBId: any, teamBName: string, boxscoreUrl?: string | null, createdAt: any, updatedAt?: any | null }> };
+
+export type GetPlayerWithStatsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetPlayerWithStatsQuery = { __typename?: 'Query', getPlayer?: { __typename?: 'Player', id: string, userId: string, gamertag: string, region?: string | null, currentRp?: number | null, peakRp?: number | null, tier?: PlayerTier | null, position?: PlayerPosition | null, salaryTier?: SalaryTier | null, teamName?: string | null, isVerified?: boolean | null, createdAt: any, updatedAt?: any | null, user: { __typename?: 'User', id: string, username: string, email: string, fullName?: string | null, isActive: boolean, isAdmin: boolean, discordId?: string | null, createdAt: any, updatedAt?: any | null } } | null };
+
+export type GetPlayersByTierQueryVariables = Exact<{
+  tier: PlayerTier;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetPlayersByTierQuery = { __typename?: 'Query', getPlayers: Array<{ __typename?: 'Player', id: string, gamertag: string, currentRp?: number | null, peakRp?: number | null, tier?: PlayerTier | null, position?: PlayerPosition | null, region?: string | null, teamName?: string | null, isVerified?: boolean | null, createdAt: any, user: { __typename?: 'User', id: string, username: string, fullName?: string | null } }> };
+
+export type GetPlayersByRegionQueryVariables = Exact<{
+  region: Scalars['String']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetPlayersByRegionQuery = { __typename?: 'Query', getPlayers: Array<{ __typename?: 'Player', id: string, gamertag: string, currentRp?: number | null, peakRp?: number | null, tier?: PlayerTier | null, position?: PlayerPosition | null, region?: string | null, teamName?: string | null, isVerified?: boolean | null, createdAt: any, user: { __typename?: 'User', id: string, username: string, fullName?: string | null } }> };
 
 export type GetTeamsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -1131,6 +1267,330 @@ export type GetMatchQueryHookResult = ReturnType<typeof useGetMatchQuery>;
 export type GetMatchLazyQueryHookResult = ReturnType<typeof useGetMatchLazyQuery>;
 export type GetMatchSuspenseQueryHookResult = ReturnType<typeof useGetMatchSuspenseQuery>;
 export type GetMatchQueryResult = Apollo.QueryResult<GetMatchQuery, GetMatchQueryVariables>;
+export const SubmitMatchDocument = gql`
+    mutation SubmitMatch($input: MatchInput!) {
+  submitMatch(input: $input) {
+    id
+    eventId
+    gameNumber
+    scheduledAt
+    startedAt
+    endedAt
+    playedAt
+    status
+    stage
+    isLive
+    timeElapsed
+    scoreA
+    scoreB
+    winnerId
+    winnerName
+    teamAId
+    teamAName
+    teamBId
+    teamBName
+    boxscoreUrl
+    createdAt
+    updatedAt
+  }
+}
+    `;
+export type SubmitMatchMutationFn = Apollo.MutationFunction<SubmitMatchMutation, SubmitMatchMutationVariables>;
+
+/**
+ * __useSubmitMatchMutation__
+ *
+ * To run a mutation, you first call `useSubmitMatchMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSubmitMatchMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [submitMatchMutation, { data, loading, error }] = useSubmitMatchMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSubmitMatchMutation(baseOptions?: Apollo.MutationHookOptions<SubmitMatchMutation, SubmitMatchMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SubmitMatchMutation, SubmitMatchMutationVariables>(SubmitMatchDocument, options);
+      }
+export type SubmitMatchMutationHookResult = ReturnType<typeof useSubmitMatchMutation>;
+export type SubmitMatchMutationResult = Apollo.MutationResult<SubmitMatchMutation>;
+export type SubmitMatchMutationOptions = Apollo.BaseMutationOptions<SubmitMatchMutation, SubmitMatchMutationVariables>;
+export const UpdateMatchDocument = gql`
+    mutation UpdateMatch($id: ID!, $input: MatchUpdateInput!) {
+  updateMatch(id: $id, input: $input) {
+    id
+    eventId
+    gameNumber
+    scheduledAt
+    startedAt
+    endedAt
+    playedAt
+    status
+    stage
+    isLive
+    timeElapsed
+    scoreA
+    scoreB
+    winnerId
+    winnerName
+    teamAId
+    teamAName
+    teamBId
+    teamBName
+    boxscoreUrl
+    createdAt
+    updatedAt
+  }
+}
+    `;
+export type UpdateMatchMutationFn = Apollo.MutationFunction<UpdateMatchMutation, UpdateMatchMutationVariables>;
+
+/**
+ * __useUpdateMatchMutation__
+ *
+ * To run a mutation, you first call `useUpdateMatchMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateMatchMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateMatchMutation, { data, loading, error }] = useUpdateMatchMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateMatchMutation(baseOptions?: Apollo.MutationHookOptions<UpdateMatchMutation, UpdateMatchMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateMatchMutation, UpdateMatchMutationVariables>(UpdateMatchDocument, options);
+      }
+export type UpdateMatchMutationHookResult = ReturnType<typeof useUpdateMatchMutation>;
+export type UpdateMatchMutationResult = Apollo.MutationResult<UpdateMatchMutation>;
+export type UpdateMatchMutationOptions = Apollo.BaseMutationOptions<UpdateMatchMutation, UpdateMatchMutationVariables>;
+export const DeleteMatchDocument = gql`
+    mutation DeleteMatch($id: ID!) {
+  deleteMatch(id: $id)
+}
+    `;
+export type DeleteMatchMutationFn = Apollo.MutationFunction<DeleteMatchMutation, DeleteMatchMutationVariables>;
+
+/**
+ * __useDeleteMatchMutation__
+ *
+ * To run a mutation, you first call `useDeleteMatchMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteMatchMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteMatchMutation, { data, loading, error }] = useDeleteMatchMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteMatchMutation(baseOptions?: Apollo.MutationHookOptions<DeleteMatchMutation, DeleteMatchMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteMatchMutation, DeleteMatchMutationVariables>(DeleteMatchDocument, options);
+      }
+export type DeleteMatchMutationHookResult = ReturnType<typeof useDeleteMatchMutation>;
+export type DeleteMatchMutationResult = Apollo.MutationResult<DeleteMatchMutation>;
+export type DeleteMatchMutationOptions = Apollo.BaseMutationOptions<DeleteMatchMutation, DeleteMatchMutationVariables>;
+export const SubmitMatchStatsDocument = gql`
+    mutation SubmitMatchStats($matchId: ID!, $stats: [PlayerMatchStatsInput!]!) {
+  submitMatchStats(matchId: $matchId, stats: $stats) {
+    id
+    playerId
+    teamId
+    matchId
+    points
+    assists
+    rebounds
+    steals
+    blocks
+    turnovers
+    fouls
+    fgm
+    fga
+    threePointsMade
+    threePointsAttempted
+    ftm
+    fta
+    plusMinus
+    minutesPlayed
+    createdAt
+    updatedAt
+  }
+}
+    `;
+export type SubmitMatchStatsMutationFn = Apollo.MutationFunction<SubmitMatchStatsMutation, SubmitMatchStatsMutationVariables>;
+
+/**
+ * __useSubmitMatchStatsMutation__
+ *
+ * To run a mutation, you first call `useSubmitMatchStatsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSubmitMatchStatsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [submitMatchStatsMutation, { data, loading, error }] = useSubmitMatchStatsMutation({
+ *   variables: {
+ *      matchId: // value for 'matchId'
+ *      stats: // value for 'stats'
+ *   },
+ * });
+ */
+export function useSubmitMatchStatsMutation(baseOptions?: Apollo.MutationHookOptions<SubmitMatchStatsMutation, SubmitMatchStatsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SubmitMatchStatsMutation, SubmitMatchStatsMutationVariables>(SubmitMatchStatsDocument, options);
+      }
+export type SubmitMatchStatsMutationHookResult = ReturnType<typeof useSubmitMatchStatsMutation>;
+export type SubmitMatchStatsMutationResult = Apollo.MutationResult<SubmitMatchStatsMutation>;
+export type SubmitMatchStatsMutationOptions = Apollo.BaseMutationOptions<SubmitMatchStatsMutation, SubmitMatchStatsMutationVariables>;
+export const CreateUserDocument = gql`
+    mutation CreateUser($input: UserInput!) {
+  createUser(input: $input) {
+    id
+    username
+    email
+    fullName
+    isActive
+    isAdmin
+    discordId
+    createdAt
+    updatedAt
+    player {
+      id
+      gamertag
+      currentRp
+      peakRp
+      tier
+      position
+    }
+  }
+}
+    `;
+export type CreateUserMutationFn = Apollo.MutationFunction<CreateUserMutation, CreateUserMutationVariables>;
+
+/**
+ * __useCreateUserMutation__
+ *
+ * To run a mutation, you first call `useCreateUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateUserMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createUserMutation, { data, loading, error }] = useCreateUserMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateUserMutation(baseOptions?: Apollo.MutationHookOptions<CreateUserMutation, CreateUserMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateUserMutation, CreateUserMutationVariables>(CreateUserDocument, options);
+      }
+export type CreateUserMutationHookResult = ReturnType<typeof useCreateUserMutation>;
+export type CreateUserMutationResult = Apollo.MutationResult<CreateUserMutation>;
+export type CreateUserMutationOptions = Apollo.BaseMutationOptions<CreateUserMutation, CreateUserMutationVariables>;
+export const UpdateUserDocument = gql`
+    mutation UpdateUser($id: ID!, $input: UserUpdateInput!) {
+  updateUser(id: $id, input: $input) {
+    id
+    username
+    email
+    fullName
+    isActive
+    isAdmin
+    discordId
+    createdAt
+    updatedAt
+    player {
+      id
+      gamertag
+      currentRp
+      peakRp
+      tier
+      position
+    }
+  }
+}
+    `;
+export type UpdateUserMutationFn = Apollo.MutationFunction<UpdateUserMutation, UpdateUserMutationVariables>;
+
+/**
+ * __useUpdateUserMutation__
+ *
+ * To run a mutation, you first call `useUpdateUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateUserMutation, { data, loading, error }] = useUpdateUserMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateUserMutation(baseOptions?: Apollo.MutationHookOptions<UpdateUserMutation, UpdateUserMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateUserMutation, UpdateUserMutationVariables>(UpdateUserDocument, options);
+      }
+export type UpdateUserMutationHookResult = ReturnType<typeof useUpdateUserMutation>;
+export type UpdateUserMutationResult = Apollo.MutationResult<UpdateUserMutation>;
+export type UpdateUserMutationOptions = Apollo.BaseMutationOptions<UpdateUserMutation, UpdateUserMutationVariables>;
+export const DeleteUserDocument = gql`
+    mutation DeleteUser($id: ID!) {
+  deleteUser(id: $id)
+}
+    `;
+export type DeleteUserMutationFn = Apollo.MutationFunction<DeleteUserMutation, DeleteUserMutationVariables>;
+
+/**
+ * __useDeleteUserMutation__
+ *
+ * To run a mutation, you first call `useDeleteUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteUserMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteUserMutation, { data, loading, error }] = useDeleteUserMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteUserMutation(baseOptions?: Apollo.MutationHookOptions<DeleteUserMutation, DeleteUserMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteUserMutation, DeleteUserMutationVariables>(DeleteUserDocument, options);
+      }
+export type DeleteUserMutationHookResult = ReturnType<typeof useDeleteUserMutation>;
+export type DeleteUserMutationResult = Apollo.MutationResult<DeleteUserMutation>;
+export type DeleteUserMutationOptions = Apollo.BaseMutationOptions<DeleteUserMutation, DeleteUserMutationVariables>;
 export const GetPlayersDocument = gql`
     query GetPlayers($limit: Int, $offset: Int, $region: String, $tier: PlayerTier) {
   getPlayers(limit: $limit, offset: $offset, region: $region, tier: $tier) {
@@ -1193,6 +1653,594 @@ export type GetPlayersQueryHookResult = ReturnType<typeof useGetPlayersQuery>;
 export type GetPlayersLazyQueryHookResult = ReturnType<typeof useGetPlayersLazyQuery>;
 export type GetPlayersSuspenseQueryHookResult = ReturnType<typeof useGetPlayersSuspenseQuery>;
 export type GetPlayersQueryResult = Apollo.QueryResult<GetPlayersQuery, GetPlayersQueryVariables>;
+export const GetEventWithDetailsDocument = gql`
+    query GetEventWithDetails($id: ID!) {
+  getEvent(id: $id) {
+    id
+    name
+    description
+    eventType
+    status
+    tier
+    startDate
+    endDate
+    entryFee
+    maxParticipants
+    currentParticipants
+    createdBy
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useGetEventWithDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetEventWithDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetEventWithDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetEventWithDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetEventWithDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetEventWithDetailsQuery, GetEventWithDetailsQueryVariables> & ({ variables: GetEventWithDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetEventWithDetailsQuery, GetEventWithDetailsQueryVariables>(GetEventWithDetailsDocument, options);
+      }
+export function useGetEventWithDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetEventWithDetailsQuery, GetEventWithDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetEventWithDetailsQuery, GetEventWithDetailsQueryVariables>(GetEventWithDetailsDocument, options);
+        }
+export function useGetEventWithDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetEventWithDetailsQuery, GetEventWithDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetEventWithDetailsQuery, GetEventWithDetailsQueryVariables>(GetEventWithDetailsDocument, options);
+        }
+export type GetEventWithDetailsQueryHookResult = ReturnType<typeof useGetEventWithDetailsQuery>;
+export type GetEventWithDetailsLazyQueryHookResult = ReturnType<typeof useGetEventWithDetailsLazyQuery>;
+export type GetEventWithDetailsSuspenseQueryHookResult = ReturnType<typeof useGetEventWithDetailsSuspenseQuery>;
+export type GetEventWithDetailsQueryResult = Apollo.QueryResult<GetEventWithDetailsQuery, GetEventWithDetailsQueryVariables>;
+export const GetEventsByStatusDocument = gql`
+    query GetEventsByStatus($status: EventStatus!, $limit: Int = 10, $offset: Int = 0) {
+  getEvents(status: $status, limit: $limit, offset: $offset) {
+    id
+    name
+    description
+    eventType
+    status
+    tier
+    startDate
+    endDate
+    entryFee
+    maxParticipants
+    currentParticipants
+    createdBy
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useGetEventsByStatusQuery__
+ *
+ * To run a query within a React component, call `useGetEventsByStatusQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetEventsByStatusQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetEventsByStatusQuery({
+ *   variables: {
+ *      status: // value for 'status'
+ *      limit: // value for 'limit'
+ *      offset: // value for 'offset'
+ *   },
+ * });
+ */
+export function useGetEventsByStatusQuery(baseOptions: Apollo.QueryHookOptions<GetEventsByStatusQuery, GetEventsByStatusQueryVariables> & ({ variables: GetEventsByStatusQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetEventsByStatusQuery, GetEventsByStatusQueryVariables>(GetEventsByStatusDocument, options);
+      }
+export function useGetEventsByStatusLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetEventsByStatusQuery, GetEventsByStatusQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetEventsByStatusQuery, GetEventsByStatusQueryVariables>(GetEventsByStatusDocument, options);
+        }
+export function useGetEventsByStatusSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetEventsByStatusQuery, GetEventsByStatusQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetEventsByStatusQuery, GetEventsByStatusQueryVariables>(GetEventsByStatusDocument, options);
+        }
+export type GetEventsByStatusQueryHookResult = ReturnType<typeof useGetEventsByStatusQuery>;
+export type GetEventsByStatusLazyQueryHookResult = ReturnType<typeof useGetEventsByStatusLazyQuery>;
+export type GetEventsByStatusSuspenseQueryHookResult = ReturnType<typeof useGetEventsByStatusSuspenseQuery>;
+export type GetEventsByStatusQueryResult = Apollo.QueryResult<GetEventsByStatusQuery, GetEventsByStatusQueryVariables>;
+export const GetEventsByTypeDocument = gql`
+    query GetEventsByType($eventType: EventType!, $limit: Int = 10, $offset: Int = 0) {
+  getEvents(eventType: $eventType, limit: $limit, offset: $offset) {
+    id
+    name
+    description
+    eventType
+    status
+    tier
+    startDate
+    endDate
+    entryFee
+    maxParticipants
+    currentParticipants
+    createdBy
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useGetEventsByTypeQuery__
+ *
+ * To run a query within a React component, call `useGetEventsByTypeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetEventsByTypeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetEventsByTypeQuery({
+ *   variables: {
+ *      eventType: // value for 'eventType'
+ *      limit: // value for 'limit'
+ *      offset: // value for 'offset'
+ *   },
+ * });
+ */
+export function useGetEventsByTypeQuery(baseOptions: Apollo.QueryHookOptions<GetEventsByTypeQuery, GetEventsByTypeQueryVariables> & ({ variables: GetEventsByTypeQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetEventsByTypeQuery, GetEventsByTypeQueryVariables>(GetEventsByTypeDocument, options);
+      }
+export function useGetEventsByTypeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetEventsByTypeQuery, GetEventsByTypeQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetEventsByTypeQuery, GetEventsByTypeQueryVariables>(GetEventsByTypeDocument, options);
+        }
+export function useGetEventsByTypeSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetEventsByTypeQuery, GetEventsByTypeQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetEventsByTypeQuery, GetEventsByTypeQueryVariables>(GetEventsByTypeDocument, options);
+        }
+export type GetEventsByTypeQueryHookResult = ReturnType<typeof useGetEventsByTypeQuery>;
+export type GetEventsByTypeLazyQueryHookResult = ReturnType<typeof useGetEventsByTypeLazyQuery>;
+export type GetEventsByTypeSuspenseQueryHookResult = ReturnType<typeof useGetEventsByTypeSuspenseQuery>;
+export type GetEventsByTypeQueryResult = Apollo.QueryResult<GetEventsByTypeQuery, GetEventsByTypeQueryVariables>;
+export const GetMatchWithDetailsDocument = gql`
+    query GetMatchWithDetails($id: ID!) {
+  getMatch(id: $id) {
+    id
+    eventId
+    gameNumber
+    scheduledAt
+    startedAt
+    endedAt
+    playedAt
+    status
+    stage
+    isLive
+    timeElapsed
+    scoreA
+    scoreB
+    winnerId
+    winnerName
+    teamAId
+    teamAName
+    teamBId
+    teamBName
+    boxscoreUrl
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useGetMatchWithDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetMatchWithDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMatchWithDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMatchWithDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetMatchWithDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetMatchWithDetailsQuery, GetMatchWithDetailsQueryVariables> & ({ variables: GetMatchWithDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetMatchWithDetailsQuery, GetMatchWithDetailsQueryVariables>(GetMatchWithDetailsDocument, options);
+      }
+export function useGetMatchWithDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMatchWithDetailsQuery, GetMatchWithDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetMatchWithDetailsQuery, GetMatchWithDetailsQueryVariables>(GetMatchWithDetailsDocument, options);
+        }
+export function useGetMatchWithDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMatchWithDetailsQuery, GetMatchWithDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetMatchWithDetailsQuery, GetMatchWithDetailsQueryVariables>(GetMatchWithDetailsDocument, options);
+        }
+export type GetMatchWithDetailsQueryHookResult = ReturnType<typeof useGetMatchWithDetailsQuery>;
+export type GetMatchWithDetailsLazyQueryHookResult = ReturnType<typeof useGetMatchWithDetailsLazyQuery>;
+export type GetMatchWithDetailsSuspenseQueryHookResult = ReturnType<typeof useGetMatchWithDetailsSuspenseQuery>;
+export type GetMatchWithDetailsQueryResult = Apollo.QueryResult<GetMatchWithDetailsQuery, GetMatchWithDetailsQueryVariables>;
+export const GetMatchesByEventDocument = gql`
+    query GetMatchesByEvent($eventId: UUID!, $limit: Int = 20, $offset: Int = 0) {
+  getMatches(eventId: $eventId, limit: $limit, offset: $offset) {
+    id
+    eventId
+    gameNumber
+    scheduledAt
+    startedAt
+    endedAt
+    playedAt
+    status
+    stage
+    isLive
+    timeElapsed
+    scoreA
+    scoreB
+    winnerId
+    winnerName
+    teamAId
+    teamAName
+    teamBId
+    teamBName
+    boxscoreUrl
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useGetMatchesByEventQuery__
+ *
+ * To run a query within a React component, call `useGetMatchesByEventQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMatchesByEventQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMatchesByEventQuery({
+ *   variables: {
+ *      eventId: // value for 'eventId'
+ *      limit: // value for 'limit'
+ *      offset: // value for 'offset'
+ *   },
+ * });
+ */
+export function useGetMatchesByEventQuery(baseOptions: Apollo.QueryHookOptions<GetMatchesByEventQuery, GetMatchesByEventQueryVariables> & ({ variables: GetMatchesByEventQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetMatchesByEventQuery, GetMatchesByEventQueryVariables>(GetMatchesByEventDocument, options);
+      }
+export function useGetMatchesByEventLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMatchesByEventQuery, GetMatchesByEventQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetMatchesByEventQuery, GetMatchesByEventQueryVariables>(GetMatchesByEventDocument, options);
+        }
+export function useGetMatchesByEventSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMatchesByEventQuery, GetMatchesByEventQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetMatchesByEventQuery, GetMatchesByEventQueryVariables>(GetMatchesByEventDocument, options);
+        }
+export type GetMatchesByEventQueryHookResult = ReturnType<typeof useGetMatchesByEventQuery>;
+export type GetMatchesByEventLazyQueryHookResult = ReturnType<typeof useGetMatchesByEventLazyQuery>;
+export type GetMatchesByEventSuspenseQueryHookResult = ReturnType<typeof useGetMatchesByEventSuspenseQuery>;
+export type GetMatchesByEventQueryResult = Apollo.QueryResult<GetMatchesByEventQuery, GetMatchesByEventQueryVariables>;
+export const GetMatchesByTeamDocument = gql`
+    query GetMatchesByTeam($teamId: ID!, $limit: Int = 20, $offset: Int = 0) {
+  getMatches(teamId: $teamId, limit: $limit, offset: $offset) {
+    id
+    eventId
+    gameNumber
+    scheduledAt
+    startedAt
+    endedAt
+    playedAt
+    status
+    stage
+    isLive
+    timeElapsed
+    scoreA
+    scoreB
+    winnerId
+    winnerName
+    teamAId
+    teamAName
+    teamBId
+    teamBName
+    boxscoreUrl
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useGetMatchesByTeamQuery__
+ *
+ * To run a query within a React component, call `useGetMatchesByTeamQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMatchesByTeamQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMatchesByTeamQuery({
+ *   variables: {
+ *      teamId: // value for 'teamId'
+ *      limit: // value for 'limit'
+ *      offset: // value for 'offset'
+ *   },
+ * });
+ */
+export function useGetMatchesByTeamQuery(baseOptions: Apollo.QueryHookOptions<GetMatchesByTeamQuery, GetMatchesByTeamQueryVariables> & ({ variables: GetMatchesByTeamQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetMatchesByTeamQuery, GetMatchesByTeamQueryVariables>(GetMatchesByTeamDocument, options);
+      }
+export function useGetMatchesByTeamLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMatchesByTeamQuery, GetMatchesByTeamQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetMatchesByTeamQuery, GetMatchesByTeamQueryVariables>(GetMatchesByTeamDocument, options);
+        }
+export function useGetMatchesByTeamSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMatchesByTeamQuery, GetMatchesByTeamQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetMatchesByTeamQuery, GetMatchesByTeamQueryVariables>(GetMatchesByTeamDocument, options);
+        }
+export type GetMatchesByTeamQueryHookResult = ReturnType<typeof useGetMatchesByTeamQuery>;
+export type GetMatchesByTeamLazyQueryHookResult = ReturnType<typeof useGetMatchesByTeamLazyQuery>;
+export type GetMatchesByTeamSuspenseQueryHookResult = ReturnType<typeof useGetMatchesByTeamSuspenseQuery>;
+export type GetMatchesByTeamQueryResult = Apollo.QueryResult<GetMatchesByTeamQuery, GetMatchesByTeamQueryVariables>;
+export const GetMatchesByStatusDocument = gql`
+    query GetMatchesByStatus($status: MatchStatus!, $limit: Int = 20, $offset: Int = 0) {
+  getMatches(status: $status, limit: $limit, offset: $offset) {
+    id
+    eventId
+    gameNumber
+    scheduledAt
+    startedAt
+    endedAt
+    playedAt
+    status
+    stage
+    isLive
+    timeElapsed
+    scoreA
+    scoreB
+    winnerId
+    winnerName
+    teamAId
+    teamAName
+    teamBId
+    teamBName
+    boxscoreUrl
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useGetMatchesByStatusQuery__
+ *
+ * To run a query within a React component, call `useGetMatchesByStatusQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMatchesByStatusQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMatchesByStatusQuery({
+ *   variables: {
+ *      status: // value for 'status'
+ *      limit: // value for 'limit'
+ *      offset: // value for 'offset'
+ *   },
+ * });
+ */
+export function useGetMatchesByStatusQuery(baseOptions: Apollo.QueryHookOptions<GetMatchesByStatusQuery, GetMatchesByStatusQueryVariables> & ({ variables: GetMatchesByStatusQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetMatchesByStatusQuery, GetMatchesByStatusQueryVariables>(GetMatchesByStatusDocument, options);
+      }
+export function useGetMatchesByStatusLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMatchesByStatusQuery, GetMatchesByStatusQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetMatchesByStatusQuery, GetMatchesByStatusQueryVariables>(GetMatchesByStatusDocument, options);
+        }
+export function useGetMatchesByStatusSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMatchesByStatusQuery, GetMatchesByStatusQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetMatchesByStatusQuery, GetMatchesByStatusQueryVariables>(GetMatchesByStatusDocument, options);
+        }
+export type GetMatchesByStatusQueryHookResult = ReturnType<typeof useGetMatchesByStatusQuery>;
+export type GetMatchesByStatusLazyQueryHookResult = ReturnType<typeof useGetMatchesByStatusLazyQuery>;
+export type GetMatchesByStatusSuspenseQueryHookResult = ReturnType<typeof useGetMatchesByStatusSuspenseQuery>;
+export type GetMatchesByStatusQueryResult = Apollo.QueryResult<GetMatchesByStatusQuery, GetMatchesByStatusQueryVariables>;
+export const GetPlayerWithStatsDocument = gql`
+    query GetPlayerWithStats($id: ID!) {
+  getPlayer(id: $id) {
+    id
+    userId
+    gamertag
+    region
+    currentRp
+    peakRp
+    tier
+    position
+    salaryTier
+    teamName
+    isVerified
+    createdAt
+    updatedAt
+    user {
+      id
+      username
+      email
+      fullName
+      isActive
+      isAdmin
+      discordId
+      createdAt
+      updatedAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetPlayerWithStatsQuery__
+ *
+ * To run a query within a React component, call `useGetPlayerWithStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPlayerWithStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPlayerWithStatsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetPlayerWithStatsQuery(baseOptions: Apollo.QueryHookOptions<GetPlayerWithStatsQuery, GetPlayerWithStatsQueryVariables> & ({ variables: GetPlayerWithStatsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPlayerWithStatsQuery, GetPlayerWithStatsQueryVariables>(GetPlayerWithStatsDocument, options);
+      }
+export function useGetPlayerWithStatsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPlayerWithStatsQuery, GetPlayerWithStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPlayerWithStatsQuery, GetPlayerWithStatsQueryVariables>(GetPlayerWithStatsDocument, options);
+        }
+export function useGetPlayerWithStatsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlayerWithStatsQuery, GetPlayerWithStatsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetPlayerWithStatsQuery, GetPlayerWithStatsQueryVariables>(GetPlayerWithStatsDocument, options);
+        }
+export type GetPlayerWithStatsQueryHookResult = ReturnType<typeof useGetPlayerWithStatsQuery>;
+export type GetPlayerWithStatsLazyQueryHookResult = ReturnType<typeof useGetPlayerWithStatsLazyQuery>;
+export type GetPlayerWithStatsSuspenseQueryHookResult = ReturnType<typeof useGetPlayerWithStatsSuspenseQuery>;
+export type GetPlayerWithStatsQueryResult = Apollo.QueryResult<GetPlayerWithStatsQuery, GetPlayerWithStatsQueryVariables>;
+export const GetPlayersByTierDocument = gql`
+    query GetPlayersByTier($tier: PlayerTier!, $limit: Int = 20, $offset: Int = 0) {
+  getPlayers(tier: $tier, limit: $limit, offset: $offset) {
+    id
+    gamertag
+    currentRp
+    peakRp
+    tier
+    position
+    region
+    teamName
+    isVerified
+    createdAt
+    user {
+      id
+      username
+      fullName
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetPlayersByTierQuery__
+ *
+ * To run a query within a React component, call `useGetPlayersByTierQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPlayersByTierQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPlayersByTierQuery({
+ *   variables: {
+ *      tier: // value for 'tier'
+ *      limit: // value for 'limit'
+ *      offset: // value for 'offset'
+ *   },
+ * });
+ */
+export function useGetPlayersByTierQuery(baseOptions: Apollo.QueryHookOptions<GetPlayersByTierQuery, GetPlayersByTierQueryVariables> & ({ variables: GetPlayersByTierQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPlayersByTierQuery, GetPlayersByTierQueryVariables>(GetPlayersByTierDocument, options);
+      }
+export function useGetPlayersByTierLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPlayersByTierQuery, GetPlayersByTierQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPlayersByTierQuery, GetPlayersByTierQueryVariables>(GetPlayersByTierDocument, options);
+        }
+export function useGetPlayersByTierSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlayersByTierQuery, GetPlayersByTierQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetPlayersByTierQuery, GetPlayersByTierQueryVariables>(GetPlayersByTierDocument, options);
+        }
+export type GetPlayersByTierQueryHookResult = ReturnType<typeof useGetPlayersByTierQuery>;
+export type GetPlayersByTierLazyQueryHookResult = ReturnType<typeof useGetPlayersByTierLazyQuery>;
+export type GetPlayersByTierSuspenseQueryHookResult = ReturnType<typeof useGetPlayersByTierSuspenseQuery>;
+export type GetPlayersByTierQueryResult = Apollo.QueryResult<GetPlayersByTierQuery, GetPlayersByTierQueryVariables>;
+export const GetPlayersByRegionDocument = gql`
+    query GetPlayersByRegion($region: String!, $limit: Int = 20, $offset: Int = 0) {
+  getPlayers(region: $region, limit: $limit, offset: $offset) {
+    id
+    gamertag
+    currentRp
+    peakRp
+    tier
+    position
+    region
+    teamName
+    isVerified
+    createdAt
+    user {
+      id
+      username
+      fullName
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetPlayersByRegionQuery__
+ *
+ * To run a query within a React component, call `useGetPlayersByRegionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPlayersByRegionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPlayersByRegionQuery({
+ *   variables: {
+ *      region: // value for 'region'
+ *      limit: // value for 'limit'
+ *      offset: // value for 'offset'
+ *   },
+ * });
+ */
+export function useGetPlayersByRegionQuery(baseOptions: Apollo.QueryHookOptions<GetPlayersByRegionQuery, GetPlayersByRegionQueryVariables> & ({ variables: GetPlayersByRegionQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPlayersByRegionQuery, GetPlayersByRegionQueryVariables>(GetPlayersByRegionDocument, options);
+      }
+export function useGetPlayersByRegionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPlayersByRegionQuery, GetPlayersByRegionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPlayersByRegionQuery, GetPlayersByRegionQueryVariables>(GetPlayersByRegionDocument, options);
+        }
+export function useGetPlayersByRegionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlayersByRegionQuery, GetPlayersByRegionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetPlayersByRegionQuery, GetPlayersByRegionQueryVariables>(GetPlayersByRegionDocument, options);
+        }
+export type GetPlayersByRegionQueryHookResult = ReturnType<typeof useGetPlayersByRegionQuery>;
+export type GetPlayersByRegionLazyQueryHookResult = ReturnType<typeof useGetPlayersByRegionLazyQuery>;
+export type GetPlayersByRegionSuspenseQueryHookResult = ReturnType<typeof useGetPlayersByRegionSuspenseQuery>;
+export type GetPlayersByRegionQueryResult = Apollo.QueryResult<GetPlayersByRegionQuery, GetPlayersByRegionQueryVariables>;
 export const GetTeamsDocument = gql`
     query GetTeams($limit: Int, $offset: Int) {
   getTeams(limit: $limit, offset: $offset) {
