@@ -5,6 +5,7 @@ This document outlines proposed additions to the GraphQL schema to support enhan
 ## Current Schema Status
 
 The current schema provides basic CRUD operations for:
+
 - **Users**: Create, update, delete
 - **Players**: Read operations with filtering
 - **Teams**: Read operations
@@ -16,6 +17,7 @@ The current schema provides basic CRUD operations for:
 ### 1. Enhanced Player Operations
 
 #### New Mutations
+
 ```graphql
 # Player Management
 createPlayer(input: PlayerInput!): Player!
@@ -30,6 +32,7 @@ removePlayerFromTeam(playerId: ID!): Player!
 ```
 
 #### New Input Types
+
 ```graphql
 input PlayerInput {
   userId: ID!
@@ -57,6 +60,7 @@ input PlayerUpdateInput {
 ### 2. Enhanced Team Operations
 
 #### New Mutations
+
 ```graphql
 # Team Management
 createTeam(input: TeamInput!): Team!
@@ -70,6 +74,7 @@ setTeamCaptain(teamId: ID!, playerId: ID!): Team!
 ```
 
 #### New Input Types
+
 ```graphql
 input TeamInput {
   name: String!
@@ -91,6 +96,7 @@ input TeamUpdateInput {
 ### 3. Enhanced Event Operations
 
 #### New Mutations
+
 ```graphql
 # Event Management
 createEvent(input: EventInput!): Event!
@@ -108,6 +114,7 @@ cancelEvent(id: ID!, reason: String!): Event!
 ```
 
 #### New Input Types
+
 ```graphql
 input EventInput {
   name: String!
@@ -137,6 +144,7 @@ input EventUpdateInput {
 ### 4. Enhanced Match Operations
 
 #### New Mutations
+
 ```graphql
 # Match Lifecycle
 startMatch(id: ID!): Match!
@@ -153,6 +161,7 @@ updateMatchTime(id: ID!, timeElapsed: Int!): Match!
 ### 5. Analytics and Reporting
 
 #### New Queries
+
 ```graphql
 # Dashboard Analytics
 getDashboardStats: DashboardStats!
@@ -182,6 +191,7 @@ getTopPlayers(limit: Int = 10, tier: PlayerTier): [LeaderboardEntry!]!
 ```
 
 #### New Types
+
 ```graphql
 type DashboardStats {
   totalPlayers: Int!
@@ -256,6 +266,7 @@ enum TimeRange {
 ### 6. Search and Filtering
 
 #### New Queries
+
 ```graphql
 # Search Operations
 searchPlayers(
@@ -285,6 +296,7 @@ getTeamSuggestions(query: String!, limit: Int = 10): [Team!]!
 ```
 
 #### New Input Types
+
 ```graphql
 input PlayerSearchFilters {
   tier: PlayerTier
@@ -316,6 +328,7 @@ input DateRange {
 ### 7. User Profile Management
 
 #### New Mutations
+
 ```graphql
 # Profile Management
 updateUserProfile(input: UserProfileUpdateInput!): User!
@@ -328,6 +341,7 @@ updateUserPreferences(input: UserPreferencesInput!): UserPreferences!
 ```
 
 #### New Types
+
 ```graphql
 type PasswordChangeResult {
   success: Boolean!
@@ -386,6 +400,7 @@ enum ProfileVisibility {
 ### 8. Achievement System
 
 #### New Types
+
 ```graphql
 type Achievement {
   id: ID!
@@ -448,6 +463,7 @@ enum CriteriaType {
 ## Implementation Priority
 
 ### Phase 1: Core Operations (High Priority)
+
 1. Player CRUD operations
 2. Team CRUD operations
 3. Event CRUD operations
@@ -455,12 +471,14 @@ enum CriteriaType {
 5. Basic analytics queries
 
 ### Phase 2: Advanced Features (Medium Priority)
+
 1. Search and filtering
 2. User profile management
 3. Achievement system
 4. Advanced analytics
 
 ### Phase 3: Optimization (Low Priority)
+
 1. Performance optimizations
 2. Caching strategies
 3. Real-time subscriptions

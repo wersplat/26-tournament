@@ -116,502 +116,202 @@
   * {
     @apply border-border outline-ring/50;
   }
-  
-  html {
-    @apply scroll-smooth;
-  }
-  
   body {
-    @apply bg-background text-foreground antialiased;
-    font-feature-settings: "rlig" 1, "calt" 1;
-  }
-  
-  /* Smooth transitions for theme switching */
-  * {
-    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-  }
-  
-  /* Fix for potential hydration issues */
-  .no-hydration {
-    display: none;
-  }
-  
-  .hydrated .no-hydration {
-    display: block;
-  }
-  
-  /* Hide any potential error notifications */
-  .error-notification,
-  .issue-notification,
-  [data-error="true"] {
-    display: none !important;
-  }
-  
-  /* Ensure proper font loading */
-  .font-geist-sans {
-    font-family: var(--font-geist-sans), system-ui, sans-serif;
-  }
-  
-  .font-geist-mono {
-    font-family: var(--font-geist-mono), monospace;
+    @apply bg-background text-foreground;
   }
 }
 
-/* Enhanced Container Styles */
+/* Global Container Styles */
 .container {
-  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  @apply max-w-7xl mx-auto px-8;
 }
 
-/* Enhanced Button Styles */
-.btn {
-  @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+@media (max-width: 768px) {
+  .container {
+    @apply px-4;
+  }
 }
 
-.btn-primary {
-  @apply bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 active:scale-95;
+/* MDX Content Styles */
+.mdx-content {
+  @apply max-w-5xl mx-auto px-8 py-12;
 }
 
-.btn-secondary {
-  @apply bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 active:scale-95;
+.mdx-content h1 {
+  @apply text-4xl font-bold text-foreground mb-8 border-b border-border pb-4;
 }
 
-.btn-outline {
-  @apply border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground active:scale-95;
+.mdx-content h2 {
+  @apply text-2xl font-semibold text-foreground mt-12 mb-6 border-l-4 border-primary pl-4;
 }
 
-.btn-ghost {
-  @apply hover:bg-accent hover:text-accent-foreground active:scale-95;
+.mdx-content h3 {
+  @apply text-xl font-medium text-foreground mt-8 mb-4;
 }
 
-.btn-destructive {
-  @apply bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 active:scale-95;
+.mdx-content h4 {
+  @apply text-lg font-medium text-foreground mt-6 mb-3;
 }
 
-/* Enhanced Card Styles */
-.card {
-  @apply rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-200 hover:shadow-md;
+.mdx-content p {
+  @apply text-foreground/90 leading-relaxed mb-4;
 }
 
-.card-header {
-  @apply flex flex-col space-y-1.5 p-6;
+.mdx-content ul {
+  @apply list-disc list-inside space-y-2 mb-6;
 }
 
-.card-title {
-  @apply text-2xl font-semibold leading-none tracking-tight;
+.mdx-content ol {
+  @apply list-decimal list-inside space-y-2 mb-6;
 }
 
-.card-description {
-  @apply text-sm text-muted-foreground;
+.mdx-content li {
+  @apply text-foreground/90;
 }
 
-.card-content {
-  @apply p-6 pt-0;
+.mdx-content strong {
+  @apply font-semibold text-foreground;
 }
 
-.card-footer {
-  @apply flex items-center p-6 pt-0;
+.mdx-content em {
+  @apply italic text-foreground/80;
 }
 
-/* Enhanced Input Styles */
-.input {
-  @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+.mdx-content blockquote {
+  @apply border-l-4 border-primary/30 bg-muted/30 pl-6 py-4 my-6 italic;
 }
 
-/* Enhanced Badge Styles */
-.badge {
-  @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+.mdx-content code {
+  @apply bg-muted px-2 py-1 rounded text-sm font-mono;
 }
 
-.badge-default {
-  @apply border-transparent bg-primary text-primary-foreground hover:bg-primary/80;
+.mdx-content pre {
+  @apply bg-muted p-4 rounded-lg overflow-x-auto my-6;
 }
 
-.badge-secondary {
-  @apply border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80;
+.mdx-content pre code {
+  @apply bg-transparent p-0;
 }
 
-.badge-destructive {
-  @apply border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80;
+.mdx-content table {
+  @apply w-full border-collapse border border-border my-6;
 }
 
-.badge-outline {
-  @apply text-foreground;
+.mdx-content th {
+  @apply bg-muted/50 border border-border px-4 py-3 text-left font-semibold;
 }
 
-/* Enhanced Table Styles */
-.table {
-  @apply w-full caption-bottom text-sm;
+.mdx-content td {
+  @apply border border-border px-4 py-3;
 }
 
-.table-header {
-  @apply [&_tr]:border-b;
+/* Tournament Points Table */
+.tournament-points-table {
+  @apply my-8;
 }
 
-.table-body {
-  @apply [&_tr:last-child]:border-0;
+.tournament-points-table table {
+  @apply w-full max-w-md mx-auto border-collapse rounded-lg overflow-hidden shadow-lg;
 }
 
-.table-footer {
-  @apply border-t bg-muted/50 [&>tr]:last:border-b-0;
+.tournament-points-table thead {
+  @apply bg-primary text-primary-foreground;
 }
 
-.table-row {
-  @apply border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted;
+.tournament-points-table th {
+  @apply px-6 py-4 text-center font-bold text-lg border-none;
 }
 
-.table-head {
-  @apply h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0;
+.tournament-points-table tbody tr {
+  @apply hover:bg-muted/30 transition-colors;
 }
 
-.table-cell {
-  @apply p-4 align-middle [&:has([role=checkbox])]:pr-0;
+.tournament-points-table tbody tr:nth-child(even) {
+  @apply bg-muted/10;
 }
 
-.table-caption {
-  @apply mt-4 text-sm text-muted-foreground;
+.tournament-points-table td {
+  @apply px-6 py-4 text-center border-none;
 }
 
-/* Enhanced Navigation Styles */
-.nav-link {
-  @apply text-sm font-medium transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+.tournament-points-table td:first-child {
+  @apply text-left font-semibold;
 }
 
-.nav-link-active {
-  @apply text-foreground;
+.points-badge {
+  @apply inline-block bg-primary/10 text-primary font-semibold px-3 py-1 rounded-full text-sm;
 }
 
-.nav-link-inactive {
-  @apply text-muted-foreground;
+.mdx-content hr {
+  @apply border-border my-8;
 }
 
-/* Enhanced Animation Classes */
-.animate-fade-in {
-  @apply animate-in fade-in duration-300;
+.mdx-content a {
+  @apply text-primary hover:text-primary/80 underline decoration-primary/30 hover:decoration-primary/60 transition-colors;
 }
 
-.animate-slide-in {
-  @apply animate-in slide-in-from-bottom-4 duration-300;
+/* Table of Contents */
+.toc-container {
+  @apply bg-muted/30 border border-border rounded-lg p-6 mb-8;
 }
 
-.animate-scale-in {
-  @apply animate-in zoom-in-95 duration-200;
+.toc-container h2 {
+  @apply text-xl font-semibold mb-4 border-none pl-0;
 }
 
-/* Enhanced Gradient Backgrounds */
-.gradient-primary {
-  @apply bg-gradient-to-br from-primary/10 via-primary/5 to-transparent;
+.toc-container nav ul {
+  @apply list-none space-y-2;
 }
 
-.gradient-secondary {
-  @apply bg-gradient-to-br from-secondary/10 via-secondary/5 to-transparent;
+.toc-container nav li {
+  @apply text-foreground/80 hover:text-foreground transition-colors;
 }
 
-.gradient-accent {
-  @apply bg-gradient-to-br from-accent/10 via-accent/5 to-transparent;
+.toc-container nav a {
+  @apply no-underline hover:text-primary;
 }
 
-/* Enhanced Shadow Classes */
-.shadow-soft {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+/* Contact Information */
+.contact-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4 bg-muted/20 border border-border rounded-lg p-6;
 }
 
-.shadow-medium {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+.contact-grid div {
+  @apply flex flex-col space-y-1;
 }
 
-.shadow-strong {
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+.contact-grid strong {
+  @apply text-primary font-semibold;
 }
 
-/* Dark mode shadow adjustments */
-.dark .shadow-soft {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+/* Footer Note */
+.footer-note {
+  @apply bg-muted/20 border border-border rounded-lg p-6 mt-8;
 }
 
-.dark .shadow-medium {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+.footer-note em {
+  @apply text-foreground/70;
 }
 
-.dark .shadow-strong {
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+.footer-note p {
+  @apply mt-4 text-center;
 }
 
-/* Enhanced Focus Styles */
-.focus-ring {
-  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
-}
-
-/* Enhanced Hover Effects */
-.hover-lift {
-  @apply transition-all duration-200 hover:-translate-y-1 hover:shadow-lg;
-}
-
-.hover-glow {
-  @apply transition-all duration-200 hover:shadow-lg hover:shadow-primary/25;
-}
-
-/* Enhanced Loading States */
-.loading {
-  @apply animate-pulse bg-muted;
-}
-
-.loading-text {
-  @apply animate-pulse bg-muted rounded;
-}
-
-/* Enhanced Status Indicators */
-.status-online {
-  @apply bg-green-500;
-}
-
-.status-offline {
-  @apply bg-gray-400;
-}
-
-.status-busy {
-  @apply bg-yellow-500;
-}
-
-.status-away {
-  @apply bg-orange-500;
-}
-
-/* Enhanced Responsive Utilities */
-.responsive-text {
-  @apply text-sm sm:text-base lg:text-lg;
-}
-
-.responsive-padding {
-  @apply p-4 sm:p-6 lg:p-8;
-}
-
-.responsive-margin {
-  @apply m-4 sm:m-6 lg:m-8;
-}
-
-/* Enhanced Grid Layouts */
-.grid-auto-fit {
-  @apply grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
-}
-
-.grid-auto-fill {
-  @apply grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5;
-}
-
-/* Enhanced Spacing Utilities */
-.space-y-responsive > * + * {
-  @apply mt-4 sm:mt-6 lg:mt-8;
-}
-
-.space-x-responsive > * + * {
-  @apply ml-4 sm:ml-6 lg:ml-8;
-}
-
-/* Enhanced Border Radius */
-.rounded-responsive {
-  @apply rounded-md sm:rounded-lg lg:rounded-xl;
-}
-
-/* Enhanced Typography */
-.text-responsive {
-  @apply text-sm sm:text-base lg:text-lg xl:text-xl;
-}
-
-.heading-responsive {
-  @apply text-2xl sm:text-3xl lg:text-4xl xl:text-5xl;
-}
-
-/* Enhanced Interactive Elements */
-.interactive {
-  @apply cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95;
-}
-
-.interactive-card {
-  @apply cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1 active:scale-95;
-}
-
-/* Enhanced Form Elements */
-.form-group {
-  @apply space-y-2;
-}
-
-.form-label {
-  @apply text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70;
-}
-
-.form-error {
-  @apply text-sm text-destructive;
-}
-
-.form-help {
-  @apply text-sm text-muted-foreground;
-}
-
-/* Enhanced Layout Components */
-.layout-header {
-  @apply sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60;
-}
-
-.layout-main {
-  @apply flex-1;
-}
-
-.layout-footer {
-  @apply border-t bg-muted/50;
-}
-
-/* Enhanced Sidebar Styles */
-.sidebar {
-  @apply flex h-full w-64 flex-col border-r bg-muted/40;
-}
-
-.sidebar-header {
-  @apply flex h-16 items-center border-b px-6;
-}
-
-.sidebar-content {
-  @apply flex-1 overflow-auto;
-}
-
-.sidebar-footer {
-  @apply border-t p-4;
-}
-
-/* Enhanced Modal Styles */
-.modal-overlay {
-  @apply fixed inset-0 z-50 bg-background/80 backdrop-blur-sm;
-}
-
-.modal-content {
-  @apply fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 sm:rounded-lg;
-}
-
-/* Enhanced Tooltip Styles */
-.tooltip {
-  @apply absolute z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2;
-}
-
-/* Enhanced Progress Bar */
-.progress {
-  @apply relative h-2 w-full overflow-hidden rounded-full bg-secondary;
-}
-
-.progress-indicator {
-  @apply h-full w-full flex-1 bg-primary transition-all;
-}
-
-/* Enhanced Skeleton Loading */
-.skeleton {
-  @apply animate-pulse rounded-md bg-muted;
-}
-
-.skeleton-text {
-  @apply skeleton h-4 w-full;
-}
-
-.skeleton-avatar {
-  @apply skeleton h-10 w-10 rounded-full;
-}
-
-.skeleton-button {
-  @apply skeleton h-9 w-20;
-}
-
-/* Enhanced Scrollbar */
-.custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: hsl(var(--muted)) transparent;
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: hsl(var(--muted));
-  border-radius: 3px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: hsl(var(--muted-foreground));
-}
-
-/* Enhanced Selection */
-::selection {
-  @apply bg-primary/20 text-primary-foreground;
-}
-
-/* Enhanced Print Styles */
-@media print {
-  .no-print {
-    display: none !important;
+/* Responsive Design */
+@media (max-width: 768px) {
+  .mdx-content {
+    @apply px-4 py-6;
   }
   
-  .print-break {
-    page-break-before: always;
-  }
-}
-
-/* Enhanced High Contrast Mode */
-@media (prefers-contrast: high) {
-  .btn {
-    @apply border-2;
+  .mdx-content h1 {
+    @apply text-3xl;
   }
   
-  .card {
-    @apply border-2;
+  .mdx-content h2 {
+    @apply text-xl;
   }
   
-  .input {
-    @apply border-2;
+  .contact-grid {
+    @apply grid-cols-1;
   }
-}
-
-/* Enhanced Reduced Motion */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* Enhanced Focus Visible */
-.focus-visible {
-  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
-}
-
-/* Enhanced Disabled States */
-.disabled {
-  @apply pointer-events-none opacity-50;
-}
-
-/* Enhanced Loading Spinner */
-.spinner {
-  @apply animate-spin rounded-full border-2 border-muted border-t-primary;
-}
-
-/* Enhanced Toast Styles */
-.toast {
-  @apply fixed top-4 right-4 z-50 rounded-lg border bg-background p-4 shadow-lg;
-}
-
-.toast-success {
-  @apply border-green-200 bg-green-50 text-green-900 dark:border-green-800 dark:bg-green-950 dark:text-green-100;
-}
-
-.toast-error {
-  @apply border-red-200 bg-red-50 text-red-900 dark:border-red-800 dark:bg-red-950 dark:text-red-100;
-}
-
-.toast-warning {
-  @apply border-yellow-200 bg-yellow-50 text-yellow-900 dark:border-yellow-800 dark:bg-yellow-950 dark:text-yellow-100;
-}
-
-.toast-info {
-  @apply border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-100;
 }

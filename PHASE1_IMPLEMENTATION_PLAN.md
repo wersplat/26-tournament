@@ -3,6 +3,7 @@
 ## Current Status ✅
 
 ### Working Operations (Current Schema)
+
 - ✅ **User Mutations**: `CreateUser`, `UpdateUser`, `DeleteUser`
 - ✅ **Match Mutations**: `SubmitMatch`, `UpdateMatch`, `DeleteMatch`, `SubmitMatchStats`
 - ✅ **Player Queries**: `GetPlayers`, `GetPlayer` (with filtering)
@@ -11,6 +12,7 @@
 - ✅ **Match Queries**: `GetMatches`, `GetMatch` (with filtering)
 
 ### Missing Input Types (Need to be added to backend schema)
+
 - ❌ `MatchInput` - Required for `submitMatch`
 - ❌ `MatchUpdateInput` - Required for `updateMatch`
 - ❌ `PlayerMatchStatsInput` - Required for `submitMatchStats`
@@ -20,6 +22,7 @@
 ### Step 1: Backend Schema Updates (High Priority)
 
 #### 1.1 Add Missing Input Types to Backend Schema
+
 ```graphql
 # Add to graphql-server/src/schema.graphql
 
@@ -90,6 +93,7 @@ input PlayerMatchStatsInput {
 ```
 
 #### 1.2 Add New Mutations to Backend Schema
+
 ```graphql
 # Add to Mutation type in graphql-server/src/schema.graphql
 
@@ -139,6 +143,7 @@ updateMatchTime(id: ID!, timeElapsed: Int!): Match!
 ```
 
 #### 1.3 Add New Input Types for Mutations
+
 ```graphql
 # Add to graphql-server/src/schema.graphql
 
@@ -206,6 +211,7 @@ input EventUpdateInput {
 ```
 
 #### 1.4 Add New Queries to Backend Schema
+
 ```graphql
 # Add to Query type in graphql-server/src/schema.graphql
 
@@ -230,6 +236,7 @@ getEventStats(eventId: ID!): EventStats!
 ```
 
 #### 1.5 Add New Types for Analytics
+
 ```graphql
 # Add to graphql-server/src/schema.graphql
 
@@ -356,15 +363,18 @@ type EventLeaderboardEntry {
 ### Step 2: Frontend Implementation (After Backend Updates)
 
 #### 2.1 Create Enhanced Mutation Files
+
 - ✅ `src/graphql/mutations/players.graphql` - Player CRUD operations
 - ✅ `src/graphql/mutations/teams.graphql` - Team CRUD operations  
 - ✅ `src/graphql/mutations/events.graphql` - Event CRUD operations
 - ✅ `src/graphql/mutations/matches.graphql` - Enhanced match operations
 
 #### 2.2 Create Analytics Query Files
+
 - ✅ `src/graphql/queries/analytics.graphql` - Dashboard and analytics queries
 
 #### 2.3 Update Admin Components
+
 - Update `src/components/admin/admin-dashboard.tsx` to use `getDashboardStats`
 - Update `src/components/admin/admin-players-page.tsx` to use player mutations
 - Update `src/components/admin/admin-teams-page.tsx` to use team mutations
@@ -372,17 +382,20 @@ type EventLeaderboardEntry {
 - Update `src/components/admin/admin-matches-page.tsx` to use enhanced match operations
 
 #### 2.4 Update Service Layer
+
 - Update `src/services/admin-graphql-service.ts` to use new mutations
 - Update `src/services/graphql-service.ts` to use new queries
 
 ### Step 3: Testing and Validation
 
 #### 3.1 Backend Testing
+
 - Test all new mutations with sample data
 - Test all new queries with existing data
 - Validate input types and error handling
 
 #### 3.2 Frontend Testing
+
 - Test admin dashboard with new analytics
 - Test player management operations
 - Test team management operations
@@ -392,16 +405,19 @@ type EventLeaderboardEntry {
 ## Implementation Priority
 
 ### Immediate (Week 1)
+
 1. **Backend Schema Updates**: Add missing input types and new mutations
 2. **Backend Implementation**: Implement resolvers for new operations
 3. **Testing**: Validate backend operations
 
 ### Short Term (Week 2)
+
 1. **Frontend Mutations**: Create GraphQL mutation files
 2. **Frontend Queries**: Create analytics query files
 3. **Admin Components**: Update admin pages to use new operations
 
 ### Medium Term (Week 3-4)
+
 1. **Integration Testing**: End-to-end testing of all operations
 2. **Performance Optimization**: Optimize queries and mutations
 3. **Documentation**: Update API documentation
@@ -409,16 +425,19 @@ type EventLeaderboardEntry {
 ## Benefits After Implementation
 
 ### For Developers
+
 - ✅ **Complete CRUD Operations**: Full create, read, update, delete for all entities
 - ✅ **Type Safety**: All operations fully typed with generated hooks
 - ✅ **Consistent API**: Unified GraphQL interface for all operations
 
 ### For Users
+
 - ✅ **Enhanced Admin Panel**: Full management capabilities
 - ✅ **Rich Analytics**: Dashboard with comprehensive statistics
 - ✅ **Better User Experience**: Improved data management and insights
 
 ### For System
+
 - ✅ **Scalability**: Proper pagination and filtering
 - ✅ **Performance**: Optimized queries and caching
 - ✅ **Maintainability**: Clean, documented API structure

@@ -28,6 +28,7 @@ NEXT_PUBLIC_SITE_URL=https://your-domain.com
 ### 1. Vercel (Recommended)
 
 1. **Connect Repository**
+
    ```bash
    # Install Vercel CLI
    npm i -g vercel
@@ -52,6 +53,7 @@ NEXT_PUBLIC_SITE_URL=https://your-domain.com
    - Add environment variables in Railway dashboard
 
 2. **Deploy via CLI**
+
    ```bash
    # Install Railway CLI
    npm i -g @railway/cli
@@ -64,6 +66,7 @@ NEXT_PUBLIC_SITE_URL=https://your-domain.com
 ### 3. Docker Deployment
 
 1. **Build and Run**
+
    ```bash
    # Build image
    npm run docker:build
@@ -73,6 +76,7 @@ NEXT_PUBLIC_SITE_URL=https://your-domain.com
    ```
 
 2. **Docker Compose**
+
    ```bash
    # Start with nginx reverse proxy
    npm run docker:compose
@@ -84,17 +88,20 @@ NEXT_PUBLIC_SITE_URL=https://your-domain.com
 ### 4. Self-Hosted Server
 
 1. **Build Application**
+
    ```bash
    npm install
    npm run build
    ```
 
 2. **Start Production Server**
+
    ```bash
    npm start
    ```
 
 3. **Process Manager (PM2)**
+
    ```bash
    # Install PM2
    npm install -g pm2
@@ -138,16 +145,19 @@ NEXT_PUBLIC_SITE_URL=https://your-domain.com
 ## Security Considerations
 
 ### Environment Variables
+
 - Never commit `.env.local` to version control
 - Use different Supabase projects for staging/production
 - Rotate API keys regularly
 
 ### Authentication
+
 - Configure proper Supabase RLS policies
 - Set up proper OAuth redirect URLs
 - Enable MFA for admin accounts
 
 ### API Security
+
 - Rate limiting configured (nginx)
 - CORS properly configured
 - Input validation on all forms
@@ -155,6 +165,7 @@ NEXT_PUBLIC_SITE_URL=https://your-domain.com
 ## Performance Optimization
 
 ### Build Optimization
+
 ```bash
 # Analyze bundle size
 npm run analyze
@@ -164,11 +175,13 @@ npm run clean
 ```
 
 ### Caching Strategy
+
 - Static assets cached for 1 year
 - API responses cached appropriately
 - CDN configured for global distribution
 
 ### Database Optimization
+
 - Indexes on frequently queried columns
 - Connection pooling configured
 - Query optimization
@@ -178,6 +191,7 @@ npm run clean
 ### Common Issues
 
 1. **Build Failures**
+
    ```bash
    # Clean and rebuild
    npm run clean
@@ -203,11 +217,13 @@ npm run clean
 ### Health Check
 
 Monitor the health endpoint:
+
 ```bash
 curl https://your-domain.com/api/health
 ```
 
 Expected response:
+
 ```json
 {
   "status": "healthy",
@@ -221,6 +237,7 @@ Expected response:
 ## Support
 
 For deployment issues:
+
 1. Check the application logs
 2. Verify environment variables
 3. Test locally with production environment
