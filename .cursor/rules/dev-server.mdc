@@ -1,0 +1,5 @@
+---
+description: Check if the dev server is running before running the command to start the dev server.
+alwaysApply: false
+---
+Always check if the dev server is running before running the command to start the dev server.

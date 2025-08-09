@@ -24,20 +24,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
     setMounted(true);
   }, []);
 
-  if (!mounted) {
-    return (
-      <div className="min-h-screen bg-background">
-        {children}
-      </div>
-    );
-  }
-
   return (
     <ThemeProvider 
       attribute="class" 
       defaultTheme="system" 
       enableSystem
       disableTransitionOnChange={false}
+      forcedTheme={undefined}
     >
       <AuthProvider>
         <ApolloProvider client={apolloClient}>
