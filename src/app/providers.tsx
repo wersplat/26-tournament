@@ -4,10 +4,12 @@ import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/context/auth-context";
 import { ApolloProvider } from "@apollo/client";
 import { apolloClient } from "@/lib/graphql/client";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase';
 
 export function Providers({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+
   // Keep Apollo auth link token fresh on auth changes
   useEffect(() => {
     const supabase = createClient();
@@ -16,8 +18,27 @@ export function Providers({ children }: { children: React.ReactNode }) {
     });
     return () => subscription?.unsubscribe();
   }, []);
+
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-background">
+        {children}
+      </div>
+    );
+  }
+
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <ThemeProvider 
+      attribute="class" 
+      defaultTheme="system" 
+      enableSystem
+      disableTransitionOnChange={false}
+    >
       <AuthProvider>
         <ApolloProvider client={apolloClient}>
           {children}

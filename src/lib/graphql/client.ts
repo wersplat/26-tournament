@@ -9,17 +9,37 @@ const httpLink = createHttpLink({
 })
 
 const authLink = setContext(async (_, { headers }) => {
-  // Get the Supabase client
-  const supabase = createClient()
-  
-  // Get the current session
-  const { data: { session } } = await supabase.auth.getSession()
-  
-  // Return the headers to the context so httpLink can read them
-  return {
-    headers: {
-      ...headers,
-      authorization: session?.access_token ? `Bearer ${session.access_token}` : '',
+  // Handle server-side rendering
+  if (typeof window === 'undefined') {
+    return {
+      headers: {
+        ...headers,
+        authorization: '',
+      }
+    }
+  }
+
+  try {
+    // Get the Supabase client
+    const supabase = createClient()
+    
+    // Get the current session
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    // Return the headers to the context so httpLink can read them
+    return {
+      headers: {
+        ...headers,
+        authorization: session?.access_token ? `Bearer ${session.access_token}` : '',
+      }
+    }
+  } catch (error) {
+    console.error('Error getting auth token:', error)
+    return {
+      headers: {
+        ...headers,
+        authorization: '',
+      }
     }
   }
 })
@@ -51,9 +71,13 @@ export const apolloClient = new ApolloClient({
   defaultOptions: {
     watchQuery: {
       errorPolicy: 'all',
+      fetchPolicy: 'cache-and-network',
     },
     query: {
       errorPolicy: 'all',
+      fetchPolicy: 'cache-and-network',
     },
   },
+  // Disable SSR for Apollo Client
+  ssrMode: false,
 })

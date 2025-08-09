@@ -41,6 +41,8 @@ const nextConfig: NextConfig = {
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
+  // Disable static generation
+  output: 'standalone',
 };
 
 export default nextConfig;

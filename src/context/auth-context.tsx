@@ -1,6 +1,8 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { User } from '@supabase/supabase-js';
-import { createClient } from '@/lib/supabase';
+"use client";
+
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { User } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase";
 
 type AuthContextType = {
   user: User | null;
@@ -16,40 +18,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const supabase = createClient();
 
-  // Function to check if user is admin
   const checkAdminStatus = async (user: User | null) => {
-    try {
-      console.log('Checking admin status for user:', user?.email);
-      
-      if (!user) {
-        console.log('No user, setting admin to false');
-        setIsAdmin(false);
-        return;
-      }
+    if (!user) {
+      setIsAdmin(false);
+      return;
+    }
 
-      // Check if user is admin based on email
+    try {
+      // Check if user is admin by looking at their email or user metadata
       const adminEmails = [
-        'nba2kcager@gmail.com',
-        'bodegacatsgc@gmail.com',
-        'wersplat@gmail.com',
-        'c.werwaiss@gmail.com',
-        // Add more admin emails as needed
+        'admin@bodegacatsgc.gg',
+        'christian@bodegacatsgc.gg',
+        // Add other admin emails as needed
       ];
       
-      const isAdminEmail = adminEmails.includes(user.email || '');
-      console.log('Is admin email?', isAdminEmail);
-
-      // Check if user has admin role in Supabase
-      const isAdminUser = user.role === 'admin' || user.role === 'service_role';
-      console.log('Is admin user?', isAdminUser);
-
-      // User is admin if any method returns true
-      const finalAdminStatus = isAdminUser || isAdminEmail;
-      console.log('Final admin status:', finalAdminStatus);
-      setIsAdmin(finalAdminStatus);
-      
+      const isUserAdmin = adminEmails.includes(user.email || '');
+      setIsAdmin(isUserAdmin);
     } catch (error) {
       console.error('Error checking admin status:', error);
       setIsAdmin(false);
@@ -57,6 +44,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
     // Check for active session on mount
     const checkSession = async () => {
       try {
@@ -97,7 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [supabase.auth]);
+  }, [supabase.auth, mounted]);
 
   const signInWithDiscord = async () => {
     try {
@@ -150,8 +143,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
+  
+  // Handle server-side rendering
+  if (typeof window === 'undefined') {
+    return {
+      user: null,
+      loading: true,
+      isAdmin: false,
+      signInWithDiscord: async () => {},
+      signOut: async () => {},
+    };
+  }
+  
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
+  
   return context;
 };

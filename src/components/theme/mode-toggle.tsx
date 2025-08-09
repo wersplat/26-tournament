@@ -13,7 +13,27 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function ModeToggle() {
-  const { setTheme, theme } = useTheme();
+  const { setTheme, theme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+
+  // Prevent hydration mismatch
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        className="relative w-9 h-9 rounded-md hover:bg-accent hover:text-accent-foreground transition-all duration-200"
+        disabled
+      >
+        <Sun className="h-[1.2rem] w-[1.2rem]" />
+        <span className="sr-only">Loading theme</span>
+      </Button>
+    );
+  }
 
   return (
     <DropdownMenu>
@@ -35,7 +55,7 @@ export function ModeToggle() {
         >
           <Sun className="h-4 w-4" />
           <span>Light</span>
-          {theme === "light" && (
+          {resolvedTheme === "light" && (
             <div className="ml-auto w-2 h-2 bg-primary rounded-full"></div>
           )}
         </DropdownMenuItem>
@@ -45,7 +65,7 @@ export function ModeToggle() {
         >
           <Moon className="h-4 w-4" />
           <span>Dark</span>
-          {theme === "dark" && (
+          {resolvedTheme === "dark" && (
             <div className="ml-auto w-2 h-2 bg-primary rounded-full"></div>
           )}
         </DropdownMenuItem>

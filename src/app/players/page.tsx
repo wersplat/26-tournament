@@ -17,12 +17,19 @@ import {
 import { useState } from 'react'
 import { players } from '@/types/graphql'
 
+// Force dynamic rendering to prevent SSR issues
+export const dynamic = 'force-dynamic';
+
 // Using generated hook from src/graphql/players.graphql
 
 export default function PlayersPage() {
   const [searchTerm, setSearchTerm] = useState('')
   
-  const { loading, error, data } = useGetPlayersQuery({ variables: { limit: 100, offset: 0 } })
+  const { loading, error, data } = useGetPlayersQuery({ 
+    variables: { limit: 100, offset: 0 },
+    errorPolicy: 'all',
+    fetchPolicy: 'cache-and-network',
+  })
 
   if (loading) {
     return (

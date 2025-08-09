@@ -6,8 +6,7 @@ import { MobileNav } from "@/components/layout/mobile-nav";
 import { ModeToggle } from "@/components/theme/mode-toggle";
 import { UserProfile } from "@/components/auth/user-profile";
 import { useAuth } from "@/context/auth-context";
-import { Trophy, Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Trophy } from "lucide-react";
 
 export function Header() {
   const { user, isAdmin } = useAuth();
@@ -51,9 +50,7 @@ export function Header() {
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-6 md:gap-10">
           {/* Mobile Navigation */}
-          <div className="md:hidden">
-            <MobileNav items={navItems} />
-          </div>
+          <MobileNav items={navItems} />
           
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 group">
@@ -84,16 +81,6 @@ export function Header() {
           
           {/* User Profile */}
           <UserProfile />
-          
-          {/* Mobile Menu Button (hidden on desktop) */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="md:hidden"
-            aria-label="Toggle menu"
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
         </div>
       </div>
     </header>
