@@ -1,8 +1,8 @@
 import type { CodegenConfig } from '@graphql-codegen/cli';
 
 const config: CodegenConfig = {
-  schema: process.env.NEXT_PUBLIC_GRAPHQL_URL || 'https://graphql.bodegacatsgc.gg/graphql',
-  documents: ['src/**/*.{ts,tsx}'],
+  schema: '/Volumes/870SSD/Active GH Projects/graphql-server/src/schema.graphql',
+  documents: ['src/graphql/**/*.graphql'],
   ignoreNoDocuments: false,
   generates: {
     'src/types/generated/graphql.ts': {

@@ -1,35 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { leaderboardService } from '@/services';
+import { useState } from 'react';
+import { useGetPlayersQuery } from '@/types/generated/graphql';
 
 /**
  * Component to test API connectivity with the backend
  */
 export default function ApiTest() {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [topPlayers, setTopPlayers] = useState<any[]>([]);
+  const { loading, error, data } = useGetPlayersQuery({
+    variables: { limit: 5, offset: 0 },
+    errorPolicy: 'all',
+  });
 
-  useEffect(() => {
-    const fetchTopPlayers = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        // Fetch top 5 players from the leaderboard
-        const players = await leaderboardService.getTopPlayers(5);
-        setTopPlayers(players);
-      } catch (err: any) {
-        console.error('Error fetching top players:', err);
-        setError(err.message || 'Failed to fetch top players');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTopPlayers();
-  }, []);
+  const topPlayers = data?.getPlayers || [];
 
   return (
     <div className="p-6 max-w-lg mx-auto bg-white rounded-xl shadow-md">
@@ -45,7 +28,7 @@ export default function ApiTest() {
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
           <p className="font-bold">Error</p>
-          <p>{error}</p>
+          <p>{error.message}</p>
           <p className="text-sm mt-2">
             Make sure the GraphQL server is running at {process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:4000/graphql'}
           </p>
@@ -78,7 +61,7 @@ export default function ApiTest() {
                   <tr key={player.id} className="border-t">
                     <td className="py-2">{index + 1}</td>
                     <td className="py-2">{player.gamertag}</td>
-                    <td className="py-2">{player.current_rp}</td>
+                    <td className="py-2">{player.currentRp || 0}</td>
                   </tr>
                 ))}
               </tbody>

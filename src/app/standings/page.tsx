@@ -110,7 +110,7 @@ export default function StandingsPage() {
     }>();
 
     // Initialize team stats
-    teams.forEach(team => {
+    teams.forEach((team: any) => {
       teamStats.set(team.id, {
         wins: 0,
         losses: 0,
@@ -120,7 +120,7 @@ export default function StandingsPage() {
     });
 
     // Calculate stats from matches
-    matches.forEach(match => {
+    matches.forEach((match: any) => {
       if (match.status === 'completed' && match.homeScore !== null && match.awayScore !== null) {
         const homeStats = teamStats.get(match.homeTeam.id);
         const awayStats = teamStats.get(match.awayTeam.id);
@@ -148,7 +148,7 @@ export default function StandingsPage() {
     });
 
     // Convert to standings array
-    const standings: TeamStanding[] = teams.map(team => {
+    const standings: TeamStanding[] = teams.map((team: any) => {
       const stats = teamStats.get(team.id) || { wins: 0, losses: 0, pointsFor: 0, pointsAgainst: 0 };
       const totalGames = stats.wins + stats.losses;
       const winPercentage = totalGames > 0 ? stats.wins / totalGames : 0;

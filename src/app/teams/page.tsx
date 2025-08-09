@@ -1,7 +1,6 @@
 'use client'
 
-import { useQuery } from '@apollo/client'
-import { GET_TEAMS, GET_PLAYERS } from '@/lib/graphql/queries'
+import { useGetTeamsQuery, useGetPlayersQuery } from '@/types/generated/graphql'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -15,30 +14,13 @@ import {
   AlertCircle,
   UserCheck
 } from 'lucide-react'
-import { teams, players } from '@/types/graphql'
-
-interface GetTeamsData {
-  teamsCollection: {
-    edges: Array<{
-      node: teams
-    }>
-  }
-}
-
-interface GetPlayersData {
-  playersCollection: {
-    edges: Array<{
-      node: players
-    }>
-  }
-}
 
 export default function TeamsPage() {
-  const { loading: teamsLoading, error: teamsError, data: teamsData } = useQuery<GetTeamsData>(GET_TEAMS, {
+  const { loading: teamsLoading, error: teamsError, data: teamsData } = useGetTeamsQuery({
     errorPolicy: 'all',
   })
   
-  const { loading: playersLoading, error: playersError, data: playersData } = useQuery<GetPlayersData>(GET_PLAYERS, {
+  const { loading: playersLoading, error: playersError, data: playersData } = useGetPlayersQuery({
     errorPolicy: 'all',
   })
 
@@ -68,8 +50,8 @@ export default function TeamsPage() {
     )
   }
 
-  const teams = teamsData?.teamsCollection?.edges?.map(edge => edge.node) || []
-  const players = playersData?.playersCollection?.edges?.map(edge => edge.node) || []
+  const teams = teamsData?.getTeams || []
+  const players = playersData?.getPlayers || []
 
   if (!teams.length) {
     return (
@@ -84,14 +66,14 @@ export default function TeamsPage() {
 
   // Group players by team
   const playersByTeam = players.reduce((acc, player) => {
-    if (player.teams?.name) {
-      if (!acc[player.teams.name]) {
-        acc[player.teams.name] = []
+    if (player.teamName) {
+      if (!acc[player.teamName]) {
+        acc[player.teamName] = []
       }
-      acc[player.teams.name].push(player)
+      acc[player.teamName].push(player)
     }
     return acc
-  }, {} as Record<string, players[]>)
+  }, {} as Record<string, any[]>)
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -114,7 +96,7 @@ export default function TeamsPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <Avatar className="h-12 w-12">
-                      <AvatarImage src={team.logo_url || `/teams/${team.id}.svg`} alt={team.name} />
+                                                <AvatarImage src={team.logoUrl || `/teams/${team.id}.svg`} alt={team.name} />
                       <AvatarFallback className="text-lg font-bold">
                         {team.name.substring(0, 2).toUpperCase()}
                       </AvatarFallback>
@@ -150,11 +132,11 @@ export default function TeamsPage() {
                               <div className="flex items-center space-x-3 text-xs text-gray-500">
                                 <span className="flex items-center space-x-1">
                                   <Target className="h-3 w-3 text-red-500" />
-                                  <span>{player.player_rp?.toFixed(0) || '0'}</span>
+                                  <span>{player.currentRp?.toFixed(0) || '0'}</span>
                                 </span>
                                 <span className="flex items-center space-x-1">
                                   <Trophy className="h-3 w-3 text-yellow-500" />
-                                  <span>{player.player_rank_score?.toFixed(0) || '0'}</span>
+                                  <span>{player.peakRp?.toFixed(0) || '0'}</span>
                                 </span>
                                 <span className="flex items-center space-x-1">
                                   <TrendingUp className="h-3 w-3 text-green-500" />

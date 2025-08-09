@@ -75,25 +75,26 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
 export async function getAllPosts(): Promise<PostMeta[]> {
   const slugs = await getPostSlugs();
   const posts = await Promise.all(
-    slugs.map(async (slug) => {
+    slugs.map(async (slug): Promise<PostMeta | null> => {
       const post = await getPostBySlug(slug);
-      return post ? {
-        title: post.title,
-        date: post.date,
-        excerpt: post.excerpt,
-        author: post.author,
-        authorRole: post.authorRole,
-        coverImage: post.coverImage,
-        tags: post.tags,
-        slug: post.slug,
-      } : null;
+      return post
+        ? {
+            title: post.title,
+            date: post.date,
+            excerpt: post.excerpt,
+            author: post.author,
+            authorRole: post.authorRole,
+            coverImage: post.coverImage,
+            tags: post.tags,
+            slug: post.slug,
+          }
+        : null;
     })
   );
   
   // Filter out null values and sort by date (newest first)
-  return posts
-    .filter((post): post is PostMeta => post !== null)
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const nonNullPosts: PostMeta[] = posts.filter((post): post is PostMeta => post !== null);
+  return nonNullPosts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
 // Compile MDX content with components

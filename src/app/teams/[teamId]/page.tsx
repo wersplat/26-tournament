@@ -39,10 +39,10 @@ export default function TeamPage({ params }: TeamPageProps) {
   const errorMessage = handleGraphQLError(error);
 
   // Find the specific team
-  const team = teams.find(t => t.id === teamId);
+  const team = teams.find((t: any) => t.id === teamId);
   
   // Filter matches for this team
-  const teamMatches = matches.filter(match => 
+  const teamMatches = matches.filter((match: any) => 
     match.homeTeam.id === teamId || match.awayTeam.id === teamId
   );
 
@@ -137,7 +137,7 @@ export default function TeamPage({ params }: TeamPageProps) {
           <div className="bg-card border rounded-lg p-4 text-center">
             <div className="text-2xl font-bold">
               {team.players.length > 0 
-                ? (team.players.reduce((sum, p) => sum + p.stats.ppg, 0) / team.players.length).toFixed(1)
+                ? (team.players.reduce((sum: number, p: any) => sum + p.stats.ppg, 0) / team.players.length).toFixed(1)
                 : '0.0'
               }
             </div>
@@ -146,7 +146,7 @@ export default function TeamPage({ params }: TeamPageProps) {
           <div className="bg-card border rounded-lg p-4 text-center">
             <div className="text-2xl font-bold">
               {team.players.length > 0 
-                ? (team.players.reduce((sum, p) => sum + p.stats.rpg, 0) / team.players.length).toFixed(1)
+                ? (team.players.reduce((sum: number, p: any) => sum + p.stats.rpg, 0) / team.players.length).toFixed(1)
                 : '0.0'
               }
             </div>
@@ -177,7 +177,7 @@ export default function TeamPage({ params }: TeamPageProps) {
                     </tr>
                   </thead>
                   <tbody className="divide-y">
-                    {team.players.map((player) => (
+                    {team.players.map((player: any) => (
                       <tr key={player.id} className="hover:bg-muted/50">
                         <td className="px-4 py-3">
                           <Link href={`/players/${player.id}`} className="font-medium hover:text-primary">
@@ -226,7 +226,7 @@ export default function TeamPage({ params }: TeamPageProps) {
                     </tr>
                   </thead>
                   <tbody className="divide-y">
-                    {teamMatches.map((match) => {
+                    {teamMatches.map((match: any) => {
                       const isHome = match.homeTeam.id === teamId;
                       const opponent = isHome ? match.awayTeam : match.homeTeam;
                       const teamScore = isHome ? match.homeScore : match.awayScore;
@@ -292,7 +292,7 @@ export default function TeamPage({ params }: TeamPageProps) {
                     <span>Average PPG:</span>
                     <span className="font-medium">
                       {team.players.length > 0 
-                        ? (team.players.reduce((sum, p) => sum + p.stats.ppg, 0) / team.players.length).toFixed(1)
+                        ? (team.players.reduce((sum: number, p: any) => sum + p.stats.ppg, 0) / team.players.length).toFixed(1)
                         : '0.0'
                       }
                     </span>
@@ -301,7 +301,7 @@ export default function TeamPage({ params }: TeamPageProps) {
                     <span>Average RPG:</span>
                     <span className="font-medium">
                       {team.players.length > 0 
-                        ? (team.players.reduce((sum, p) => sum + p.stats.rpg, 0) / team.players.length).toFixed(1)
+                        ? (team.players.reduce((sum: number, p: any) => sum + p.stats.rpg, 0) / team.players.length).toFixed(1)
                         : '0.0'
                       }
                     </span>
@@ -324,7 +324,7 @@ export default function TeamPage({ params }: TeamPageProps) {
                     <span>Top Scorer:</span>
                     <span className="font-medium">
                       {team.players.length > 0 
-                        ? team.players.reduce((top, p) => p.stats.ppg > top.stats.ppg ? p : top).gamertag
+                        ? team.players.reduce((top: any, p: any) => p.stats.ppg > top.stats.ppg ? p : top).gamertag
                         : 'N/A'
                       }
                     </span>
@@ -333,7 +333,7 @@ export default function TeamPage({ params }: TeamPageProps) {
                     <span>Top Rebounder:</span>
                     <span className="font-medium">
                       {team.players.length > 0 
-                        ? team.players.reduce((top, p) => p.stats.rpg > top.stats.rpg ? p : top).gamertag
+                        ? team.players.reduce((top: any, p: any) => p.stats.rpg > top.stats.rpg ? p : top).gamertag
                         : 'N/A'
                       }
                     </span>

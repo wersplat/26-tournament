@@ -120,7 +120,7 @@ export function AdminDashboard() {
             <CardTitle className="text-sm font-medium">Active Players</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{players.filter(p => p.stats.ppg > 0).length}</div>
+            <div className="text-2xl font-bold">{players.filter((p: any) => p.stats.ppg > 0).length}</div>
           </CardContent>
         </Card>
       </div>
@@ -140,7 +140,7 @@ export function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {recentPlayers.map((player) => (
+                {recentPlayers.map((player: any) => (
                   <div key={player.id} className="flex items-center justify-between p-2 border rounded">
                     <div>
                       <div className="font-medium">{player.gamertag}</div>
@@ -165,14 +165,14 @@ export function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {recentTeams.map((team) => (
+                {recentTeams.map((team: any) => (
                   <div key={team.id} className="flex items-center justify-between p-2 border rounded">
                     <div>
                       <div className="font-medium">{team.name}</div>
                       <div className="text-sm text-muted-foreground">
                         Players: {team.players.length} | Avg PPG: {
                           team.players.length > 0 
-                            ? (team.players.reduce((sum, p) => sum + p.stats.ppg, 0) / team.players.length).toFixed(1)
+                            ? (team.players.reduce((sum: number, p: any) => sum + p.stats.ppg, 0) / team.players.length).toFixed(1)
                             : '0.0'
                         }
                       </div>
@@ -194,7 +194,7 @@ export function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {recentMatches.map((match) => (
+                {recentMatches.map((match: any) => (
                   <div key={match.id} className="flex items-center justify-between p-2 border rounded">
                     <div>
                       <div className="font-medium">

@@ -1,7 +1,7 @@
 // Comprehensive type definitions based on the database schema
 
 // Enums
-export enum EventTier {
+export enum EventTierLocal {
   T1 = 'T1',
   T2 = 'T2',
   T3 = 'T3',
@@ -23,7 +23,7 @@ export enum PlayerPosition {
   C = 'C'
 }
 
-export enum SalaryTier {
+export enum SalaryTierLocal {
   ROOKIE = 'rookie',
   VETERAN = 'veteran',
   ALL_STAR = 'all_star',
@@ -82,7 +82,7 @@ export interface Player {
   performance_score: number;
   player_rp: number;
   player_rank_score: number;
-  salary_tier?: SalaryTier;
+  salary_tier?: SalaryTierLocal;
   monthly_value: number;
   created_at: string;
   is_rookie?: boolean;
@@ -127,7 +127,7 @@ export interface Event {
   rules_url?: string;
   processed_at?: string;
   status: EventStatus;
-  tier?: EventTier;
+  tier?: EventTierLocal;
   season_number?: number;
   prize_pool?: number;
   // Computed fields

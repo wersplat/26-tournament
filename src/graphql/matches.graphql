@@ -1,0 +1,143 @@
+query GetMatches($limit: Int, $offset: Int, $eventId: UUID, $stage: MatchStage, $status: MatchStatus, $teamId: ID) {
+  getMatches(limit: $limit, offset: $offset, eventId: $eventId, stage: $stage, status: $status, teamId: $teamId) {
+    id
+    eventId
+    gameNumber
+    scheduledAt
+    startedAt
+    endedAt
+    playedAt
+    status
+    stage
+    isLive
+    timeElapsed
+    scoreA
+    scoreB
+    winnerId
+    winnerName
+    teamAId
+    teamAName
+    teamBId
+    teamBName
+    boxscoreUrl
+    createdAt
+    updatedAt
+    event {
+      id
+      name
+      eventType
+      status
+      tier
+    }
+    teamA {
+      id
+      name
+      logoUrl
+    }
+    teamB {
+      id
+      name
+      logoUrl
+    }
+    winner {
+      id
+      name
+      logoUrl
+    }
+  }
+}
+
+query GetMatch($id: ID!) {
+  getMatch(id: $id) {
+    id
+    eventId
+    gameNumber
+    scheduledAt
+    startedAt
+    endedAt
+    playedAt
+    status
+    stage
+    isLive
+    timeElapsed
+    scoreA
+    scoreB
+    winnerId
+    winnerName
+    teamAId
+    teamAName
+    teamBId
+    teamBName
+    boxscoreUrl
+    createdAt
+    updatedAt
+    event {
+      id
+      name
+      eventType
+      status
+      tier
+    }
+    teamA {
+      id
+      name
+      logoUrl
+    }
+    teamB {
+      id
+      name
+      logoUrl
+    }
+    winner {
+      id
+      name
+      logoUrl
+    }
+    teamAPlayers {
+      id
+      playerId
+      teamId
+      matchId
+      points
+      assists
+      rebounds
+      steals
+      blocks
+      turnovers
+      fouls
+      fgm
+      fga
+      threePointsMade
+      threePointsAttempted
+      ftm
+      fta
+      plusMinus
+      minutesPlayed
+      createdAt
+      updatedAt
+    }
+    teamBPlayers {
+      id
+      playerId
+      teamId
+      matchId
+      points
+      assists
+      rebounds
+      steals
+      blocks
+      turnovers
+      fouls
+      fgm
+      fga
+      threePointsMade
+      threePointsAttempted
+      ftm
+      fta
+      plusMinus
+      minutesPlayed
+      createdAt
+      updatedAt
+    }
+  }
+}

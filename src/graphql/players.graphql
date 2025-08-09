@@ -1,0 +1,25 @@
+query GetPlayers($limit: Int, $offset: Int, $region: String, $tier: PlayerTier) {
+  getPlayers(limit: $limit, offset: $offset, region: $region, tier: $tier) {
+    id
+    gamertag
+    position
+    currentRp
+    peakRp
+    salaryTier
+    teamName
+    tier
+    region
+    isVerified
+    createdAt
+    updatedAt
+    user {
+      id
+      username
+      email
+      fullName
+      isActive
+      isAdmin
+    }
+  }
+}
+

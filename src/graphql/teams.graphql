@@ -1,0 +1,25 @@
+query GetTeams($limit: Int, $offset: Int) {
+  getTeams(limit: $limit, offset: $offset) {
+    id
+    name
+    description
+    isActive
+    logoUrl
+    region
+    createdAt
+    updatedAt
+  }
+}
+
+query GetTeam($id: ID!) {
+  getTeam(id: $id) {
+    id
+    name
+    description
+    isActive
+    logoUrl
+    region
+    createdAt
+    updatedAt
+  }
+}

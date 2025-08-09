@@ -1,6 +1,6 @@
 'use client'
 
-import { gql, useQuery } from '@apollo/client'
+import { useGetPlayersQuery } from '@/types/generated/graphql'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -17,29 +17,12 @@ import {
 import { useState } from 'react'
 import { players } from '@/types/graphql'
 
-const GET_PLAYERS_LIST = gql`
-  query GetPlayersList($first: Int, $offset: Int) {
-    playersCollection(first: $first, offset: $offset, orderBy: ["player_rp DESC"]) {
-      edges {
-        node {
-          id
-          gamertag
-          position
-          player_rp
-          player_rank_score
-          teams { id name }
-        }
-      }
-    }
-  }
-`
+// Using generated hook from src/graphql/players.graphql
 
 export default function PlayersPage() {
   const [searchTerm, setSearchTerm] = useState('')
   
-  const { loading, error, data } = useQuery(GET_PLAYERS_LIST, {
-    errorPolicy: 'all',
-  })
+  const { loading, error, data } = useGetPlayersQuery({ variables: { limit: 100, offset: 0 } })
 
   if (loading) {
     return (
@@ -64,7 +47,14 @@ export default function PlayersPage() {
     )
   }
 
-  const playersList: players[] = data?.playersCollection?.edges?.map((edge: { node: players }) => edge.node) || []
+  const playersList = (data?.getPlayers ?? []).map((p) => ({
+    id: p.id,
+    gamertag: p.gamertag,
+    position: p.position as any,
+    player_rp: p.currentRp ?? 0,
+    player_rank_score: p.peakRp ?? 0,
+    teams: { id: '', name: p.teamName ?? '' },
+  }))
 
   if (!playersList.length) {
     return (

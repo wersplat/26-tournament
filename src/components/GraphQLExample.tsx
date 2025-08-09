@@ -89,7 +89,7 @@ export function GraphQLExample() {
                 Found {players.length} player{players.length !== 1 ? 's' : ''}
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {players.slice(0, 6).map((player) => (
+                {players.slice(0, 6).map((player: any) => (
                   <div key={player.id} className="p-3 border rounded-lg">
                     <div className="font-medium">{player.gamertag}</div>
                     <div className="text-sm text-gray-600">{player.team.name}</div>
@@ -156,7 +156,7 @@ export function GraphQLExample() {
                 Found {teams.length} team{teams.length !== 1 ? 's' : ''}
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {teams.map((team) => (
+                {teams.map((team: any) => (
                   <div key={team.id} className="p-3 border rounded-lg">
                     <div className="font-medium">{team.name}</div>
                     <div className="text-sm text-gray-600">
@@ -166,7 +166,7 @@ export function GraphQLExample() {
                       <div className="mt-2">
                         <div className="text-xs text-gray-500 mb-1">Top Players:</div>
                         <div className="space-y-1">
-                          {team.players.slice(0, 3).map((player) => (
+                          {team.players.slice(0, 3).map((player: any) => (
                             <div key={player.id} className="text-xs">
                               {player.gamertag} - {player.stats.ppg.toFixed(1)} PPG
                             </div>

@@ -70,7 +70,7 @@ export default function RankingsPage() {
       ...player,
       mvpPoints: Math.round((player.stats.ppg * 2 + player.stats.rpg + player.stats.apg * 1.5) * 10)
     }))
-    .sort((a, b) => (b.mvpPoints || 0) - (a.mvpPoints || 0))
+    .sort((a: PlayerRanking, b: PlayerRanking) => (b.mvpPoints || 0) - (a.mvpPoints || 0))
     .slice(0, 50); // Top 50 players
 
   // Calculate team rankings based on player stats

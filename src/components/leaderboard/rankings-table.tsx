@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { 
   Table, 
   TableBody, 
@@ -18,52 +18,39 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { leaderboardService, PlayerProfile, LeaderboardSortBy, PlayerTier } from '@/services';
+import { useGetPlayersQuery, PlayerTier as GraphQLPlayerTier } from '@/types/generated/graphql';
 
 interface RankingsTableProps {
   initialLimit?: number;
 }
 
 export function RankingsTable({ initialLimit = 10 }: RankingsTableProps) {
-  const [players, setPlayers] = useState<PlayerProfile[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<LeaderboardSortBy>(LeaderboardSortBy.CURRENT_RP);
-  const [tier, setTier] = useState<PlayerTier | undefined>(undefined);
-  const [limit, setLimit] = useState(initialLimit);
+  const [sortBy, setSortBy] = useState<'currentRp' | 'peakRp'>('currentRp');
+  const [tier, setTier] = useState<GraphQLPlayerTier | undefined>(undefined);
+  const [limit] = useState(initialLimit);
 
-  useEffect(() => {
-    fetchLeaderboard();
-  }, [sortBy, tier, limit]);
+  const { loading, error, data, refetch } = useGetPlayersQuery({
+    variables: {
+      limit,
+      offset: 0,
+      tier: tier || undefined,
+    },
+    errorPolicy: 'all',
+  });
 
-  const fetchLeaderboard = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      let data: PlayerProfile[];
-      
-      if (tier) {
-        data = await leaderboardService.getTierLeaderboard(tier, limit);
-      } else {
-        data = await leaderboardService.getGlobalLeaderboard(limit, 0, undefined, sortBy);
-      }
-      
-      setPlayers(data);
-    } catch (error) {
-      console.error('Error fetching leaderboard:', error);
-      setError(
-        error instanceof Error 
-          ? error.message 
-          : 'Failed to load leaderboard data. Please try again.'
-      );
-    } finally {
-      setLoading(false);
+  const players = data?.getPlayers || [];
+
+  // Sort players based on selected criteria
+  const sortedPlayers = [...players].sort((a, b) => {
+    if (sortBy === 'currentRp') {
+      return (b.currentRp || 0) - (a.currentRp || 0);
+    } else {
+      return (b.peakRp || 0) - (a.peakRp || 0);
     }
-  };
+  });
 
   const handleRefresh = () => {
-    fetchLeaderboard();
+    refetch();
   };
 
   return (
@@ -74,33 +61,31 @@ export function RankingsTable({ initialLimit = 10 }: RankingsTableProps) {
         <div className="flex flex-wrap gap-2">
           <Select
             value={sortBy}
-            onValueChange={(value) => setSortBy(value as LeaderboardSortBy)}
+            onValueChange={(value) => setSortBy(value as 'currentRp' | 'peakRp')}
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={LeaderboardSortBy.CURRENT_RP}>Current RP</SelectItem>
-              <SelectItem value={LeaderboardSortBy.PEAK_RP}>Peak RP</SelectItem>
-              <SelectItem value={LeaderboardSortBy.WINS}>Wins</SelectItem>
-              <SelectItem value={LeaderboardSortBy.WIN_RATE}>Win Rate</SelectItem>
+              <SelectItem value="currentRp">Current RP</SelectItem>
+              <SelectItem value="peakRp">Peak RP</SelectItem>
             </SelectContent>
           </Select>
           
           <Select
             value={tier || ''}
-            onValueChange={(value) => setTier(value ? value as PlayerTier : undefined)}
+            onValueChange={(value) => setTier(value ? value as GraphQLPlayerTier : undefined)}
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="All Tiers" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="">All Tiers</SelectItem>
-              <SelectItem value={PlayerTier.BRONZE}>Bronze</SelectItem>
-              <SelectItem value={PlayerTier.SILVER}>Silver</SelectItem>
-              <SelectItem value={PlayerTier.GOLD}>Gold</SelectItem>
-              <SelectItem value={PlayerTier.PLATINUM}>Platinum</SelectItem>
-              <SelectItem value={PlayerTier.DIAMOND}>Diamond</SelectItem>
+              <SelectItem value={GraphQLPlayerTier.Bronze}>Bronze</SelectItem>
+              <SelectItem value={GraphQLPlayerTier.Silver}>Silver</SelectItem>
+              <SelectItem value={GraphQLPlayerTier.Gold}>Gold</SelectItem>
+              <SelectItem value={GraphQLPlayerTier.Platinum}>Platinum</SelectItem>
+              <SelectItem value={GraphQLPlayerTier.Diamond}>Diamond</SelectItem>
             </SelectContent>
           </Select>
           
@@ -113,7 +98,7 @@ export function RankingsTable({ initialLimit = 10 }: RankingsTableProps) {
       
       {error && (
         <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md">
-          {error}
+          {error.message}
         </div>
       )}
       
@@ -146,28 +131,26 @@ export function RankingsTable({ initialLimit = 10 }: RankingsTableProps) {
                   </div>
                 </TableCell>
               </TableRow>
-            ) : players.length === 0 ? (
+            ) : sortedPlayers.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="h-24 text-center">
                   No players found
                 </TableCell>
               </TableRow>
             ) : (
-              players.map((player, index) => (
+              sortedPlayers.map((player, index) => (
                 <TableRow key={player.id}>
-                  <TableCell className="font-medium">{player.rank || index + 1}</TableCell>
+                  <TableCell className="font-medium">{index + 1}</TableCell>
                   <TableCell>{player.gamertag}</TableCell>
                   <TableCell>
-                    <span className={`inline-block px-2 py-1 rounded text-xs ${getPositionColor(player.position)}`}>
+                    <span className={`inline-block px-2 py-1 rounded text-xs ${getPositionColor(player.position || undefined)}`}>
                       {player.position || 'N/A'}
                     </span>
                   </TableCell>
-                  <TableCell className="text-right">{player.player_rp || 0}</TableCell>
-                  <TableCell className="text-right">{player.player_rank_score || 0}</TableCell>
-                  <TableCell className="text-right">{player.wins || 0}/{player.losses || 0}</TableCell>
-                  <TableCell className="text-right">
-                    {calculateWinRate(player.wins || 0, player.losses || 0)}%
-                  </TableCell>
+                  <TableCell className="text-right">{player.currentRp || 0}</TableCell>
+                  <TableCell className="text-right">{player.peakRp || 0}</TableCell>
+                  <TableCell className="text-right">0/0</TableCell>
+                  <TableCell className="text-right">0%</TableCell>
                 </TableRow>
               ))
             )}
@@ -175,15 +158,7 @@ export function RankingsTable({ initialLimit = 10 }: RankingsTableProps) {
         </Table>
       </div>
       
-      <div className="flex justify-center mt-4">
-        <Button 
-          variant="outline" 
-          onClick={() => setLimit(prev => prev + 10)}
-          disabled={loading}
-        >
-          Load More
-        </Button>
-      </div>
+
     </div>
   );
 }

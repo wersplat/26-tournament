@@ -88,7 +88,7 @@ export function AdminReportsPage() {
     averagePrizePool: 8500
   });
 
-  const filteredReports = reports.filter(report => {
+  const filteredReports = reports.filter((report: Report) => {
     return selectedReportType === "all" || report.type === selectedReportType;
   });
 
@@ -288,7 +288,7 @@ export function AdminReportsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {filteredReports.map((report) => (
+                 {filteredReports.map((report: Report) => (
                   <Card key={report.id} className="hover:shadow-md transition-shadow">
                     <CardHeader className="pb-3">
                       <div className="flex items-center justify-between">
@@ -355,13 +355,13 @@ export function AdminReportsPage() {
                     </TableRow>
                     <TableRow>
                       <TableCell>Active Players</TableCell>
-                      <TableCell>{players.filter(p => p.stats.ppg > 0).length}</TableCell>
+                      <TableCell>{players.filter((p: any) => p.stats.ppg > 0).length}</TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell>Average PPG</TableCell>
                       <TableCell>
                         {players.length > 0 
-                          ? (players.reduce((sum, p) => sum + p.stats.ppg, 0) / players.length).toFixed(1)
+                          ? (players.reduce((sum: number, p: any) => sum + p.stats.ppg, 0) / players.length).toFixed(1)
                           : '0.0'
                         }
                       </TableCell>
@@ -370,7 +370,7 @@ export function AdminReportsPage() {
                       <TableCell>Average RPG</TableCell>
                       <TableCell>
                         {players.length > 0 
-                          ? (players.reduce((sum, p) => sum + p.stats.rpg, 0) / players.length).toFixed(1)
+                          ? (players.reduce((sum: number, p: any) => sum + p.stats.rpg, 0) / players.length).toFixed(1)
                           : '0.0'
                         }
                       </TableCell>
@@ -399,13 +399,13 @@ export function AdminReportsPage() {
                     </TableRow>
                     <TableRow>
                       <TableCell>Active Teams</TableCell>
-                      <TableCell>{teams.filter(t => t.isActive).length}</TableCell>
+                      <TableCell>{teams.filter((t: any) => t.isActive).length}</TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell>Average Team Size</TableCell>
                       <TableCell>
                         {teams.length > 0 
-                          ? (teams.reduce((sum, t) => sum + (t.players?.length || 0), 0) / teams.length).toFixed(1)
+                          ? (teams.reduce((sum: number, t: any) => sum + (t.players?.length || 0), 0) / teams.length).toFixed(1)
                           : '0.0'
                         }
                       </TableCell>

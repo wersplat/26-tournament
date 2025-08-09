@@ -66,7 +66,7 @@ export const leaderboardService = {
     const players = await graphqlService.getPlayers(limit, offset, filter, orderBy);
     
     // Transform to PlayerProfile format
-    return players.map((player, index) => ({
+    return players.map((player: players, index: number) => ({
       ...player,
       rank: offset + index + 1,
       // Note: wins/losses would need to be calculated from match data
@@ -199,7 +199,7 @@ export const leaderboardService = {
     
     const players = await graphqlService.getPlayers(limit, offset, filter, orderBy);
     
-    return players.map((player, index) => ({
+    return players.map((player: players, index: number) => ({
       ...player,
       rank: offset + index + 1,
       wins: 0,

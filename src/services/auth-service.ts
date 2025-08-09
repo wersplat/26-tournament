@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase';
-import { apiClient } from './api-client';
 
 /**
  * Types for authentication data
@@ -128,6 +127,7 @@ export const authService = {
    * Get user profile from backend API
    */
   getUserProfile: async () => {
-    return apiClient.adminGet<User>('/auth/me');
+    // TODO: Implement with GraphQL when user profile endpoint is available
+    throw new Error('User profile endpoint not yet implemented');
   }
 };
