@@ -65,8 +65,8 @@ This is the official frontend for the 2K26 Tournament Series, built with Next.js
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/2k26-frontend.git
-cd 2k26-frontend
+git clone https://github.com/yourusername/26-tournament.git
+cd 26-tournament
 ```
 
 2. Install dependencies:
@@ -80,7 +80,7 @@ npm install
 ```
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-project-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
-NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_GRAPHQL_URL=http://localhost:4000/graphql
 ```
 
 4. Run the development server:
@@ -225,7 +225,7 @@ For production deployment, ensure you have these environment variables:
 ```
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-project-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
-NEXT_PUBLIC_API_URL=https://your-backend-api-url.com
+NEXT_PUBLIC_GRAPHQL_URL=https://graphql.bodegacatsgc.gg
 ```
 
 ### Deploying to Vercel
