@@ -6,9 +6,12 @@ import { MobileNav } from "@/components/layout/mobile-nav";
 import { ModeToggle } from "@/components/theme/mode-toggle";
 import { UserProfile } from "@/components/auth/user-profile";
 import { useAuth } from "@/context/auth-context";
+import { Trophy, Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export function Header() {
   const { user, isAdmin } = useAuth();
+  
   // Navigation items shared between desktop and mobile
   const navItems = [
     {
@@ -42,24 +45,55 @@ export function Header() {
       },
     ] : []),
   ];
+  
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-6 md:gap-10">
-          <MobileNav items={navItems} />
-          <Link href="/" className="hidden items-center space-x-2 md:flex">
-            <span className="font-bold text-xl">2K26</span>
+          {/* Mobile Navigation */}
+          <div className="md:hidden">
+            <MobileNav items={navItems} />
+          </div>
+          
+          {/* Logo */}
+          <Link href="/" className="flex items-center space-x-2 group">
+            <div className="relative">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-200">
+                <Trophy className="w-5 h-5 text-white" />
+              </div>
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>
+            </div>
+            <div className="flex flex-col">
+              <span className="font-bold text-xl bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                2K26
+              </span>
+              <span className="text-xs text-muted-foreground -mt-1">Tournament</span>
+            </div>
           </Link>
-          <Link href="/" className="flex items-center space-x-2 md:hidden">
-            <span className="font-bold text-xl">2K26</span>
-          </Link>
+          
+          {/* Desktop Navigation */}
           <div className="hidden md:flex">
             <MainNav />
           </div>
         </div>
+        
+        {/* Right side actions */}
         <div className="flex items-center space-x-4">
+          {/* Theme Toggle */}
           <ModeToggle />
+          
+          {/* User Profile */}
           <UserProfile />
+          
+          {/* Mobile Menu Button (hidden on desktop) */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="md:hidden"
+            aria-label="Toggle menu"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
         </div>
       </div>
     </header>

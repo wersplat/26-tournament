@@ -50,19 +50,22 @@ export function MainNav() {
   ];
 
   return (
-    <nav className="flex items-center space-x-6">
+    <nav className="flex items-center space-x-1">
       {routes.map((route) => (
         <Link
           key={route.href}
           href={route.href}
           className={cn(
-            "text-sm font-medium transition-colors hover:text-primary",
+            "relative px-3 py-2 text-sm font-medium transition-all duration-200 rounded-md hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
             route.active
-              ? "text-black dark:text-white"
-              : "text-muted-foreground"
+              ? "text-foreground bg-accent shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
           )}
         >
           {route.label}
+          {route.active && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
+          )}
         </Link>
       ))}
     </nav>
