@@ -7,8 +7,19 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "lint:fix": "next lint --fix",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "codegen": "graphql-codegen --config codegen.ts"
+    "codegen": "graphql-codegen --config codegen.ts",
+    "test": "cypress run",
+    "test:open": "cypress open",
+    "test:e2e": "cypress run --spec 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}'",
+    "docker:build": "docker build -t 26-tournament .",
+    "docker:run": "docker run -p 3000:3000 26-tournament",
+    "docker:compose": "docker-compose up -d",
+    "docker:compose:down": "docker-compose down",
+    "analyze": "ANALYZE=true npm run build",
+    "clean": "rm -rf .next out",
+    "postinstall": "npm run codegen"
   },
   "dependencies": {
     "@apollo/client": "^3.13.9",
@@ -62,5 +73,9 @@
     "tw-animate-css": "^1.3.6",
     "typescript": "^5"
   },
-  "type": "module"
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
 }
