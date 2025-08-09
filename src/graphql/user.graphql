@@ -1,0 +1,10 @@
+query GetCurrentUser {
+  user(id: "me") {
+    id
+    email
+    role
+    appRole
+    createdAt
+    updatedAt
+  }
+}

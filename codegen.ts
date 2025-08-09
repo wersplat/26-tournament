@@ -1,7 +1,7 @@
 import type { CodegenConfig } from '@graphql-codegen/cli';
 
 const config: CodegenConfig = {
-  schema: '/Volumes/870SSD/Active GH Projects/graphql-server/src/schema.graphql',
+  schema: '/Volumes/870SSD/Active GH Projects/graphql-server/src/schema-clean.graphql',
   documents: ['src/graphql/**/*.graphql'],
   ignoreNoDocuments: false,
   generates: {

@@ -3,6 +3,8 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase";
+import { GetCurrentUserDocument } from "@/types/generated/graphql";
+import { apolloClient } from "@/lib/graphql/client";
 
 type AuthContextType = {
   user: User | null;
@@ -28,7 +30,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      // Check if user is admin by looking at their email or user metadata
+      // First try to get admin status from GraphQL server
+      try {
+        const result = await apolloClient.query({
+          query: GetCurrentUserDocument,
+          fetchPolicy: 'network-only'
+        });
+        
+        if (result.data?.user) {
+          const serverUser = result.data.user;
+          const isUserAdmin = serverUser.appRole === 'ADMIN' || 
+                             serverUser.role === 'admin' ||
+                             serverUser.role === 'ADMIN';
+          setIsAdmin(isUserAdmin);
+          return;
+        }
+      } catch (serverError) {
+        console.log('Server admin check failed, falling back to email check:', serverError);
+      }
+
+      // Fallback to email-based check if server query fails
       const adminEmails = [
         'admin@bodegacatsgc.gg',
         'christian@bodegacatsgc.gg',

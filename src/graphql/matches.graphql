@@ -1,80 +1,35 @@
-query GetMatches($limit: Int, $offset: Int, $eventId: UUID, $stage: MatchStage, $status: MatchStatus, $teamId: ID) {
-  getMatches(limit: $limit, offset: $offset, eventId: $eventId, stage: $stage, status: $status, teamId: $teamId) {
-    id
-    eventId
-    gameNumber
-    scheduledAt
-    startedAt
-    endedAt
-    playedAt
-    status
-    stage
-    isLive
-    timeElapsed
-    scoreA
-    scoreB
-    winnerId
-    winnerName
-    teamAId
-    teamAName
-    teamBId
-    teamBName
-    boxscoreUrl
-    createdAt
-    updatedAt
-    event {
-      id
-      name
-      eventType
-      status
-      tier
-    }
-    teamA {
-      id
-      name
-      logoUrl
-    }
-    teamB {
-      id
-      name
-      logoUrl
-    }
-    winner {
-      id
-      name
-      logoUrl
+query GetMatches($pagination: PaginationInput) {
+  matches(pagination: $pagination) {
+    items
+    pagination {
+      total
+      page
+      limit
+      hasMore
     }
   }
 }
 
 query GetMatch($id: ID!) {
-  getMatch(id: $id) {
+  match(id: $id) {
     id
     eventId
-    gameNumber
-    scheduledAt
-    startedAt
-    endedAt
-    playedAt
-    status
-    stage
-    isLive
-    timeElapsed
+    teamAId
+    teamBId
+    winnerId
     scoreA
     scoreB
-    winnerId
-    winnerName
-    teamAId
-    teamAName
-    teamBId
-    teamBName
+    playedAt
     boxscoreUrl
-    createdAt
-    updatedAt
+    teamAName
+    stage
+    gameNumber
+    teamBName
+    winnerName
     event {
       id
       name
-      eventType
+      type
       status
       tier
     }
@@ -82,22 +37,37 @@ query GetMatch($id: ID!) {
       id
       name
       logoUrl
+      regionId
+      currentRp
+      eloRating
+      globalRank
+      leaderboardTier
     }
     teamB {
       id
       name
       logoUrl
+      regionId
+      currentRp
+      eloRating
+      globalRank
+      leaderboardTier
     }
     winner {
       id
       name
       logoUrl
+      regionId
+      currentRp
+      eloRating
+      globalRank
+      leaderboardTier
     }
-    teamAPlayers {
+    playerStats {
       id
       playerId
-      teamId
       matchId
+      teamId
       points
       assists
       rebounds
@@ -105,6 +75,8 @@ query GetMatch($id: ID!) {
       blocks
       turnovers
       fouls
+      ps
+      createdAt
       fgm
       fga
       threePointsMade
@@ -112,32 +84,14 @@ query GetMatch($id: ID!) {
       ftm
       fta
       plusMinus
-      minutesPlayed
-      createdAt
+      playerName
       updatedAt
-    }
-    teamBPlayers {
-      id
-      playerId
-      teamId
-      matchId
-      points
-      assists
-      rebounds
-      steals
-      blocks
-      turnovers
-      fouls
-      fgm
-      fga
-      threePointsMade
-      threePointsAttempted
-      ftm
-      fta
-      plusMinus
-      minutesPlayed
-      createdAt
-      updatedAt
+      player {
+        id
+        gamertag
+        position
+        salaryTier
+      }
     }
   }
 }

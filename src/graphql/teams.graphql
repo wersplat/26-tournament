@@ -1,25 +1,31 @@
-query GetTeams($limit: Int, $offset: Int) {
-  getTeams(limit: $limit, offset: $offset) {
-    id
-    name
-    description
-    isActive
-    logoUrl
-    region
-    createdAt
-    updatedAt
+query GetTeams($pagination: PaginationInput) {
+  teams(pagination: $pagination) {
+    items
+    pagination {
+      total
+      page
+      limit
+      hasMore
+    }
   }
 }
 
 query GetTeam($id: ID!) {
-  getTeam(id: $id) {
+  team(id: $id) {
     id
     name
-    description
-    isActive
     logoUrl
-    region
+    regionId
+    currentRp
+    eloRating
+    globalRank
+    leaderboardTier
     createdAt
-    updatedAt
+    playerRankScore
+    moneyWon
+    region {
+      id
+      name
+    }
   }
 }

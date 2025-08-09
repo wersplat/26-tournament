@@ -1,24 +1,45 @@
-query GetPlayers($limit: Int, $offset: Int, $region: String, $tier: PlayerTier) {
-  getPlayers(limit: $limit, offset: $offset, region: $region, tier: $tier) {
+query GetPlayers($pagination: PaginationInput) {
+  players(pagination: $pagination) {
+    items
+    pagination {
+      total
+      page
+      limit
+      hasMore
+    }
+  }
+}
+
+query GetPlayer($id: ID!) {
+  player(id: $id) {
     id
     gamertag
+    alternateGamertag
+    discordId
+    playerRp
     position
-    currentRp
-    peakRp
+    regionId
     salaryTier
-    teamName
-    tier
-    region
-    isVerified
+    isRookie
+    monthlyValue
+    performanceScore
+    playerRankScore
+    currentTeamId
+    twitterId
     createdAt
-    updatedAt
-    user {
+    team {
       id
-      username
-      email
-      fullName
-      isActive
-      isAdmin
+      name
+      logoUrl
+      regionId
+      currentRp
+      eloRating
+      globalRank
+      leaderboardTier
+    }
+    region {
+      id
+      name
     }
   }
 }

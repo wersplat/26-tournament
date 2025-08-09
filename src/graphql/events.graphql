@@ -1,37 +1,38 @@
-query GetEvents($limit: Int, $offset: Int, $eventType: EventType, $status: EventStatus) {
-  getEvents(limit: $limit, offset: $offset, eventType: $eventType, status: $status) {
-    id
-    name
-    description
-    eventType
-    status
-    tier
-    startDate
-    endDate
-    entryFee
-    maxParticipants
-    currentParticipants
-    createdBy
-    createdAt
-    updatedAt
+query GetEvents($pagination: PaginationInput) {
+  events(pagination: $pagination) {
+    items
+    pagination {
+      total
+      page
+      limit
+      hasMore
+    }
   }
 }
 
 query GetEvent($id: ID!) {
-  getEvent(id: $id) {
+  event(id: $id) {
     id
     name
-    description
-    eventType
-    status
-    tier
+    type
+    isGlobal
+    regionId
     startDate
     endDate
-    entryFee
-    maxParticipants
-    currentParticipants
-    createdBy
-    createdAt
-    updatedAt
+    maxRp
+    decayDays
+    processed
+    description
+    bannerUrl
+    rulesUrl
+    processedAt
+    status
+    tier
+    seasonNumber
+    prizePool
+    region {
+      id
+      name
+    }
   }
 }
