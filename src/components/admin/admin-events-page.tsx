@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useTeams } from "@/hooks/useGraphQL";
+import { useAdminTeams } from "@/hooks/useAdminSupabase";
 import { Loader2, Calendar, Users, Trophy, Plus, Edit, Trash2, Eye, Settings, Play, Pause, CheckCircle } from "lucide-react";
 
 interface Event {
@@ -41,7 +41,7 @@ interface EventGroup {
 }
 
 export function AdminEventsPage() {
-  const { teams, loading: teamsLoading } = useTeams();
+  const { teams, loading: teamsLoading } = useAdminTeams();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [selectedType, setSelectedType] = useState<string>("all");

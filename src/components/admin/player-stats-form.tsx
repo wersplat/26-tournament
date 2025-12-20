@@ -1,65 +1,77 @@
 "use client";
 
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-import { adminGraphqlService } from "@/services/admin-graphql-service";
+import { adminService } from "@/services/admin-service";
 import type { PlayerMatchStats } from "@/types/graphql";
+import { useAuth } from "@clerk/nextjs";
 
-type PlayerMatchStatsInput = Partial<Omit<PlayerMatchStats, 'id' | 'match_id'>> & {
-  playerId: string;
-  teamId: string;
-  minutesPlayed?: number;
-  plusMinus?: number;
-};
+// Use specific input type matching Supabase columns
+interface PlayerMatchStatsInput {
+  player_id: string;
+  team_id: string;
+  points: number;
+  assists: number;
+  rebounds: number;
+  steals: number;
+  blocks: number;
+  turnovers: number;
+  fouls: number;
+  fg_made: number;
+  fg_attempted: number;
+  three_points_made: number;
+  three_points_attempted: number;
+  ft_made: number;
+  ft_attempted: number;
+}
 
 interface PlayerStatsFormProps {
   matchId: string;
-  teamId: string;
   playerId: string;
-  playerName?: string;
+  teamId: string;
   onSuccess?: () => void;
-  onCancel?: () => void;
+  initialData?: Partial<PlayerMatchStats>;
 }
 
-export function PlayerStatsForm({ 
-  matchId, 
-  teamId, 
-  playerId, 
-  playerName,
-  onSuccess, 
-  onCancel 
-}: PlayerStatsFormProps) {
+export function PlayerStatsForm({ matchId, playerId, teamId, onSuccess, initialData }: PlayerStatsFormProps) {
   const [loading, setLoading] = useState(false);
-  const [stats, setStats] = useState<PlayerMatchStatsInput>({
-    playerId: playerId,
-    teamId: teamId,
-    points: 0,
-    assists: 0,
-    rebounds: 0,
-    steals: 0,
-    blocks: 0,
-    turnovers: 0,
-    fouls: 0,
-    fgm: 0,
-    fga: 0,
-    three_points_made: 0,
-    three_points_attempted: 0,
-    ftm: 0,
-    fta: 0,
-    plusMinus: 0,
-    minutesPlayed: 0
+  const { getToken } = useAuth();
+  
+  const { register, handleSubmit } = useForm<PlayerMatchStatsInput>({
+    defaultValues: {
+      player_id: playerId,
+      team_id: teamId,
+      points: initialData?.points || 0,
+      assists: initialData?.assists || 0,
+      rebounds: initialData?.rebounds || 0,
+      steals: initialData?.steals || 0,
+      blocks: initialData?.blocks || 0,
+      turnovers: initialData?.turnovers || 0,
+      fouls: initialData?.fouls || 0,
+      fg_made: (initialData as any)?.fg_made || 0,
+      fg_attempted: (initialData as any)?.fg_attempted || 0,
+      three_points_made: (initialData as any)?.three_points_made || 0,
+      three_points_attempted: (initialData as any)?.three_points_attempted || 0,
+      ft_made: (initialData as any)?.ft_made || 0,
+      ft_attempted: (initialData as any)?.ft_attempted || 0,
+    }
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: PlayerMatchStatsInput) => {
     setLoading(true);
     
+    const stats = {
+      ...data,
+      match_id: matchId,
+    };
+    
     try {
-      await adminGraphqlService.submitMatchStats(matchId, [stats]);
+      const token = await getToken();
+      await adminService.createPlayerStats(stats, token);
       onSuccess?.();
     } catch (error) {
       console.error('Error creating player stats:', error);
@@ -68,206 +80,69 @@ export function PlayerStatsForm({
     }
   };
 
-  const handleInputChange = (field: keyof PlayerMatchStatsInput, value: number) => {
-    setStats(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Player Statistics - {playerName || 'Unknown Player'}</CardTitle>
+        <CardTitle>Player Stats</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Basic Stats */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="points">Points</Label>
-              <Input
-                id="points"
-                type="number"
-                min="0"
-                value={stats.points}
-                onChange={(e) => handleInputChange('points', parseInt(e.target.value) || 0)}
-              />
+              <Input id="points" type="number" {...register("points", { valueAsNumber: true })} />
             </div>
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="assists">Assists</Label>
-              <Input
-                id="assists"
-                type="number"
-                min="0"
-                value={stats.assists}
-                onChange={(e) => handleInputChange('assists', parseInt(e.target.value) || 0)}
-              />
+              <Input id="assists" type="number" {...register("assists", { valueAsNumber: true })} />
             </div>
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="rebounds">Rebounds</Label>
-              <Input
-                id="rebounds"
-                type="number"
-                min="0"
-                value={stats.rebounds}
-                onChange={(e) => handleInputChange('rebounds', parseInt(e.target.value) || 0)}
-              />
+              <Input id="rebounds" type="number" {...register("rebounds", { valueAsNumber: true })} />
             </div>
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="steals">Steals</Label>
-              <Input
-                id="steals"
-                type="number"
-                min="0"
-                value={stats.steals}
-                onChange={(e) => handleInputChange('steals', parseInt(e.target.value) || 0)}
-              />
+              <Input id="steals" type="number" {...register("steals", { valueAsNumber: true })} />
             </div>
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="blocks">Blocks</Label>
-              <Input
-                id="blocks"
-                type="number"
-                min="0"
-                value={stats.blocks}
-                onChange={(e) => handleInputChange('blocks', parseInt(e.target.value) || 0)}
-              />
+              <Input id="blocks" type="number" {...register("blocks", { valueAsNumber: true })} />
             </div>
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="turnovers">Turnovers</Label>
-              <Input
-                id="turnovers"
-                type="number"
-                min="0"
-                value={stats.turnovers}
-                onChange={(e) => handleInputChange('turnovers', parseInt(e.target.value) || 0)}
-              />
+              <Input id="turnovers" type="number" {...register("turnovers", { valueAsNumber: true })} />
             </div>
-            <div>
-              <Label htmlFor="fouls">Fouls</Label>
-              <Input
-                id="fouls"
-                type="number"
-                min="0"
-                value={stats.fouls}
-                onChange={(e) => handleInputChange('fouls', parseInt(e.target.value) || 0)}
-              />
+            <div className="space-y-2">
+              <Label htmlFor="fg_made">FG Made</Label>
+              <Input id="fg_made" type="number" {...register("fg_made", { valueAsNumber: true })} />
             </div>
-            <div>
-              <Label htmlFor="plus_minus">+/-</Label>
-              <Input
-                id="plus_minus"
-                type="number"
-                value={stats.plusMinus}
-                onChange={(e) => handleInputChange('plusMinus', parseInt(e.target.value) || 0)}
-              />
+            <div className="space-y-2">
+              <Label htmlFor="fg_attempted">FG Attempted</Label>
+              <Input id="fg_attempted" type="number" {...register("fg_attempted", { valueAsNumber: true })} />
             </div>
-          </div>
-
-          {/* Shooting Stats */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Shooting Statistics</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div>
-                <Label htmlFor="fgm">Field Goals Made</Label>
-                <Input
-                  id="fgm"
-                  type="number"
-                  min="0"
-                  value={stats.fgm}
-                  onChange={(e) => handleInputChange('fgm', parseInt(e.target.value) || 0)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="fga">Field Goals Attempted</Label>
-                <Input
-                  id="fga"
-                  type="number"
-                  min="0"
-                  value={stats.fga}
-                  onChange={(e) => handleInputChange('fga', parseInt(e.target.value) || 0)}
-                />
-              </div>
-              <div>
+            <div className="space-y-2">
               <Label htmlFor="three_points_made">3PT Made</Label>
-                <Input
-                  id="three_points_made"
-                  type="number"
-                  min="0"
-                  value={stats.three_points_made}
-                  onChange={(e) => handleInputChange('three_points_made', parseInt(e.target.value) || 0)}
-                />
-              </div>
-              <div>
+              <Input id="three_points_made" type="number" {...register("three_points_made", { valueAsNumber: true })} />
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="three_points_attempted">3PT Attempted</Label>
-                <Input
-                  id="three_points_attempted"
-                  type="number"
-                  min="0"
-                  value={stats.three_points_attempted}
-                  onChange={(e) => handleInputChange('three_points_attempted', parseInt(e.target.value) || 0)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="ftm">Free Throws Made</Label>
-                <Input
-                  id="ftm"
-                  type="number"
-                  min="0"
-                  value={stats.ftm}
-                  onChange={(e) => handleInputChange('ftm', parseInt(e.target.value) || 0)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="fta">Free Throws Attempted</Label>
-                <Input
-                  id="fta"
-                  type="number"
-                  min="0"
-                  value={stats.fta}
-                  onChange={(e) => handleInputChange('fta', parseInt(e.target.value) || 0)}
-                />
-              </div>
+              <Input id="three_points_attempted" type="number" {...register("three_points_attempted", { valueAsNumber: true })} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="ft_made">FT Made</Label>
+              <Input id="ft_made" type="number" {...register("ft_made", { valueAsNumber: true })} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="ft_attempted">FT Attempted</Label>
+              <Input id="ft_attempted" type="number" {...register("ft_attempted", { valueAsNumber: true })} />
             </div>
           </div>
-
-          {/* Summary Stats */}
-          <div className="bg-muted p-4 rounded-lg">
-            <h3 className="text-lg font-semibold mb-2">Summary</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <div>
-                <span className="font-medium">FG%: </span>
-                <span>{(stats.fga || 0) > 0 ? ((stats.fgm || 0) / (stats.fga || 1) * 100).toFixed(1) : '0.0'}%</span>
-              </div>
-              <div>
-                <span className="font-medium">3PT%: </span>
-                <span>{(stats.three_points_attempted || 0) > 0 ? ((stats.three_points_made || 0) / (stats.three_points_attempted || 1) * 100).toFixed(1) : '0.0'}%</span>
-              </div>
-              <div>
-                <span className="font-medium">FT%: </span>
-                <span>{(stats.fta || 0) > 0 ? ((stats.ftm || 0) / (stats.fta || 1) * 100).toFixed(1) : '0.0'}%</span>
-              </div>
-              <div>
-                <span className="font-medium">Total: </span>
-                <span>{stats.points}P, {stats.rebounds}R, {stats.assists}A</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Form Actions */}
-          <div className="flex justify-end space-x-2">
-            {onCancel && (
-              <Button type="button" variant="outline" onClick={onCancel}>
-                Cancel
-              </Button>
-            )}
-            <Button type="submit" disabled={loading}>
-              {loading ? "Saving..." : "Save Stats"}
-            </Button>
-          </div>
+          
+          <Button type="submit" disabled={loading}>
+            {loading ? "Saving..." : "Save Stats"}
+          </Button>
         </form>
       </CardContent>
     </Card>
   );
-} 
+}

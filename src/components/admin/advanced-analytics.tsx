@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,14 +16,7 @@ import {
   RefreshCw,
   Loader2
 } from "lucide-react";
-import { 
-  useGetPlayersQuery,
-  useGetTeamsQuery,
-  useGetMatchesQuery,
-  useGetEventsQuery,
-  PlayerTier,
-  PlayerPosition
-} from "@/types/generated/graphql";
+import { useAdminPlayers, useAdminTeams, useAdminMatches, useAdminEvents } from "@/hooks/useAdminSupabase";
 
 interface AdvancedAnalyticsProps {
   onRefresh?: () => void;
@@ -33,30 +26,10 @@ export function AdvancedAnalytics({ onRefresh }: AdvancedAnalyticsProps) {
   const [timeRange, setTimeRange] = useState<string>('all');
   const [selectedTier, setSelectedTier] = useState<string>('all');
 
-  const { data: playersData, loading: playersLoading, refetch: refetchPlayers } = useGetPlayersQuery({
-    variables: { limit: 500, offset: 0 },
-    errorPolicy: 'all',
-  });
-
-  const { data: teamsData, loading: teamsLoading, refetch: refetchTeams } = useGetTeamsQuery({
-    variables: { limit: 100, offset: 0 },
-    errorPolicy: 'all',
-  });
-
-  const { data: matchesData, loading: matchesLoading, refetch: refetchMatches } = useGetMatchesQuery({
-    variables: { limit: 200, offset: 0 },
-    errorPolicy: 'all',
-  });
-
-  const { data: eventsData, loading: eventsLoading, refetch: refetchEvents } = useGetEventsQuery({
-    variables: { limit: 100, offset: 0 },
-    errorPolicy: 'all',
-  });
-
-  const players = playersData?.getPlayers || [];
-  const teams = teamsData?.getTeams || [];
-  const matches = matchesData?.getMatches || [];
-  const events = eventsData?.getEvents || [];
+  const { players, loading: playersLoading, refetch: refetchPlayers } = useAdminPlayers();
+  const { teams, loading: teamsLoading, refetch: refetchTeams } = useAdminTeams();
+  const { matches, loading: matchesLoading, refetch: refetchMatches } = useAdminMatches();
+  const { events, loading: eventsLoading, refetch: refetchEvents } = useAdminEvents();
 
   const loading = playersLoading || teamsLoading || matchesLoading || eventsLoading;
 
@@ -64,69 +37,69 @@ export function AdvancedAnalytics({ onRefresh }: AdvancedAnalyticsProps) {
   const stats = {
     // Player Statistics
     totalPlayers: players.length,
-    verifiedPlayers: players.filter(p => p.isVerified).length,
-    unverifiedPlayers: players.filter(p => !p.isVerified).length,
-    averageRP: players.length > 0 ? Math.round(players.reduce((sum, p) => sum + (p.currentRp || 0), 0) / players.length) : 0,
-    averagePeakRP: players.length > 0 ? Math.round(players.reduce((sum, p) => sum + (p.peakRp || 0), 0) / players.length) : 0,
+    verifiedPlayers: players.length, // assuming all verified
+    unverifiedPlayers: 0,
+    averageRP: players.length > 0 ? Math.round(players.reduce((sum: number, p: any) => sum + (p.player_rp || 0), 0) / players.length) : 0,
+    averagePeakRP: players.length > 0 ? Math.round(players.reduce((sum: number, p: any) => sum + (p.player_rp || 0), 0) / players.length) : 0, // using current as peak fallback
     
     // Team Statistics
     totalTeams: teams.length,
-    activeTeams: teams.filter(t => t.isActive).length,
-    inactiveTeams: teams.filter(t => !t.isActive).length,
-    averageTeamSize: teams.length > 0 ? Math.round(players.filter(p => p.teamName).length / teams.length) : 0,
+    activeTeams: teams.length, // assuming all active
+    inactiveTeams: 0,
+    averageTeamSize: teams.length > 0 ? Math.round(players.filter((p: any) => p.team).length / teams.length) : 0,
     
     // Match Statistics
     totalMatches: matches.length,
-    completedMatches: matches.filter(m => m.status === 'completed').length,
-    liveMatches: matches.filter(m => m.status === 'live').length,
-    scheduledMatches: matches.filter(m => m.status === 'scheduled').length,
+    completedMatches: matches.filter((m: any) => m.status === 'completed').length,
+    liveMatches: matches.filter((m: any) => m.status === 'live').length,
+    scheduledMatches: matches.filter((m: any) => m.status === 'scheduled').length,
     
     // Event Statistics
     totalEvents: events.length,
-    activeEvents: events.filter(e => e.status === 'in_progress').length,
-    upcomingEvents: events.filter(e => e.status === 'open').length,
-    completedEvents: events.filter(e => e.status === 'completed').length,
+    activeEvents: events.filter((e: any) => e.status === 'in_progress').length,
+    upcomingEvents: events.filter((e: any) => e.status === 'open').length,
+    completedEvents: events.filter((e: any) => e.status === 'completed').length,
   };
 
   // Tier Distribution
-  const tierDistribution = {
-    bronze: players.filter(p => p.tier === 'bronze').length,
-    silver: players.filter(p => p.tier === 'silver').length,
-    gold: players.filter(p => p.tier === 'gold').length,
-    platinum: players.filter(p => p.tier === 'platinum').length,
-    diamond: players.filter(p => p.tier === 'diamond').length,
-    pink_diamond: players.filter(p => p.tier === 'pink_diamond').length,
-    galaxy_opal: players.filter(p => p.tier === 'galaxy_opal').length,
-    unranked: players.filter(p => !p.tier).length,
+  const tierDistribution: Record<string, number> = {
+    bronze: players.filter((p: any) => p.salary_tier === 'bronze').length,
+    silver: players.filter((p: any) => p.salary_tier === 'silver').length,
+    gold: players.filter((p: any) => p.salary_tier === 'gold').length,
+    platinum: players.filter((p: any) => p.salary_tier === 'platinum').length,
+    diamond: players.filter((p: any) => p.salary_tier === 'diamond').length,
+    pink_diamond: players.filter((p: any) => p.salary_tier === 'pink_diamond').length,
+    galaxy_opal: players.filter((p: any) => p.salary_tier === 'galaxy_opal').length,
+    unranked: players.filter((p: any) => !p.salary_tier).length,
   };
 
   // Position Distribution
-  const positionDistribution = {
-    Point_Guard: players.filter(p => p.position === 'Point_Guard').length,
-    Shooting_Guard: players.filter(p => p.position === 'Shooting_Guard').length,
-    Power_Forward: players.filter(p => p.position === 'Power_Forward').length,
-    Center: players.filter(p => p.position === 'Center').length,
-    Lock: players.filter(p => p.position === 'Lock').length,
-    unspecified: players.filter(p => !p.position).length,
+  const positionDistribution: Record<string, number> = {
+    Point_Guard: players.filter((p: any) => p.position === 'Point_Guard').length,
+    Shooting_Guard: players.filter((p: any) => p.position === 'Shooting_Guard').length,
+    Power_Forward: players.filter((p: any) => p.position === 'Power_Forward').length,
+    Center: players.filter((p: any) => p.position === 'Center').length,
+    Lock: players.filter((p: any) => p.position === 'Lock').length,
+    unspecified: players.filter((p: any) => !p.position).length,
   };
 
   // Top Players by RP
   const topPlayersByRP = [...players]
-    .sort((a, b) => (b.currentRp || 0) - (a.currentRp || 0))
+    .sort((a: any, b: any) => (b.player_rp || 0) - (a.player_rp || 0))
     .slice(0, 10);
 
   // Top Teams by Average RP
-  const topTeamsByAverageRP = teams.map(team => {
-    const teamPlayers = players.filter(p => p.teamName === team.name);
+  const topTeamsByAverageRP = teams.map((team: any) => {
+    const teamPlayers = players.filter((p: any) => p.team?.id === team.id);
     const averageRP = teamPlayers.length > 0 
-      ? teamPlayers.reduce((sum, p) => sum + (p.currentRp || 0), 0) / teamPlayers.length 
+      ? teamPlayers.reduce((sum: number, p: any) => sum + (p.player_rp || 0), 0) / teamPlayers.length 
       : 0;
     return { ...team, averageRP, playerCount: teamPlayers.length };
-  }).sort((a, b) => b.averageRP - a.averageRP).slice(0, 10);
+  }).sort((a: any, b: any) => b.averageRP - a.averageRP).slice(0, 10);
 
   // Region Distribution
-  const regionDistribution = players.reduce((acc, player) => {
-    const region = player.region || 'Unknown';
+  const regionDistribution = players.reduce((acc: Record<string, number>, player: any) => {
+    const region = player.region?.name || 'Unknown';
     acc[region] = (acc[region] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
@@ -304,7 +277,7 @@ export function AdvancedAnalytics({ onRefresh }: AdvancedAnalyticsProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {topPlayersByRP.map((player, index) => (
+                  {topPlayersByRP.map((player: any, index: number) => (
                     <div key={player.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                       <div className="flex items-center gap-3">
                         <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs font-medium">
@@ -313,14 +286,14 @@ export function AdvancedAnalytics({ onRefresh }: AdvancedAnalyticsProps) {
                         <div>
                           <div className="font-medium text-sm sm:text-base">{player.gamertag}</div>
                           <div className="text-xs sm:text-sm text-muted-foreground">
-                            {player.teamName || 'No Team'} • {player.tier || 'Unranked'}
+                            {player.team?.name || 'No Team'} • {player.salary_tier || 'Unranked'}
                           </div>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-medium text-sm sm:text-base">{player.currentRp || 0} RP</div>
-                        <div className="text-xs sm:text-sm text-muted-foreground">
-                          Peak: {player.peakRp || 0}
+                        <div className="font-medium text-sm sm:text-base">{player.player_rp || 0} RP</div>
+                        <div className="text-xs text-muted-foreground">
+                          Peak: {player.player_rp || 0}
                         </div>
                       </div>
                     </div>
@@ -337,13 +310,13 @@ export function AdvancedAnalytics({ onRefresh }: AdvancedAnalyticsProps) {
               <CardContent>
                 <div className="space-y-3">
                   {Object.entries(regionDistribution)
-                    .sort(([,a], [,b]) => b - a)
+                    .sort(([,a], [,b]) => (b as number) - (a as number))
                     .map(([region, count]) => (
                     <div key={region} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className="text-xs">{region}</Badge>
                       </div>
-                      <div className="text-sm font-medium">{count}</div>
+                      <div className="text-sm font-medium">{String(count)}</div>
                     </div>
                   ))}
                 </div>
@@ -362,7 +335,7 @@ export function AdvancedAnalytics({ onRefresh }: AdvancedAnalyticsProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {topTeamsByAverageRP.map((team, index) => (
+                  {topTeamsByAverageRP.map((team: any, index: number) => (
                     <div key={team.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                       <div className="flex items-center gap-3">
                         <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs font-medium">
@@ -371,14 +344,14 @@ export function AdvancedAnalytics({ onRefresh }: AdvancedAnalyticsProps) {
                         <div>
                           <div className="font-medium text-sm sm:text-base">{team.name}</div>
                           <div className="text-xs sm:text-sm text-muted-foreground">
-                            {team.playerCount} players • {team.region || 'No Region'}
+                            {team.playerCount} players • {team.region?.name || 'No Region'}
                           </div>
                         </div>
                       </div>
                       <div className="text-right">
                         <div className="font-medium text-sm sm:text-base">{Math.round(team.averageRP)} RP</div>
-                        <Badge variant={team.isActive ? "default" : "secondary"} className="text-xs">
-                          {team.isActive ? "Active" : "Inactive"}
+                        <Badge variant="default" className="text-xs">
+                          Active
                         </Badge>
                       </div>
                     </div>
@@ -449,17 +422,17 @@ export function AdvancedAnalytics({ onRefresh }: AdvancedAnalyticsProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {matches.slice(0, 10).map((match) => (
+                  {matches.slice(0, 10).map((match: any) => (
                     <div key={match.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                       <div>
-                        <div className="font-medium text-sm sm:text-base">{match.teamAName} vs {match.teamBName}</div>
+                        <div className="font-medium text-sm sm:text-base">{match.team_a_name} vs {match.team_b_name}</div>
                         <div className="text-xs sm:text-sm text-muted-foreground">
                           {match.stage} • {match.status}
                         </div>
                       </div>
                       <div className="text-right">
                         <div className="font-medium text-sm sm:text-base">
-                          {match.scoreA || 0} - {match.scoreB || 0}
+                          {match.score_a || 0} - {match.score_b || 0}
                         </div>
                         <Badge variant={
                           match.status === 'completed' ? "default" : 
@@ -513,18 +486,18 @@ export function AdvancedAnalytics({ onRefresh }: AdvancedAnalyticsProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {events.slice(0, 10).map((event) => (
+                  {events.slice(0, 10).map((event: any) => (
                     <div key={event.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                       <div>
                         <div className="font-medium text-sm sm:text-base">{event.name}</div>
                         <div className="text-xs sm:text-sm text-muted-foreground">
-                          {event.eventType} • {event.tier}
+                          {event.type} • {event.tier}
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-xs sm:text-sm">
+                        {/* <div className="text-xs sm:text-sm">
                           {event.currentParticipants}/{event.maxParticipants}
-                        </div>
+                        </div> */}
                         <Badge variant={
                           event.status === 'in_progress' ? "destructive" : 
                           event.status === 'open' ? "secondary" : 

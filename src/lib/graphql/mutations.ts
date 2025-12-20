@@ -1,10 +1,10 @@
-import { gql } from '@apollo/client'
+import { gql } from 'graphql-request'
 
 // Mutation to insert a new match
 export const CREATE_MATCH = gql`
-  mutation CreateMatch($input: matchesInsertInput!) {
-    insertIntomatchesCollection(objects: [$input]) {
-      records {
+  mutation CreateMatch($input: [matches_insert_input!]!) {
+    insert_matches(objects: $input) {
+      returning {
         id
         event_id
         team_a_id
@@ -26,9 +26,8 @@ export const CREATE_MATCH = gql`
 
 // Mutation to update an existing match
 export const UPDATE_MATCH = gql`
-  mutation UpdateMatch($filter: matchesFilter!, $set: matchesUpdateInput!) {
-    updatematchesCollection(filter: $filter, set: $set) {
-      records {
+  mutation UpdateMatch($id: uuid!, $set: matches_set_input!) {
+    update_matches_by_pk(pk_columns: {id: $id}, _set: $set) {
         id
         event_id
         team_a_id
@@ -43,25 +42,24 @@ export const UPDATE_MATCH = gql`
         game_number
         team_b_name
         winner_name
-      }
     }
   }
 `
 
 // Mutation to delete a match
 export const DELETE_MATCH = gql`
-  mutation DeleteMatch($filter: matchesFilter!, $atMost: Int!) {
-    deleteFrommatchesCollection(filter: $filter, atMost: $atMost) {
-      affectedCount
+  mutation DeleteMatch($id: uuid!) {
+    delete_matches_by_pk(id: $id) {
+      id
     }
   }
 `
 
 // Mutation to insert player match statistics
 export const CREATE_PLAYER_STATS = gql`
-  mutation CreatePlayerStats($input: player_statsInsertInput!) {
-    insertIntoplayer_statsCollection(objects: [$input]) {
-      records {
+  mutation CreatePlayerStats($input: [player_stats_insert_input!]!) {
+    insert_player_stats(objects: $input) {
+      returning {
         id
         player_id
         match_id
@@ -91,9 +89,8 @@ export const CREATE_PLAYER_STATS = gql`
 
 // Mutation to update player match statistics
 export const UPDATE_PLAYER_STATS = gql`
-  mutation UpdatePlayerStats($filter: player_statsFilter!, $set: player_statsUpdateInput!) {
-    updateplayer_statsCollection(filter: $filter, set: $set) {
-      records {
+  mutation UpdatePlayerStats($id: uuid!, $set: player_stats_set_input!) {
+    update_player_stats_by_pk(pk_columns: {id: $id}, _set: $set) {
         id
         player_id
         match_id
@@ -116,25 +113,24 @@ export const UPDATE_PLAYER_STATS = gql`
         plus_minus
         player_name
         updated_at
-      }
     }
   }
 `
 
 // Mutation to delete player match statistics
 export const DELETE_PLAYER_STATS = gql`
-  mutation DeletePlayerStats($filter: player_statsFilter!, $atMost: Int!) {
-    deleteFromplayer_statsCollection(filter: $filter, atMost: $atMost) {
-      affectedCount
+  mutation DeletePlayerStats($id: uuid!) {
+    delete_player_stats_by_pk(id: $id) {
+      id
     }
   }
 `
 
 // Mutation to insert a new player
 export const CREATE_PLAYER = gql`
-  mutation CreatePlayer($input: playersInsertInput!) {
-    insertIntoplayersCollection(objects: [$input]) {
-      records {
+  mutation CreatePlayer($input: [players_insert_input!]!) {
+    insert_players(objects: $input) {
+      returning {
         id
         gamertag
         position
@@ -157,9 +153,8 @@ export const CREATE_PLAYER = gql`
 
 // Mutation to update an existing player
 export const UPDATE_PLAYER = gql`
-  mutation UpdatePlayer($filter: playersFilter!, $set: playersUpdateInput!) {
-    updateplayersCollection(filter: $filter, set: $set) {
-      records {
+  mutation UpdatePlayer($id: uuid!, $set: players_set_input!) {
+    update_players_by_pk(pk_columns: {id: $id}, _set: $set) {
         id
         gamertag
         position
@@ -175,25 +170,24 @@ export const UPDATE_PLAYER = gql`
         discord_id
         twitter_id
         alternate_gamertag
-      }
     }
   }
 `
 
 // Mutation to delete a player
 export const DELETE_PLAYER = gql`
-  mutation DeletePlayer($filter: playersFilter!, $atMost: Int!) {
-    deleteFromplayersCollection(filter: $filter, atMost: $atMost) {
-      affectedCount
+  mutation DeletePlayer($id: uuid!) {
+    delete_players_by_pk(id: $id) {
+      id
     }
   }
 `
 
 // Mutation to insert a new team
 export const CREATE_TEAM = gql`
-  mutation CreateTeam($input: teamsInsertInput!) {
-    insertIntoteamsCollection(objects: [$input]) {
-      records {
+  mutation CreateTeam($input: [teams_insert_input!]!) {
+    insert_teams(objects: $input) {
+      returning {
         id
         name
         logo_url
@@ -212,9 +206,8 @@ export const CREATE_TEAM = gql`
 
 // Mutation to update an existing team
 export const UPDATE_TEAM = gql`
-  mutation UpdateTeam($filter: teamsFilter!, $set: teamsUpdateInput!) {
-    updateteamsCollection(filter: $filter, set: $set) {
-      records {
+  mutation UpdateTeam($id: uuid!, $set: teams_set_input!) {
+    update_teams_by_pk(pk_columns: {id: $id}, _set: $set) {
         id
         name
         logo_url
@@ -226,25 +219,24 @@ export const UPDATE_TEAM = gql`
         created_at
         player_rank_score
         money_won
-      }
     }
   }
 `
 
 // Mutation to delete a team
 export const DELETE_TEAM = gql`
-  mutation DeleteTeam($filter: teamsFilter!, $atMost: Int!) {
-    deleteFromteamsCollection(filter: $filter, atMost: $atMost) {
-      affectedCount
+  mutation DeleteTeam($id: uuid!) {
+    delete_teams_by_pk(id: $id) {
+      id
     }
   }
 `
 
 // Mutation to insert a new event
 export const CREATE_EVENT = gql`
-  mutation CreateEvent($input: eventsInsertInput!) {
-    insertIntoeventsCollection(objects: [$input]) {
-      records {
+  mutation CreateEvent($input: [events_insert_input!]!) {
+    insert_events(objects: $input) {
+      returning {
         id
         name
         type
@@ -270,9 +262,8 @@ export const CREATE_EVENT = gql`
 
 // Mutation to update an existing event
 export const UPDATE_EVENT = gql`
-  mutation UpdateEvent($filter: eventsFilter!, $set: eventsUpdateInput!) {
-    updateeventsCollection(filter: $filter, set: $set) {
-      records {
+  mutation UpdateEvent($id: uuid!, $set: events_set_input!) {
+    update_events_by_pk(pk_columns: {id: $id}, _set: $set) {
         id
         name
         type
@@ -291,16 +282,15 @@ export const UPDATE_EVENT = gql`
         tier
         season_number
         prize_pool
-      }
     }
   }
 `
 
 // Mutation to delete an event
 export const DELETE_EVENT = gql`
-  mutation DeleteEvent($filter: eventsFilter!, $atMost: Int!) {
-    deleteFromeventsCollection(filter: $filter, atMost: $atMost) {
-      affectedCount
+  mutation DeleteEvent($id: uuid!) {
+    delete_events_by_pk(id: $id) {
+      id
     }
   }
 `

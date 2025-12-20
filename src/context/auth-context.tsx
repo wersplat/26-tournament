@@ -1,13 +1,10 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { User } from "@supabase/supabase-js";
-import { createClient } from "@/lib/supabase";
-import { GetCurrentUserDocument } from "@/types/generated/graphql";
-import { apolloClient } from "@/lib/graphql/client";
+import { useUser, useAuth as useClerkAuth, useClerk } from "@clerk/nextjs";
 
 type AuthContextType = {
-  user: User | null;
+  user: any | null; // using any for now to avoid strict type dependency on Clerk user type in this context interface if possible, or use Clerk's type
   loading: boolean;
   isAdmin: boolean;
   signInWithDiscord: () => Promise<void>;
@@ -17,143 +14,49 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, isLoaded, isSignedIn } = useUser();
+  const { signOut: clerkSignOut } = useClerkAuth();
+  const clerk = useClerk();
   const [isAdmin, setIsAdmin] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const supabase = createClient();
 
-  const checkAdminStatus = async (user: User | null) => {
-    if (!user) {
-      setIsAdmin(false);
-      return;
-    }
-
-    try {
-      // First try to get admin status from GraphQL server
-      try {
-        const result = await apolloClient.query({
-          query: GetCurrentUserDocument,
-          fetchPolicy: 'network-only'
-        });
-        
-        if (result.data?.user) {
-          const serverUser = result.data.user;
-          const isUserAdmin = serverUser.appRole === 'ADMIN' || 
-                             serverUser.role === 'admin' ||
-                             serverUser.role === 'ADMIN';
-          setIsAdmin(isUserAdmin);
-          return;
-        }
-      } catch (serverError) {
-        console.log('Server admin check failed, falling back to email check:', serverError);
-      }
-
-      // Fallback to email-based check if server query fails
+  useEffect(() => {
+    if (user) {
+      // Check admin status from metadata or email
+      const checkAdmin = () => {
       const adminEmails = [
         'admin@bodegacatsgc.gg',
         'christian@bodegacatsgc.gg',
-        // Add other admin emails as needed
-      ];
-      
-      const isUserAdmin = adminEmails.includes(user.email || '');
-      setIsAdmin(isUserAdmin);
-    } catch (error) {
-      console.error('Error checking admin status:', error);
+        ];
+        const email = user.primaryEmailAddress?.emailAddress;
+        
+        // Check public metadata if role is set there
+        const role = (user.publicMetadata as any)?.role;
+        
+        if (role === 'admin' || role === 'ADMIN' || (email && adminEmails.includes(email))) {
+          setIsAdmin(true);
+        } else {
+          setIsAdmin(false);
+        }
+      };
+      checkAdmin();
+    } else {
       setIsAdmin(false);
     }
-  };
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-
-    // Check for active session on mount
-    const checkSession = async () => {
-      try {
-        console.log('Checking session...');
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('Session check error:', error);
-        }
-        
-        console.log('Session data:', session);
-        const currentUser = session?.user || null;
-        console.log('Current user:', currentUser);
-        
-        setUser(currentUser);
-        await checkAdminStatus(currentUser);
-      } catch (error) {
-        console.error('Error checking auth session:', error);
-      } finally {
-        console.log('Setting loading to false');
-        setLoading(false);
-      }
-    };
-
-    checkSession();
-
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state change:', event, session);
-        const currentUser = session?.user || null;
-        setUser(currentUser);
-        await checkAdminStatus(currentUser);
-        setLoading(false);
-      }
-    );
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [supabase.auth, mounted]);
+  }, [user]);
 
   const signInWithDiscord = async () => {
-    try {
-      const isLocalhost = window.location.hostname === 'localhost';
-
-      const redirectTo = isLocalhost
-        ? 'http://localhost:3000/auth/callback'
-        : 'https://dashboard.bodegacatsgc.gg/auth/callback';
-
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'discord',
-        options: {
-          redirectTo,
-        },
-      });
-
-      if (error) {
-        throw error;
-      }
-    } catch (error) {
-      console.error('Error signing in with Discord:', error);
-      throw error;
-    }
+    // Clerk handles this via their UI usually, but we can trigger it
+    // For now, redirect to login page or open sign in modal
+    clerk.openSignIn();
   };
 
   const signOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        throw error;
-      }
-      setUser(null);
-      setIsAdmin(false);
-    } catch (error) {
-      console.error('Error signing out:', error);
-      throw error;
-    }
+    await clerkSignOut();
   };
 
   const value = {
-    user,
-    loading,
+    user: user || null,
+    loading: !isLoaded,
     isAdmin,
     signInWithDiscord,
     signOut,
@@ -164,17 +67,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  
-  // Handle server-side rendering
-  if (typeof window === 'undefined') {
-    return {
-      user: null,
-      loading: true,
-      isAdmin: false,
-      signInWithDiscord: async () => {},
-      signOut: async () => {},
-    };
-  }
   
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');

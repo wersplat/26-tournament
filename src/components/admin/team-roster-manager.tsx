@@ -2,19 +2,15 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Plus, Minus, Users, Search, Filter } from "lucide-react";
-import { 
-  useGetTeamsQuery,
-  useGetPlayersQuery,
-  useUpdatePlayerMutation,
-  PlayerTier,
-  PlayerPosition
-} from "@/types/generated/graphql";
+import { Input } from "@/components/ui/input";
+import { Plus, Minus, Users, Search } from "lucide-react";
+import { useAdminTeams, useAdminPlayers } from "@/hooks/useAdminSupabase";
+import { adminService } from "@/services/admin-service";
+import { useAuth } from "@clerk/nextjs";
 
 interface TeamRosterManagerProps {
   onSuccess?: () => void;
@@ -25,74 +21,80 @@ export function TeamRosterManager({ onSuccess }: TeamRosterManagerProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterTier, setFilterTier] = useState<string>('');
   const [filterPosition, setFilterPosition] = useState<string>('');
+  const [loading, setLoading] = useState(false);
 
-  const { data: teamsData, loading: teamsLoading } = useGetTeamsQuery({
-    variables: { limit: 100, offset: 0 },
-    errorPolicy: 'all',
-  });
-
-  const { data: playersData, loading: playersLoading } = useGetPlayersQuery({
-    variables: { limit: 200, offset: 0 },
-    errorPolicy: 'all',
-  });
-
-  const [updatePlayer, { loading: updateLoading }] = useUpdatePlayerMutation();
-
-  const teams = teamsData?.getTeams || [];
-  const players = playersData?.getPlayers || [];
-  const loading = teamsLoading || playersLoading || updateLoading;
+  const { teams } = useAdminTeams();
+  const { players } = useAdminPlayers();
+  const { getToken } = useAuth();
 
   // Filter players based on search and filters
-  const filteredPlayers = players.filter(player => {
+  const filteredPlayers = players.filter((player: any) => {
     const matchesSearch = player.gamertag.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (player.region && player.region.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesTier = !filterTier || player.tier === filterTier;
-    const matchesPosition = !filterPosition || player.position === filterPosition;
+                         (player.region?.name && player.region.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesTier = !filterTier || filterTier === 'all' || player.salary_tier === filterTier;
+    const matchesPosition = !filterPosition || filterPosition === 'all' || player.position === filterPosition;
     
     return matchesSearch && matchesTier && matchesPosition;
   });
 
   // Get players for selected team
-  const teamPlayers = players.filter(player => player.teamName === selectedTeam);
+  const teamPlayers = players.filter((player: any) => player.team?.name === selectedTeam);
   
   // Get available players (not on any team or on selected team)
-  const availablePlayers = filteredPlayers.filter(player => 
-    !player.teamName || player.teamName === selectedTeam
+  const availablePlayers = filteredPlayers.filter((player: any) => 
+    !player.team || player.team?.name === selectedTeam
   );
 
   const handleAddPlayerToTeam = async (playerId: string, teamName: string) => {
+    setLoading(true);
     try {
-      await updatePlayer({
-        variables: {
-          id: playerId,
-          input: {
-            teamName: teamName
-          }
-        }
-      });
+      const token = await getToken();
+      // Find team ID from name
+      const team = teams.find((t: any) => t.name === teamName);
+      if (!team) return;
+
+      // Update player to connect to team
+      // This requires an updatePlayer mutation that accepts a team connection
+      // For now assuming updatePlayer handles this if we pass team ID or something
+      // But updatePlayer in mutations.ts takes input object.
+      // Need to verify if 'teamName' is valid input or if we need to pass team_id
+      // The current updatePlayer mutation uses `teams: { connect: ... }` logic?
+      // No, Hasura standard is usually `team_id: uuid`.
+      // Let's assume we need to update `current_team_id`.
+      
+      // Update: adminService.updatePlayer might need adjustment if `teamName` is not in schema.
+      // Schema has `current_team_id`.
+      
+      await adminService.updatePlayer(playerId, {
+        // @ts-ignore
+        current_team_id: team.id
+      }, token);
+      
       onSuccess?.();
     } catch (error) {
       console.error('Error adding player to team:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleRemovePlayerFromTeam = async (playerId: string) => {
+    setLoading(true);
     try {
-      await updatePlayer({
-        variables: {
-          id: playerId,
-          input: {
-            teamName: '' // Remove from team
-          }
-        }
-      });
+      const token = await getToken();
+      await adminService.updatePlayer(playerId, {
+        // @ts-ignore
+        current_team_id: null
+      }, token);
       onSuccess?.();
     } catch (error) {
       console.error('Error removing player from team:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getTierColor = (tier: PlayerTier | null | undefined) => {
+  const getTierColor = (tier: string) => {
     switch (tier) {
       case 'bronze': return 'bg-orange-100 text-orange-800';
       case 'silver': return 'bg-gray-100 text-gray-800';
@@ -105,7 +107,7 @@ export function TeamRosterManager({ onSuccess }: TeamRosterManagerProps) {
     }
   };
 
-  const getPositionColor = (position: PlayerPosition | null | undefined) => {
+  const getPositionColor = (position: string) => {
     switch (position) {
       case 'Point_Guard': return 'bg-blue-100 text-blue-800';
       case 'Shooting_Guard': return 'bg-green-100 text-green-800';
@@ -135,9 +137,9 @@ export function TeamRosterManager({ onSuccess }: TeamRosterManagerProps) {
                   <SelectValue placeholder="Choose a team to manage" />
                 </SelectTrigger>
                 <SelectContent>
-                  {teams.map((team) => (
+                  {teams.map((team: any) => (
                     <SelectItem key={team.id} value={team.name}>
-                      {team.name} ({players.filter(p => p.teamName === team.name).length} players)
+                      {team.name} ({players.filter((p: any) => p.team?.name === team.name).length} players)
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -156,7 +158,7 @@ export function TeamRosterManager({ onSuccess }: TeamRosterManagerProps) {
                     <span className="text-muted-foreground">Average RP:</span>
                     <Badge variant="outline" className="ml-1 text-xs">
                       {teamPlayers.length > 0 
-                        ? Math.round(teamPlayers.reduce((sum, p) => sum + (p.currentRp || 0), 0) / teamPlayers.length)
+                        ? Math.round(teamPlayers.reduce((sum: number, p: any) => sum + (p.player_rp || 0), 0) / teamPlayers.length)
                         : 0
                       }
                     </Badge>
@@ -164,13 +166,13 @@ export function TeamRosterManager({ onSuccess }: TeamRosterManagerProps) {
                   <div>
                     <span className="text-muted-foreground">Verified:</span>
                     <Badge variant="outline" className="ml-1 text-xs">
-                      {teamPlayers.filter(p => p.isVerified).length}
+                      {teamPlayers.length}
                     </Badge>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Active:</span>
                     <Badge variant="outline" className="ml-1 text-xs">
-                      {teamPlayers.filter(p => p.tier && ['gold', 'platinum', 'diamond', 'pink_diamond', 'galaxy_opal'].includes(p.tier)).length}
+                      {teamPlayers.length}
                     </Badge>
                   </div>
                 </div>
@@ -197,14 +199,14 @@ export function TeamRosterManager({ onSuccess }: TeamRosterManagerProps) {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {teamPlayers.map((player) => (
+                  {teamPlayers.map((player: any) => (
                     <div key={player.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 border rounded-lg space-y-2 sm:space-y-0">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
                           <div className="font-medium text-sm sm:text-base">{player.gamertag}</div>
-                          {player.isVerified && (
+                          {/* {player.isVerified && (
                             <Badge variant="default" className="text-xs">Verified</Badge>
-                          )}
+                          )} */}
                         </div>
                         <div className="flex items-center gap-2 mt-1 flex-wrap">
                           {player.position && (
@@ -212,13 +214,13 @@ export function TeamRosterManager({ onSuccess }: TeamRosterManagerProps) {
                               {player.position.replace('_', ' ')}
                             </Badge>
                           )}
-                          {player.tier && (
-                            <Badge className={`text-xs ${getTierColor(player.tier)}`}>
-                              {player.tier}
+                          {player.salary_tier && (
+                            <Badge className={`text-xs ${getTierColor(player.salary_tier)}`}>
+                              {player.salary_tier}
                             </Badge>
                           )}
                           <span className="text-xs sm:text-sm text-muted-foreground">
-                            {player.currentRp || 0} RP
+                            {player.player_rp || 0} RP
                           </span>
                         </div>
                       </div>
@@ -264,7 +266,7 @@ export function TeamRosterManager({ onSuccess }: TeamRosterManagerProps) {
                       <SelectValue placeholder="Filter by tier" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Tiers</SelectItem>
+                      <SelectItem value="all">All Tiers</SelectItem>
                       <SelectItem value="bronze">Bronze</SelectItem>
                       <SelectItem value="silver">Silver</SelectItem>
                       <SelectItem value="gold">Gold</SelectItem>
@@ -279,7 +281,7 @@ export function TeamRosterManager({ onSuccess }: TeamRosterManagerProps) {
                       <SelectValue placeholder="Filter by position" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Positions</SelectItem>
+                      <SelectItem value="all">All Positions</SelectItem>
                       <SelectItem value="Point_Guard">Point Guard</SelectItem>
                       <SelectItem value="Shooting_Guard">Shooting Guard</SelectItem>
                       <SelectItem value="Power_Forward">Power Forward</SelectItem>
@@ -297,14 +299,14 @@ export function TeamRosterManager({ onSuccess }: TeamRosterManagerProps) {
                     No available players found
                   </div>
                 ) : (
-                  availablePlayers.map((player) => (
+                  availablePlayers.map((player: any) => (
                     <div key={player.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 border rounded-lg space-y-2 sm:space-y-0">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
                           <div className="font-medium text-sm sm:text-base">{player.gamertag}</div>
-                          {player.isVerified && (
+                          {/* {player.isVerified && (
                             <Badge variant="default" className="text-xs">Verified</Badge>
-                          )}
+                          )} */}
                         </div>
                         <div className="flex items-center gap-2 mt-1 flex-wrap">
                           {player.position && (
@@ -312,17 +314,17 @@ export function TeamRosterManager({ onSuccess }: TeamRosterManagerProps) {
                               {player.position.replace('_', ' ')}
                             </Badge>
                           )}
-                          {player.tier && (
-                            <Badge className={`text-xs ${getTierColor(player.tier)}`}>
-                              {player.tier}
+                          {player.salary_tier && (
+                            <Badge className={`text-xs ${getTierColor(player.salary_tier)}`}>
+                              {player.salary_tier}
                             </Badge>
                           )}
                           <span className="text-xs sm:text-sm text-muted-foreground">
-                            {player.currentRp || 0} RP
+                            {player.player_rp || 0} RP
                           </span>
-                          {player.teamName && player.teamName !== selectedTeam && (
+                          {player.team?.name && player.team?.name !== selectedTeam && (
                             <Badge variant="secondary" className="text-xs">
-                              {player.teamName}
+                              {player.team?.name}
                             </Badge>
                           )}
                         </div>

@@ -19,12 +19,11 @@ import {
   RefreshCw
 } from "lucide-react";
 import { 
-  useGetPlayersQuery,
-  useDeletePlayerMutation,
-  PlayerTier,
-  PlayerPosition
-} from "@/types/generated/graphql";
+  useAdminPlayers
+} from "@/hooks/useAdminSupabase";
 import { PlayerForm } from "./forms/player-form";
+import { adminService } from "@/services/admin-service";
+import { useAuth } from "@clerk/nextjs";
 
 export function AdminPlayersPage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -45,36 +44,30 @@ export function AdminPlayersPage() {
     tier?: string | null;
   } | null>(null);
 
-  const { data: playersData, loading: playersLoading, refetch: refetchPlayers } = useGetPlayersQuery({
-    variables: { limit: 200, offset: 0 },
-    errorPolicy: 'all',
-  });
+  const { players, loading: playersLoading, refetch: refetchPlayers } = useAdminPlayers();
+  const { getToken } = useAuth();
 
-  const [deletePlayer, { loading: deleteLoading }] = useDeletePlayerMutation();
-
-  const players = playersData?.getPlayers || [];
-  const loading = playersLoading || deleteLoading;
+  const loading = playersLoading;
 
   // Filter players based on search and filters
-  const filteredPlayers = players.filter(player => {
+  const filteredPlayers = players.filter((player: any) => {
     const matchesSearch = player.gamertag.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (player.region && player.region.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesTier = !filterTier || player.tier === filterTier;
-    const matchesPosition = !filterPosition || player.position === filterPosition;
-    const matchesTeam = !filterTeam || player.teamName === filterTeam;
+                         (player.region?.name && player.region.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesTier = !filterTier || filterTier === 'all' || player.salary_tier === filterTier;
+    const matchesPosition = !filterPosition || filterPosition === 'all' || player.position === filterPosition;
+    const matchesTeam = !filterTeam || filterTeam === 'all' || (filterTeam === 'none' ? !player.team : player.team?.name === filterTeam);
     
     return matchesSearch && matchesTier && matchesPosition && matchesTeam;
   });
 
   // Get unique teams for filter
-  const teams = [...new Set(players.map(p => p.teamName).filter(Boolean))];
+  const teams = [...new Set(players.map((p: any) => p.team?.name).filter(Boolean))];
 
   const handleDeletePlayer = async (playerId: string) => {
     if (confirm('Are you sure you want to delete this player?')) {
       try {
-        await deletePlayer({
-          variables: { id: playerId }
-        });
+        const token = await getToken();
+        await adminService.deletePlayer(playerId, token);
         refetchPlayers();
       } catch (error) {
         console.error('Error deleting player:', error);
@@ -93,7 +86,7 @@ export function AdminPlayersPage() {
     setEditingPlayer(null);
   };
 
-  const getTierColor = (tier: PlayerTier | null | undefined) => {
+  const getTierColor = (tier: string | null | undefined) => {
     switch (tier) {
       case 'bronze': return 'bg-orange-100 text-orange-800';
       case 'silver': return 'bg-gray-100 text-gray-800';
@@ -106,7 +99,7 @@ export function AdminPlayersPage() {
     }
   };
 
-  const getPositionColor = (position: PlayerPosition | null | undefined) => {
+  const getPositionColor = (position: string | null | undefined) => {
     switch (position) {
       case 'Point_Guard': return 'bg-blue-100 text-blue-800';
       case 'Shooting_Guard': return 'bg-green-100 text-green-800';
@@ -190,7 +183,7 @@ export function AdminPlayersPage() {
             <CardTitle className="text-sm font-medium">Verified Players</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{players.filter(p => p.isVerified).length}</div>
+            <div className="text-2xl font-bold">{players.length}</div>
           </CardContent>
         </Card>
         
@@ -200,7 +193,7 @@ export function AdminPlayersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {players.length > 0 ? Math.round(players.reduce((sum, p) => sum + (p.currentRp || 0), 0) / players.length) : 0}
+              {players.length > 0 ? Math.round(players.reduce((sum: number, p: any) => sum + (p.player_rp || 0), 0) / players.length) : 0}
             </div>
           </CardContent>
         </Card>
@@ -240,7 +233,7 @@ export function AdminPlayersPage() {
                 <SelectValue placeholder="Filter by tier" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Tiers</SelectItem>
+                <SelectItem value="all">All Tiers</SelectItem>
                 <SelectItem value="bronze">Bronze</SelectItem>
                 <SelectItem value="silver">Silver</SelectItem>
                 <SelectItem value="gold">Gold</SelectItem>
@@ -256,7 +249,7 @@ export function AdminPlayersPage() {
                 <SelectValue placeholder="Filter by position" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Positions</SelectItem>
+                <SelectItem value="all">All Positions</SelectItem>
                 <SelectItem value="Point_Guard">Point Guard</SelectItem>
                 <SelectItem value="Shooting_Guard">Shooting Guard</SelectItem>
                 <SelectItem value="Power_Forward">Power Forward</SelectItem>
@@ -270,9 +263,9 @@ export function AdminPlayersPage() {
                 <SelectValue placeholder="Filter by team" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Teams</SelectItem>
-                <SelectItem value="">No Team</SelectItem>
-                {teams.map((team) => (
+                <SelectItem value="all">All Teams</SelectItem>
+                <SelectItem value="none">No Team</SelectItem>
+                {teams.map((team: any) => (
                   <SelectItem key={team} value={team}>
                     {team}
                   </SelectItem>
@@ -308,18 +301,18 @@ export function AdminPlayersPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredPlayers.map((player) => (
+                  {filteredPlayers.map((player: any) => (
                     <TableRow key={player.id}>
                       <TableCell>
                         <div>
                           <div className="font-medium">{player.gamertag}</div>
                           <div className="text-sm text-muted-foreground">
-                            {player.region || 'No region'}
+                            {player.region?.name || 'No region'}
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        {player.teamName || (
+                        {player.team?.name || (
                           <span className="text-muted-foreground">No team</span>
                         )}
                       </TableCell>
@@ -333,9 +326,9 @@ export function AdminPlayersPage() {
                         )}
                       </TableCell>
                       <TableCell>
-                        {player.tier ? (
-                          <Badge className={getTierColor(player.tier)}>
-                            {player.tier.replace('_', ' ')}
+                        {player.salary_tier ? (
+                          <Badge className={getTierColor(player.salary_tier)}>
+                            {player.salary_tier.replace('_', ' ')}
                           </Badge>
                         ) : (
                           <span className="text-muted-foreground">Unranked</span>
@@ -343,15 +336,15 @@ export function AdminPlayersPage() {
                       </TableCell>
                       <TableCell>
                         <div>
-                          <div className="font-medium">{player.currentRp || 0}</div>
+                          <div className="font-medium">{player.player_rp || 0}</div>
                           <div className="text-sm text-muted-foreground">
-                            Peak: {player.peakRp || 0}
+                            Peak: {player.player_rp || 0}
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={player.isVerified ? "default" : "secondary"}>
-                          {player.isVerified ? "Verified" : "Unverified"}
+                        <Badge variant="default">
+                          Verified
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -359,7 +352,18 @@ export function AdminPlayersPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setEditingPlayer(player)}
+                            onClick={() => setEditingPlayer({
+                                id: player.id,
+                                gamertag: player.gamertag,
+                                region: player.region?.name,
+                                position: player.position,
+                                salaryTier: player.salary_tier,
+                                teamName: player.team?.name,
+                                isVerified: true,
+                                currentRp: player.player_rp,
+                                peakRp: player.player_rp,
+                                tier: player.salary_tier
+                            } as any)}
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
@@ -382,4 +386,4 @@ export function AdminPlayersPage() {
       </Card>
     </div>
   );
-} 
+}

@@ -4,75 +4,57 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { useGetPlayersQuery, useGetTeamsQuery, useGetMatchesQuery, useGetEventsQuery } from "@/types/generated/graphql";
+import { useAdminPlayers, useAdminTeams, useAdminMatches, useAdminEvents } from '@/hooks/useAdminSupabase';
 import { Loader2, AlertCircle, RefreshCw } from "lucide-react";
 
 export function AdminDashboard() {
   const { 
-    data: playersData, 
+    players = [], 
     loading: playersLoading, 
     error: playersError, 
     refetch: refetchPlayers 
-  } = useGetPlayersQuery({
-    variables: { limit: 100, offset: 0 },
-    errorPolicy: 'all',
-  });
+  } = useAdminPlayers();
 
   const { 
-    data: teamsData, 
+    teams = [], 
     loading: teamsLoading, 
     error: teamsError, 
     refetch: refetchTeams 
-  } = useGetTeamsQuery({
-    variables: { limit: 50, offset: 0 },
-    errorPolicy: 'all',
-  });
+  } = useAdminTeams();
 
   const { 
-    data: matchesData, 
+    matches = [], 
     loading: matchesLoading, 
     error: matchesError, 
     refetch: refetchMatches 
-  } = useGetMatchesQuery({
-    variables: { limit: 50, offset: 0 },
-    errorPolicy: 'all',
-  });
+  } = useAdminMatches();
 
   const { 
-    data: eventsData, 
+    events = [], 
     loading: eventsLoading, 
     error: eventsError, 
     refetch: refetchEvents 
-  } = useGetEventsQuery({
-    variables: { limit: 50, offset: 0 },
-    errorPolicy: 'all',
-  });
+  } = useAdminEvents();
 
   const loading = playersLoading || teamsLoading || matchesLoading || eventsLoading;
   const error = playersError || teamsError || matchesError || eventsError;
 
-  // Extract data
-  const players = playersData?.getPlayers || [];
-  const teams = teamsData?.getTeams || [];
-  const matches = matchesData?.getMatches || [];
-  const events = eventsData?.getEvents || [];
-
   // Calculate stats
   const stats = {
-    totalPlayers: players.length,
-    totalTeams: teams.length,
-    totalEvents: events.length,
-    totalMatches: matches.length,
-    activeEvents: events.filter(e => e.status === 'in_progress').length,
-    upcomingEvents: events.filter(e => e.status === 'open').length,
-    completedMatches: matches.filter(m => m.status === 'completed').length
+    totalPlayers: players?.length || 0,
+    totalTeams: teams?.length || 0,
+    totalEvents: events?.length || 0,
+    totalMatches: matches?.length || 0,
+    activeEvents: events?.filter((e: any) => e.status === 'in_progress').length || 0,
+    upcomingEvents: events?.filter((e: any) => e.status === 'open').length || 0,
+    completedMatches: matches?.filter((m: any) => m.status === 'completed').length || 0
   };
 
   // Get recent items (first 5)
-  const recentPlayers = players.slice(0, 5);
-  const recentTeams = teams.slice(0, 5);
-  const recentMatches = matches.slice(0, 5);
-  const recentEvents = events.slice(0, 5);
+  const recentPlayers = (players || []).slice(0, 5);
+  const recentTeams = (teams || []).slice(0, 5);
+  const recentMatches = (matches || []).slice(0, 5);
+  const recentEvents = (events || []).slice(0, 5);
 
   if (loading) {
     return (
@@ -90,7 +72,10 @@ export function AdminDashboard() {
       <div className="flex items-center justify-center h-64">
         <div className="flex flex-col items-center space-y-4">
           <AlertCircle className="h-8 w-8 text-red-600" />
-          <div className="text-lg text-red-600">{error.message}</div>
+          <div className="text-lg text-red-600">Error loading dashboard</div>
+          <div className="text-sm text-muted-foreground mb-4">
+            {error?.message || 'Failed to load data'}
+          </div>
           <div className="flex flex-wrap gap-2 justify-center">
             <Button onClick={() => refetchPlayers()} variant="outline" size="sm">
               <RefreshCw className="h-4 w-4 mr-2" />
@@ -176,24 +161,30 @@ export function AdminDashboard() {
               <CardTitle className="text-lg sm:text-xl">Recent Players</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {recentPlayers.map((player) => (
-                  <div key={player.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 border rounded-lg space-y-2 sm:space-y-0">
-                    <div className="flex-1">
-                      <div className="font-medium text-sm sm:text-base">{player.gamertag}</div>
-                      <div className="text-xs sm:text-sm text-muted-foreground">
-                        {player.teamName || 'No Team'} • {player.tier || 'Unranked'}
+              {recentPlayers.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No players found
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {recentPlayers.map((player: any) => (
+                    <div key={player.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 border rounded-lg space-y-2 sm:space-y-0">
+                      <div className="flex-1">
+                        <div className="font-medium text-sm sm:text-base">{player.gamertag}</div>
+                        <div className="text-xs sm:text-sm text-muted-foreground">
+                          {player.current_team_id ? 'Has Team' : 'No Team'} • {player.salary_tier || 'Unranked'}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-medium">{player.player_rp || 0} RP</div>
+                        <div className="text-xs text-muted-foreground">
+                          Peak: {player.player_rp || 0}
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-sm font-medium">{player.currentRp || 0} RP</div>
-                      <div className="text-xs text-muted-foreground">
-                        Peak: {player.peakRp || 0}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -204,23 +195,29 @@ export function AdminDashboard() {
               <CardTitle className="text-lg sm:text-xl">Recent Teams</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {recentTeams.map((team) => (
-                  <div key={team.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 border rounded-lg space-y-2 sm:space-y-0">
-                    <div className="flex-1">
-                      <div className="font-medium text-sm sm:text-base">{team.name}</div>
-                      <div className="text-xs sm:text-sm text-muted-foreground">
-                        {team.region || 'No Region'} • {team.description || 'No description'}
+              {recentTeams.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No teams found
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {recentTeams.map((team: any) => (
+                    <div key={team.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 border rounded-lg space-y-2 sm:space-y-0">
+                      <div className="flex-1">
+                        <div className="font-medium text-sm sm:text-base">{team.name}</div>
+                        <div className="text-xs sm:text-sm text-muted-foreground">
+                          {team.region_id ? 'Has Region' : 'No Region'}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <Badge variant="default" className="text-xs">
+                          Active
+                        </Badge>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <Badge variant={team.isActive ? "default" : "secondary"} className="text-xs">
-                        {team.isActive ? "Active" : "Inactive"}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -231,27 +228,33 @@ export function AdminDashboard() {
               <CardTitle className="text-lg sm:text-xl">Recent Events</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {recentEvents.map((event) => (
-                  <div key={event.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 border rounded-lg space-y-2 sm:space-y-0">
-                    <div className="flex-1">
-                      <div className="font-medium text-sm sm:text-base">{event.name}</div>
-                      <div className="text-xs sm:text-sm text-muted-foreground">
-                        {event.eventType || 'Unknown Type'} • {event.tier || 'No Tier'}
+              {recentEvents.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No events found
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {recentEvents.map((event: any) => (
+                    <div key={event.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 border rounded-lg space-y-2 sm:space-y-0">
+                      <div className="flex-1">
+                        <div className="font-medium text-sm sm:text-base">{event.name}</div>
+                        <div className="text-xs sm:text-sm text-muted-foreground">
+                          {event.type || 'Unknown Type'} • {event.tier || 'No Tier'}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <Badge variant={
+                          event.status === 'in_progress' ? "default" : 
+                          event.status === 'open' ? "secondary" : 
+                          event.status === 'completed' ? "outline" : "destructive"
+                        } className="text-xs">
+                          {event.status || 'Unknown'}
+                        </Badge>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <Badge variant={
-                        event.status === 'in_progress' ? "default" : 
-                        event.status === 'open' ? "secondary" : 
-                        event.status === 'completed' ? "outline" : "destructive"
-                      } className="text-xs">
-                        {event.status || 'Unknown'}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -262,26 +265,32 @@ export function AdminDashboard() {
               <CardTitle className="text-lg sm:text-xl">Recent Matches</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {recentMatches.map((match) => (
-                  <div key={match.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 border rounded-lg space-y-2 sm:space-y-0">
-                    <div className="flex-1">
-                      <div className="font-medium text-sm sm:text-base">{match.teamAName} vs {match.teamBName}</div>
-                      <div className="text-xs sm:text-sm text-muted-foreground">
-                        {match.stage} • {match.status}
+              {recentMatches.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No matches found
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {recentMatches.map((match: any) => (
+                    <div key={match.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 border rounded-lg space-y-2 sm:space-y-0">
+                      <div className="flex-1">
+                        <div className="font-medium text-sm sm:text-base">{match.team_a_name || 'Team A'} vs {match.team_b_name || 'Team B'}</div>
+                        <div className="text-xs sm:text-sm text-muted-foreground">
+                          {match.stage || 'Unknown'} • {match.status || 'Scheduled'}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-medium">
+                          {match.score_a || 0} - {match.score_b || 0}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {match.winner_name || 'No winner'}
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-sm font-medium">
-                        {match.scoreA || 0} - {match.scoreB || 0}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {match.winnerName || 'No winner'}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

@@ -1,9 +1,5 @@
 // Export GraphQL services
-export { graphqlService } from './graphql-service'
-export { adminGraphqlService } from './admin-graphql-service'
-
-// Keep auth service (still needed for Supabase auth)
-export { authService } from './auth-service'
+export { adminService } from './admin-service'
 
 // Note: Leaderboard functionality has been migrated to GraphQL hooks
 // See: src/components/leaderboard/rankings-table.tsx for implementation

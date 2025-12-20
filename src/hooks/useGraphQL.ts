@@ -1,144 +1,191 @@
-import { useQuery, useMutation, ApolloError } from '@apollo/client'
-import { useAuth } from '@/context/auth-context'
-import { GET_PLAYER, GET_PLAYERS, GET_TEAMS, GET_MATCHES, GET_MATCH } from '@/lib/graphql/queries'
+import useSWR from 'swr'
+import { useAuth, useUser } from '@clerk/nextjs'
+import { GET_PLAYER, GET_PLAYERS, GET_TEAMS, GET_MATCHES, GET_MATCH, GET_EVENTS, GET_EVENT } from '@/lib/graphql/queries'
+import { fetcher } from '@/lib/graphql/client'
+import { useEffect, useState } from 'react'
+
+// Helper to safely get token
+const useHasuraToken = () => {
+  const { getToken, isLoaded, isSignedIn } = useAuth()
+  const [token, setToken] = useState<string | null>(null)
+
+  useEffect(() => {
+    const loadToken = async () => {
+      if (isSignedIn) {
+        try {
+          // Try to get Hasura-specific token first
+          const t = await getToken()
+          setToken(t)
+        } catch (e) {
+          console.warn("Hasura token template not found, falling back to default token", e)
+          try {
+             // Fallback to default token
+             const t = await getToken()
+             setToken(t)
+          } catch (e2) {
+             console.error("Failed to retrieve any token", e2)
+             setToken(null)
+          }
+        }
+      } else {
+        setToken(null)
+      }
+    }
+    if (isLoaded) loadToken()
+  }, [isSignedIn, isLoaded, getToken])
+
+  return { token, isLoaded, isSignedIn }
+}
 
 // Custom hook for player queries
-export const usePlayer = (nodeId: string) => {
-  const { user, loading: authLoading } = useAuth()
+export const usePlayer = (id: string) => {
+  const { token, isLoaded, isSignedIn } = useHasuraToken()
   
-  const { loading, error, data, refetch } = useQuery(GET_PLAYER, {
-    variables: { nodeId },
-    errorPolicy: 'all',
-    skip: authLoading || !user, // Skip query if not authenticated
-  })
+  const { data, error, isLoading, mutate } = useSWR(
+    isLoaded ? [GET_PLAYER, { id }, token] : null,
+    fetcher
+  )
 
   return {
-    player: data?.node,
-    loading: loading || authLoading,
+    player: data?.players_by_pk,
+    loading: !isLoaded || isLoading,
     error,
-    refetch,
-    isAuthenticated: !!user,
+    refetch: mutate,
+    isAuthenticated: isSignedIn,
   }
 }
 
 // Custom hook for all players
 export const usePlayers = () => {
-  const { user, loading: authLoading } = useAuth()
+  const { token, isLoaded, isSignedIn } = useHasuraToken()
   
-  const { loading, error, data, refetch } = useQuery(GET_PLAYERS, {
-    errorPolicy: 'all',
-    skip: authLoading || !user,
-  })
-
-  const players = data?.playersCollection?.edges?.map((edge: any) => edge.node) || []
+  const { data, error, isLoading, mutate } = useSWR(
+    isLoaded ? [GET_PLAYERS, {}, token] : null,
+    fetcher
+  )
 
   return {
-    players,
-    loading: loading || authLoading,
+    players: data?.players || [],
+    loading: !isLoaded || isLoading,
     error,
-    refetch,
-    isAuthenticated: !!user,
+    refetch: mutate,
+    isAuthenticated: isSignedIn,
   }
 }
 
 // Custom hook for teams
 export const useTeams = () => {
-  const { user, loading: authLoading } = useAuth()
+  const { token, isLoaded, isSignedIn } = useHasuraToken()
   
-  const { loading, error, data, refetch } = useQuery(GET_TEAMS, {
-    errorPolicy: 'all',
-    skip: authLoading || !user,
-  })
-
-  const teams = data?.teamsCollection?.edges?.map((edge: any) => edge.node) || []
+  const { data, error, isLoading, mutate } = useSWR(
+    isLoaded ? [GET_TEAMS, {}, token] : null,
+    fetcher
+  )
 
   return {
-    teams,
-    loading: loading || authLoading,
+    teams: data?.teams || [],
+    loading: !isLoaded || isLoading,
     error,
-    refetch,
-    isAuthenticated: !!user,
+    refetch: mutate,
+    isAuthenticated: isSignedIn,
   }
 }
 
 // Custom hook for matches
 export const useMatches = () => {
-  const { user, loading: authLoading } = useAuth()
+  const { token, isLoaded, isSignedIn } = useHasuraToken()
   
-  const { loading, error, data, refetch } = useQuery(GET_MATCHES, {
-    errorPolicy: 'all',
-    skip: authLoading || !user,
-  })
-
-  const matches = data?.matchesCollection?.edges?.map((edge: any) => edge.node) || []
+  const { data, error, isLoading, mutate } = useSWR(
+    isLoaded ? [GET_MATCHES, {}, token] : null,
+    fetcher
+  )
 
   return {
-    matches,
-    loading: loading || authLoading,
+    matches: data?.matches || [],
+    loading: !isLoaded || isLoading,
     error,
-    refetch,
-    isAuthenticated: !!user,
+    refetch: mutate,
+    isAuthenticated: isSignedIn,
   }
 }
 
 // Custom hook for a specific match
-export const useMatch = (nodeId: string) => {
-  const { user, loading: authLoading } = useAuth()
-  
-  const { loading, error, data, refetch } = useQuery(GET_MATCH, {
-    variables: { nodeId },
-    errorPolicy: 'all',
-    skip: authLoading || !user,
-  })
+export const useMatch = (id: string) => {
+  const { token, isLoaded, isSignedIn } = useHasuraToken()
+
+  const { data, error, isLoading, mutate } = useSWR(
+    isLoaded ? [GET_MATCH, { id }, token] : null,
+    fetcher
+  )
 
   return {
-    match: data?.node,
-    loading: loading || authLoading,
+    match: data?.matches_by_pk,
+    loading: !isLoaded || isLoading,
     error,
-    refetch,
-    isAuthenticated: !!user,
+    refetch: mutate,
+    isAuthenticated: isSignedIn,
+  }
+}
+
+// Custom hook for events
+export const useEvents = () => {
+  const { token, isLoaded, isSignedIn } = useHasuraToken()
+
+  const { data, error, isLoading, mutate } = useSWR(
+    isLoaded ? [GET_EVENTS, {}, token] : null,
+    fetcher
+  )
+
+  return {
+    events: data?.events || [],
+    loading: !isLoaded || isLoading,
+    error,
+    refetch: mutate,
+    isAuthenticated: isSignedIn,
+  }
+}
+
+// Custom hook for a specific event
+export const useEvent = (id: string) => {
+  const { token, isLoaded, isSignedIn } = useHasuraToken()
+
+  const { data, error, isLoading, mutate } = useSWR(
+    isLoaded ? [GET_EVENT, { id }, token] : null,
+    fetcher
+  )
+
+  return {
+    event: data?.events_by_pk,
+    loading: !isLoaded || isLoading,
+    error,
+    refetch: mutate,
+    isAuthenticated: isSignedIn,
   }
 }
 
 // Utility function to handle GraphQL errors
-export const handleGraphQLError = (error: ApolloError | undefined) => {
+export const handleGraphQLError = (error: any) => {
   if (!error) return null
-  
-  // Handle different types of errors
-  if (error.networkError) {
-    return 'Network error. Please check your connection.'
-  }
-  
-  if (error.graphQLErrors && error.graphQLErrors.length > 0) {
-    const graphQLError = error.graphQLErrors[0]
-    
-    // Handle authentication errors
-    if (graphQLError.extensions?.code === 'UNAUTHENTICATED') {
-      return 'Authentication required. Please log in.'
-    }
-    
-    // Handle authorization errors
-    if (graphQLError.extensions?.code === 'FORBIDDEN') {
-      return 'You do not have permission to access this resource.'
-    }
-    
-    // Return the GraphQL error message
-    return graphQLError.message
-  }
-  
-  return error.message
+  return error.message || 'An error occurred'
 }
 
 // Hook to check if user has required permissions
 export const usePermissions = () => {
-  const { user, isAdmin } = useAuth()
+  const { isLoaded, isSignedIn } = useAuth()
+  const { user } = useUser()
+  
+  // Basic admin check from metadata or specific check logic
+  const isAdmin = isSignedIn && (
+    (user?.publicMetadata as any)?.role === 'admin' || 
+    (user?.publicMetadata as any)?.role === 'ADMIN'
+  );
   
   return {
-    isAuthenticated: !!user,
-    isAdmin,
-    canViewPlayers: !!user,
-    canViewTeams: !!user,
-    canViewMatches: !!user,
-    canEditData: isAdmin,
+    isAuthenticated: isSignedIn,
+    isAdmin: !!isAdmin,
+    canViewPlayers: isSignedIn,
+    canViewTeams: isSignedIn,
+    canViewMatches: isSignedIn,
+    canEditData: !!isAdmin,
   }
 }

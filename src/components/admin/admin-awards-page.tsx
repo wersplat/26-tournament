@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { usePlayers, useTeams } from "@/hooks/useGraphQL";
+import { useAdminPlayers, useAdminTeams } from "@/hooks/useAdminSupabase";
 import { Loader2, Trophy, Medal, Star, Award, Plus, Edit, Trash2, Search } from "lucide-react";
 
 interface Award {
@@ -35,8 +35,8 @@ interface PlayerAward {
 }
 
 export function AdminAwardsPage() {
-  const { players, loading: playersLoading } = usePlayers();
-  const { teams, loading: teamsLoading } = useTeams();
+  const { players, loading: playersLoading } = useAdminPlayers();
+  const { teams, loading: teamsLoading } = useAdminTeams();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedAwardType, setSelectedAwardType] = useState<string>("all");
 

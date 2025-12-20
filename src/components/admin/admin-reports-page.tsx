@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { usePlayers, useTeams, useMatches } from "@/hooks/useGraphQL";
+import { useAdminPlayers, useAdminTeams, useAdminMatches } from "@/hooks/useAdminSupabase";
 import { Loader2, BarChart3, TrendingUp, Users, Trophy, Download, Calendar, DollarSign, Target, Award, Activity, PieChart } from "lucide-react";
 
 interface Report {
@@ -32,9 +32,9 @@ interface AnalyticsData {
 }
 
 export function AdminReportsPage() {
-  const { players, loading: playersLoading } = usePlayers();
-  const { teams, loading: teamsLoading } = useTeams();
-  const { matches, loading: matchesLoading } = useMatches();
+  const { players, loading: playersLoading } = useAdminPlayers();
+  const { teams, loading: teamsLoading } = useAdminTeams();
+  const { matches, loading: matchesLoading } = useAdminMatches();
   const [selectedReportType, setSelectedReportType] = useState<string>("all");
   const [dateRange, setDateRange] = useState<string>("30d");
 

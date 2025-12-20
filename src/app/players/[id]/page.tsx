@@ -1,7 +1,6 @@
 'use client'
 
-import { useQuery } from '@apollo/client'
-import { GET_PLAYER } from '@/lib/graphql/queries'
+import { usePublicPlayer } from '@/hooks/useAdminSupabase'
 import { useParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -16,6 +15,7 @@ import {
   AlertCircle
 } from 'lucide-react'
 
+// Keeping interfaces locally or should use generated types if available
 interface PlayerStats {
   ppg: number
   rpg: number
@@ -41,18 +41,11 @@ interface Player {
   updatedAt: string
 }
 
-interface GetPlayerData {
-  player: Player
-}
-
 export default function PlayerProfilePage() {
   const params = useParams()
   const playerId = params.id as string
 
-  const { loading, error, data } = useQuery<GetPlayerData>(GET_PLAYER, {
-    variables: { id: playerId },
-    errorPolicy: 'all',
-  })
+  const { player: playerData, loading, error } = usePublicPlayer(playerId)
 
   if (loading) {
     return (
@@ -71,13 +64,13 @@ export default function PlayerProfilePage() {
         <div className="flex flex-col items-center space-y-4">
           <AlertCircle className="h-8 w-8 text-red-600" />
           <p className="text-gray-600">Error loading player profile</p>
-          <p className="text-sm text-gray-500">{error.message}</p>
+          <p className="text-sm text-gray-500">{error.message || 'Unknown error'}</p>
         </div>
       </div>
     )
   }
 
-  if (!data?.player) {
+  if (!playerData) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
@@ -88,8 +81,19 @@ export default function PlayerProfilePage() {
     )
   }
 
-  const { player } = data
-  const { stats, team } = player
+  // Transform Supabase data to match component expectations
+  const team = playerData?.teams || null
+  const player = {
+      id: playerData?.id,
+      gamertag: playerData?.gamertag,
+      team: team ? { id: team.id, name: team.name } : { id: '', name: 'Free Agent' },
+      createdAt: playerData?.created_at,
+      updatedAt: playerData?.created_at,
+      stats: {
+          ppg: 0, rpg: 0, apg: 0, spg: 0, bpg: 0, fgPercentage: 0, threePointPercentage: 0, ftPercentage: 0
+      }
+  }
+  const { stats } = player
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">

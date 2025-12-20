@@ -10,7 +10,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { useTeams, useMatches, handleGraphQLError } from "@/hooks/useGraphQL";
+import { usePublicTeams, usePublicMatches, useTeamRoster } from "@/hooks/useAdminSupabase";
 import { Loader2, AlertCircle, RefreshCw } from "lucide-react";
 
 interface TeamPageProps {
@@ -25,25 +25,34 @@ export default function TeamPage({ params }: TeamPageProps) {
     loading: teamsLoading, 
     error: teamsError, 
     refetch: refetchTeams 
-  } = useTeams();
+  } = usePublicTeams();
 
   const { 
     matches, 
     loading: matchesLoading, 
     error: matchesError, 
     refetch: refetchMatches 
-  } = useMatches();
+  } = usePublicMatches();
 
-  const loading = teamsLoading || matchesLoading;
-  const error = teamsError || matchesError;
-  const errorMessage = handleGraphQLError(error);
+  const {
+    players: rosterPlayers,
+    loading: rosterLoading,
+    error: rosterError
+  } = useTeamRoster(teamId);
+
+  const loading = teamsLoading || matchesLoading || rosterLoading;
+  const error = teamsError || matchesError || rosterError;
+  const errorMessage = error?.message || 'Failed to load data';
 
   // Find the specific team
   const team = teams.find((t: any) => t.id === teamId);
   
+  // Add players to team object
+  const teamWithPlayers = team ? { ...team, players: rosterPlayers.map((p: any) => ({ ...p, stats: { ppg: 0, rpg: 0, apg: 0, spg: 0, bpg: 0 } })) } : null;
+  
   // Filter matches for this team
   const teamMatches = matches.filter((match: any) => 
-    match.homeTeam.id === teamId || match.awayTeam.id === teamId
+    match.team_a_id === teamId || match.team_b_id === teamId
   );
 
   if (loading) {
@@ -78,7 +87,7 @@ export default function TeamPage({ params }: TeamPageProps) {
     );
   }
 
-  if (!team) {
+  if (!teamWithPlayers) {
     return (
       <div className="container py-8 md:py-12">
         <div className="text-center py-12">
@@ -106,11 +115,11 @@ export default function TeamPage({ params }: TeamPageProps) {
             </div>
             <div>
               <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                {team.name}
+                {teamWithPlayers.name}
               </h1>
               <div className="flex items-center space-x-4 mt-2">
                 <span className="text-muted-foreground">
-                  Players: {team.players.length}
+                  Players: {teamWithPlayers.players.length}
                 </span>
                 <span className="text-muted-foreground">
                   Matches: {teamMatches.length}
@@ -127,7 +136,7 @@ export default function TeamPage({ params }: TeamPageProps) {
         {/* Team Stats Summary */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-card border rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold">{team.players.length}</div>
+            <div className="text-2xl font-bold">{teamWithPlayers.players.length}</div>
             <div className="text-sm text-muted-foreground">Players</div>
           </div>
           <div className="bg-card border rounded-lg p-4 text-center">
@@ -136,8 +145,8 @@ export default function TeamPage({ params }: TeamPageProps) {
           </div>
           <div className="bg-card border rounded-lg p-4 text-center">
             <div className="text-2xl font-bold">
-              {team.players.length > 0 
-                ? (team.players.reduce((sum: number, p: any) => sum + p.stats.ppg, 0) / team.players.length).toFixed(1)
+              {teamWithPlayers.players.length > 0 
+                ? (teamWithPlayers.players.reduce((sum: number, p: any) => sum + (p.stats?.ppg || 0), 0) / teamWithPlayers.players.length).toFixed(1)
                 : '0.0'
               }
             </div>
@@ -145,8 +154,8 @@ export default function TeamPage({ params }: TeamPageProps) {
           </div>
           <div className="bg-card border rounded-lg p-4 text-center">
             <div className="text-2xl font-bold">
-              {team.players.length > 0 
-                ? (team.players.reduce((sum: number, p: any) => sum + p.stats.rpg, 0) / team.players.length).toFixed(1)
+              {teamWithPlayers.players.length > 0 
+                ? (teamWithPlayers.players.reduce((sum: number, p: any) => sum + (p.stats?.rpg || 0), 0) / teamWithPlayers.players.length).toFixed(1)
                 : '0.0'
               }
             </div>
@@ -177,7 +186,7 @@ export default function TeamPage({ params }: TeamPageProps) {
                     </tr>
                   </thead>
                   <tbody className="divide-y">
-                    {team.players.map((player: any) => (
+                    {teamWithPlayers.players.map((player: any) => (
                       <tr key={player.id} className="hover:bg-muted/50">
                         <td className="px-4 py-3">
                           <Link href={`/players/${player.id}`} className="font-medium hover:text-primary">
@@ -185,13 +194,13 @@ export default function TeamPage({ params }: TeamPageProps) {
                           </Link>
                         </td>
                         <td className="px-4 py-3 text-center text-sm">
-                          {player.stats.ppg.toFixed(1)}
+                          {(player.stats?.ppg || 0).toFixed(1)}
                         </td>
                         <td className="px-4 py-3 text-center text-sm">
-                          {player.stats.rpg.toFixed(1)}
+                          {(player.stats?.rpg || 0).toFixed(1)}
                         </td>
                         <td className="px-4 py-3 text-center text-sm">
-                          {player.stats.apg.toFixed(1)}
+                          {(player.stats?.apg || 0).toFixed(1)}
                         </td>
                         <td className="px-4 py-3 text-center text-sm">
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">
@@ -205,7 +214,7 @@ export default function TeamPage({ params }: TeamPageProps) {
               </div>
             </div>
 
-            {team.players.length === 0 && (
+            {teamWithPlayers.players.length === 0 && (
               <div className="text-center py-12">
                 <div className="text-lg text-gray-600">No players found</div>
                 <p className="text-gray-500 mt-2">This team has no active players</p>
@@ -227,23 +236,27 @@ export default function TeamPage({ params }: TeamPageProps) {
                   </thead>
                   <tbody className="divide-y">
                     {teamMatches.map((match: any) => {
-                      const isHome = match.homeTeam.id === teamId;
-                      const opponent = isHome ? match.awayTeam : match.homeTeam;
-                      const teamScore = isHome ? match.homeScore : match.awayScore;
-                      const opponentScore = isHome ? match.awayScore : match.homeScore;
+                      const isTeamA = match.team_a_id === teamId;
+                      const opponent = isTeamA ? match.team_b : match.team_a;
+                      const teamScore = isTeamA ? match.score_a : match.score_b;
+                      const opponentScore = isTeamA ? match.score_b : match.score_a;
                       
                       return (
                         <tr key={match.id} className="hover:bg-muted/50">
                           <td className="px-4 py-3 text-sm">
-                            {new Date(match.date).toLocaleDateString()}
+                            {match.played_at ? new Date(match.played_at).toLocaleDateString() : 'TBD'}
                           </td>
                           <td className="px-4 py-3">
-                            <Link href={`/teams/${opponent.id}`} className="hover:text-primary">
-                              {opponent.name}
-                            </Link>
+                            {opponent ? (
+                              <Link href={`/teams/${opponent.id}`} className="hover:text-primary">
+                                {opponent.name}
+                              </Link>
+                            ) : (
+                              <span className="text-muted-foreground">TBD</span>
+                            )}
                           </td>
                           <td className="px-4 py-3 text-center text-sm">
-                            {match.status === 'completed' ? (
+                            {match.status === 'completed' && teamScore !== null && opponentScore !== null ? (
                               teamScore > opponentScore ? (
                                 <span className="text-green-600 font-medium">W</span>
                               ) : (
@@ -282,7 +295,7 @@ export default function TeamPage({ params }: TeamPageProps) {
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span>Total Players:</span>
-                    <span className="font-medium">{team.players.length}</span>
+                    <span className="font-medium">{teamWithPlayers.players.length}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Total Matches:</span>
@@ -291,8 +304,8 @@ export default function TeamPage({ params }: TeamPageProps) {
                   <div className="flex justify-between">
                     <span>Average PPG:</span>
                     <span className="font-medium">
-                      {team.players.length > 0 
-                        ? (team.players.reduce((sum: number, p: any) => sum + p.stats.ppg, 0) / team.players.length).toFixed(1)
+                      {teamWithPlayers.players.length > 0 
+                        ? (teamWithPlayers.players.reduce((sum: number, p: any) => sum + (p.stats?.ppg || 0), 0) / teamWithPlayers.players.length).toFixed(1)
                         : '0.0'
                       }
                     </span>
@@ -300,8 +313,8 @@ export default function TeamPage({ params }: TeamPageProps) {
                   <div className="flex justify-between">
                     <span>Average RPG:</span>
                     <span className="font-medium">
-                      {team.players.length > 0 
-                        ? (team.players.reduce((sum: number, p: any) => sum + p.stats.rpg, 0) / team.players.length).toFixed(1)
+                      {teamWithPlayers.players.length > 0 
+                        ? (teamWithPlayers.players.reduce((sum: number, p: any) => sum + (p.stats?.rpg || 0), 0) / teamWithPlayers.players.length).toFixed(1)
                         : '0.0'
                       }
                     </span>
@@ -323,8 +336,8 @@ export default function TeamPage({ params }: TeamPageProps) {
                   <div className="flex justify-between">
                     <span>Top Scorer:</span>
                     <span className="font-medium">
-                      {team.players.length > 0 
-                        ? team.players.reduce((top: any, p: any) => p.stats.ppg > top.stats.ppg ? p : top).gamertag
+                      {teamWithPlayers.players.length > 0 
+                        ? teamWithPlayers.players.reduce((top: any, p: any) => (p.stats?.ppg || 0) > (top.stats?.ppg || 0) ? p : top).gamertag
                         : 'N/A'
                       }
                     </span>
@@ -332,8 +345,8 @@ export default function TeamPage({ params }: TeamPageProps) {
                   <div className="flex justify-between">
                     <span>Top Rebounder:</span>
                     <span className="font-medium">
-                      {team.players.length > 0 
-                        ? team.players.reduce((top: any, p: any) => p.stats.rpg > top.stats.rpg ? p : top).gamertag
+                      {teamWithPlayers.players.length > 0 
+                        ? teamWithPlayers.players.reduce((top: any, p: any) => (p.stats?.rpg || 0) > (top.stats?.rpg || 0) ? p : top).gamertag
                         : 'N/A'
                       }
                     </span>

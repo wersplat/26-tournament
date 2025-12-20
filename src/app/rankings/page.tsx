@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { TrendingUp, Trophy, Users, User, MapPin } from 'lucide-react'
-import { useGetPlayersQuery, useGetTeamsQuery } from '@/types/generated/graphql'
+import { usePublicPlayers, usePublicTeams } from '@/hooks/useAdminSupabase'
 import { GraphQLWrapper } from '@/components/graphql-wrapper'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
@@ -12,43 +12,27 @@ export const dynamic = 'force-dynamic';
 
 export default function RankingsPage() {
   const { 
-    data: playersData, 
+    players, 
     loading: playersLoading, 
     error: playersError, 
     refetch: refetchPlayers 
-  } = useGetPlayersQuery({
-    variables: {
-      pagination: {
-        limit: 50,
-        offset: 0
-      }
-    },
-    fetchPolicy: 'cache-and-network'
-  });
+  } = usePublicPlayers();
 
   const { 
-    data: teamsData, 
+    teams, 
     loading: teamsLoading, 
     error: teamsError, 
     refetch: refetchTeams 
-  } = useGetTeamsQuery({
-    variables: {
-      pagination: {
-        limit: 50,
-        offset: 0
-      }
-    },
-    fetchPolicy: 'cache-and-network'
-  });
+  } = usePublicTeams();
 
   // Sort players by RP
-  const sortedPlayers = playersData?.players?.items 
-    ? [...(playersData.players.items as any[])].sort((a, b) => (b.playerRp || 0) - (a.playerRp || 0))
+  const sortedPlayers = players 
+    ? [...players].sort((a: any, b: any) => (b.player_rp || 0) - (a.player_rp || 0))
     : [];
 
   // Sort teams by RP
-  const sortedTeams = teamsData?.teams?.items 
-    ? [...(teamsData.teams.items as any[])].sort((a, b) => (b.currentRp || 0) - (a.currentRp || 0))
+  const sortedTeams = teams 
+    ? [...teams].sort((a: any, b: any) => (b.current_rp || 0) - (a.current_rp || 0))
     : [];
 
   const getTierColor = (tier: string) => {
@@ -144,17 +128,17 @@ export default function RankingsPage() {
                           <div className="text-center">
                             <div className="flex items-center space-x-1">
                               <Trophy className="h-4 w-4 text-yellow-500" />
-                              <span className="font-semibold">{player.playerRp || 0}</span>
+                              <span className="font-semibold">{player.player_rp || 0}</span>
                             </div>
                             <div className="text-xs text-muted-foreground">RP</div>
                           </div>
 
                           {/* Performance Score */}
-                          {player.performanceScore && (
+                          {player.performance_score && (
                             <div className="text-center">
                               <div className="flex items-center space-x-1">
                                 <TrendingUp className="h-4 w-4 text-green-500" />
-                                <span className="font-semibold">{Math.round(player.performanceScore)}</span>
+                                <span className="font-semibold">{Math.round(player.performance_score)}</span>
                               </div>
                               <div className="text-xs text-muted-foreground">PS</div>
                             </div>
@@ -168,9 +152,9 @@ export default function RankingsPage() {
                           )}
 
                           {/* Tier */}
-                          {player.salaryTier && (
-                            <Badge className={`text-xs ${getTierColor(player.salaryTier)}`}>
-                              {player.salaryTier} Tier
+                          {player.salary_tier && (
+                            <Badge className={`text-xs ${getTierColor(player.salary_tier)}`}>
+                              {player.salary_tier} Tier
                             </Badge>
                           )}
                         </div>
@@ -208,9 +192,9 @@ export default function RankingsPage() {
                           
                           {/* Team Logo & Name */}
                           <div className="flex items-center space-x-3">
-                            {team.logoUrl ? (
+                            {team.logo_url ? (
                               <img 
-                                src={team.logoUrl} 
+                                src={team.logo_url} 
                                 alt={`${team.name} logo`}
                                 className="w-10 h-10 rounded-lg object-cover"
                               />
@@ -237,33 +221,33 @@ export default function RankingsPage() {
                           <div className="text-center">
                             <div className="flex items-center space-x-1">
                               <Trophy className="h-4 w-4 text-yellow-500" />
-                              <span className="font-semibold">{team.currentRp || 0}</span>
+                              <span className="font-semibold">{team.current_rp || 0}</span>
                             </div>
                             <div className="text-xs text-muted-foreground">RP</div>
                           </div>
 
                           {/* ELO Rating */}
-                          {team.eloRating && (
+                          {team.elo_rating && (
                             <div className="text-center">
                               <div className="flex items-center space-x-1">
                                 <TrendingUp className="h-4 w-4 text-green-500" />
-                                <span className="font-semibold">{Math.round(team.eloRating)}</span>
+                                <span className="font-semibold">{Math.round(team.elo_rating)}</span>
                               </div>
                               <div className="text-xs text-muted-foreground">ELO</div>
                             </div>
                           )}
 
                           {/* Global Rank */}
-                          {team.globalRank && (
+                          {team.global_rank && (
                             <Badge variant="outline" className="text-xs">
-                              Global #{team.globalRank}
+                              Global #{team.global_rank}
                             </Badge>
                           )}
 
                           {/* Tier */}
-                          {team.leaderboardTier && (
+                          {team.leaderboard_tier && (
                             <Badge variant="secondary" className="text-xs">
-                              {team.leaderboardTier} Tier
+                              {team.leaderboard_tier} Tier
                             </Badge>
                           )}
                         </div>
@@ -284,12 +268,9 @@ export default function RankingsPage() {
         {/* Pagination Info */}
         <div className="mt-8 text-center text-sm text-muted-foreground">
           <div className="flex justify-center gap-8">
-            {playersData?.players?.pagination && (
-              <span>Players: {sortedPlayers.length} of {playersData.players.pagination.total || 'unknown'}</span>
-            )}
-            {teamsData?.teams?.pagination && (
-              <span>Teams: {sortedTeams.length} of {teamsData.teams.pagination.total || 'unknown'}</span>
-            )}
+            {/* Pagination is simplified for now */}
+            <span>Players: {sortedPlayers.length}</span>
+            <span>Teams: {sortedTeams.length}</span>
           </div>
         </div>
       </div>

@@ -3,22 +3,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Users, Trophy, TrendingUp, MapPin, User, Star } from 'lucide-react'
-import { useGetPlayersQuery } from '@/types/generated/graphql'
+import { usePublicPlayers } from '@/hooks/useAdminSupabase'
 import { GraphQLWrapper } from '@/components/graphql-wrapper'
 
 // Force dynamic rendering to prevent SSR issues
 export const dynamic = 'force-dynamic';
 
 export default function PlayersPage() {
-  const { data, loading, error, refetch } = useGetPlayersQuery({
-    variables: {
-      pagination: {
-        limit: 50,
-        offset: 0
-      }
-    },
-    fetchPolicy: 'cache-and-network'
-  });
+  const { players, loading, error, refetch } = usePublicPlayers();
 
   const getPositionColor = (position: string) => {
     switch (position) {
@@ -68,8 +60,8 @@ export default function PlayersPage() {
 
         {/* Players Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {data?.players?.items && Array.isArray(data.players.items) && data.players.items.length > 0 ? (
-            data.players.items.map((player: any) => (
+          {players && Array.isArray(players) && players.length > 0 ? (
+            players.map((player: any) => (
               <Card key={player.id} className="hover:shadow-lg transition-shadow duration-200">
                 <CardHeader className="pb-3">
                   <div className="flex items-center space-x-3">
@@ -79,16 +71,16 @@ export default function PlayersPage() {
                     <div className="flex-1">
                       <CardTitle className="text-lg flex items-center gap-2">
                         {player.gamertag}
-                        {player.isRookie && (
+                        {player.is_rookie && (
                           <Badge variant="outline" className="text-xs">
                             <Star className="w-3 h-3 mr-1" />
                             Rookie
                           </Badge>
                         )}
                       </CardTitle>
-                      {player.team && (
+                      {player.teams && (
                         <div className="flex items-center text-sm text-muted-foreground mt-1">
-                          <span>{player.team.name}</span>
+                          <span>{player.teams.name}</span>
                         </div>
                       )}
                     </div>
@@ -103,9 +95,9 @@ export default function PlayersPage() {
                           {player.position.replace('_', ' ')}
                         </Badge>
                       )}
-                      {player.salaryTier && (
-                        <Badge className={`text-xs ${getTierColor(player.salaryTier)}`}>
-                          {player.salaryTier} Tier
+                      {player.salary_tier && (
+                        <Badge className={`text-xs ${getTierColor(player.salary_tier)}`}>
+                          {player.salary_tier} Tier
                         </Badge>
                       )}
                     </div>
@@ -114,28 +106,28 @@ export default function PlayersPage() {
                     <div className="flex justify-between items-center">
                       <div className="flex items-center space-x-2">
                         <Trophy className="h-4 w-4 text-yellow-500" />
-                        <span className="text-sm font-medium">RP: {player.playerRp || 0}</span>
+                        <span className="text-sm font-medium">RP: {player.player_rp || 0}</span>
                       </div>
-                      {player.monthlyValue && (
+                      {player.monthly_value && (
                         <Badge variant="outline" className="text-xs">
-                          ${player.monthlyValue}
+                          ${player.monthly_value}
                         </Badge>
                       )}
                     </div>
 
                     {/* Performance Score */}
-                    {player.performanceScore && (
+                    {player.performance_score && (
                       <div className="flex items-center space-x-2">
                         <TrendingUp className="h-4 w-4 text-green-500" />
-                        <span className="text-sm">PS: {Math.round(player.performanceScore)}</span>
+                        <span className="text-sm">PS: {Math.round(player.performance_score)}</span>
                       </div>
                     )}
 
-                    {/* Region */}
-                    {player.region && (
+                    {/* Position display */}
+                    {player.position && (
                       <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                         <MapPin className="h-3 w-3" />
-                        <span>{player.region.name}</span>
+                        <span>{player.position}</span>
                       </div>
                     )}
                   </div>
@@ -155,14 +147,9 @@ export default function PlayersPage() {
         </div>
 
         {/* Pagination Info */}
-        {data?.players?.pagination && (
-          <div className="mt-8 text-center text-sm text-muted-foreground">
-            Showing {data.players.pagination.limit} players
-            {data.players.pagination.total && (
-              <span> of {data.players.pagination.total} total</span>
-            )}
-          </div>
-        )}
+        <div className="mt-8 text-center text-sm text-muted-foreground">
+            Showing {players.length} players
+        </div>
       </div>
     </GraphQLWrapper>
   )

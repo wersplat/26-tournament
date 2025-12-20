@@ -1,14 +1,13 @@
 "use client";
 
 import { ReactNode, useEffect, useState } from 'react';
-import { ApolloError } from '@apollo/client';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface GraphQLWrapperProps {
   children: ReactNode;
   loading?: boolean;
-  error?: ApolloError | null;
+  error?: any | null;
   onRetry?: () => void;
 }
 
@@ -48,7 +47,7 @@ export function GraphQLWrapper({ children, loading, error, onRetry }: GraphQLWra
         <div className="flex flex-col items-center space-y-4">
           <AlertCircle className="h-8 w-8 text-destructive" />
           <p className="text-muted-foreground">Error loading data</p>
-          <p className="text-sm text-muted-foreground">{error.message}</p>
+          <p className="text-sm text-muted-foreground">{error.message || 'An error occurred'}</p>
           {onRetry && (
             <Button onClick={onRetry} variant="outline" size="sm">
               <RefreshCw className="h-4 w-4 mr-2" />

@@ -3,30 +3,36 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, TrendingUp, MapPin } from "lucide-react";
-import { useGetTeamsQuery } from '@/types/generated/graphql'
-import { GraphQLWrapper } from '@/components/graphql-wrapper'
+import { usePublicTeams } from '@/hooks/useAdminSupabase'
+import { Loader2, AlertCircle } from 'lucide-react'
 
 // Force dynamic rendering to prevent SSR issues
 export const dynamic = 'force-dynamic';
 
 export default function StandingsPage() {
-  const { data, loading, error, refetch } = useGetTeamsQuery({
-    variables: {
-      pagination: {
-        limit: 50,
-        offset: 0
-      }
-    },
-    fetchPolicy: 'cache-and-network'
-  });
+  const { teams, loading, error, refetch } = usePublicTeams();
 
   // Sort teams by ranking points (descending)
-  const sortedTeams = data?.teams?.items 
-    ? [...(data.teams.items as any[])].sort((a, b) => (b.currentRp || 0) - (a.currentRp || 0))
-    : [];
+  const sortedTeams = [...teams].sort((a: any, b: any) => (b.current_rp || 0) - (a.current_rp || 0));
+
+  if (loading) {
+    return (
+        <div className="min-h-screen flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        </div>
+    )
+  }
+
+  if (error) {
+    return (
+        <div className="min-h-screen flex items-center justify-center text-red-600">
+            <AlertCircle className="h-8 w-8 mr-2" />
+            <p>Error loading standings</p>
+        </div>
+    )
+  }
 
   return (
-    <GraphQLWrapper loading={loading} error={error} onRetry={() => refetch()}>
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
         <div className="mb-8">
@@ -58,19 +64,19 @@ export default function StandingsPage() {
                       
                       {/* Team Logo & Name */}
                       <div className="flex items-center space-x-3">
-                        {team.logoUrl && (
+                        {team.logo_url && (
                           <img 
-                            src={team.logoUrl} 
+                            src={team.logo_url} 
                             alt={`${team.name} logo`}
                             className="w-10 h-10 rounded-lg object-cover"
                           />
                         )}
                         <div>
                           <h3 className="font-semibold">{team.name}</h3>
-                          {team.region && (
+                          {team.lg_conf && (
                             <div className="flex items-center text-sm text-muted-foreground">
                               <MapPin className="h-3 w-3 mr-1" />
-                              {team.region.name}
+                              Conference
                             </div>
                           )}
                         </div>
@@ -83,33 +89,33 @@ export default function StandingsPage() {
                       <div className="text-center">
                         <div className="flex items-center space-x-1">
                           <Trophy className="h-4 w-4 text-yellow-500" />
-                          <span className="font-semibold">{team.currentRp || 0}</span>
+                          <span className="font-semibold">{team.current_rp || 0}</span>
                         </div>
                         <div className="text-xs text-muted-foreground">RP</div>
                       </div>
 
                       {/* ELO Rating */}
-                      {team.eloRating && (
+                      {team.elo_rating && (
                         <div className="text-center">
                           <div className="flex items-center space-x-1">
                             <TrendingUp className="h-4 w-4 text-green-500" />
-                            <span className="font-semibold">{Math.round(team.eloRating)}</span>
+                            <span className="font-semibold">{Math.round(team.elo_rating)}</span>
                           </div>
                           <div className="text-xs text-muted-foreground">ELO</div>
                         </div>
                       )}
 
                       {/* Global Rank */}
-                      {team.globalRank && (
+                      {team.global_rank && (
                         <Badge variant="outline" className="text-xs">
-                          Global #{team.globalRank}
+                          Global #{team.global_rank}
                         </Badge>
                       )}
 
                       {/* Tier */}
-                      {team.leaderboardTier && (
+                      {team.leaderboard_tier && (
                         <Badge variant="secondary" className="text-xs">
-                          {team.leaderboardTier} Tier
+                          {team.leaderboard_tier} Tier
                         </Badge>
                       )}
                     </div>
@@ -126,15 +132,9 @@ export default function StandingsPage() {
         </Card>
 
         {/* Pagination Info */}
-        {data?.teams?.pagination && (
           <div className="mt-8 text-center text-sm text-muted-foreground">
             Showing {sortedTeams.length} teams
-            {data.teams.pagination.total && (
-              <span> of {data.teams.pagination.total} total</span>
-            )}
           </div>
-        )}
       </div>
-    </GraphQLWrapper>
   );
 }

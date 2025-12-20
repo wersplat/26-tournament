@@ -1,11 +1,9 @@
-import { gql } from '@apollo/client'
+import { gql } from 'graphql-request'
 
 // Query to get all players with filtering and pagination
 export const GET_PLAYERS = gql`
-  query GetPlayers($first: Int, $offset: Int, $filter: playersFilter, $orderBy: [String!]) {
-    playersCollection(first: $first, offset: $offset, filter: $filter, orderBy: $orderBy) {
-      edges {
-        node {
+  query GetPlayers($limit: Int, $offset: Int, $where: players_bool_exp, $order_by: [players_order_by!]) {
+    players(limit: $limit, offset: $offset, where: $where, order_by: $order_by) {
           id
           gamertag
           position
@@ -21,7 +19,7 @@ export const GET_PLAYERS = gql`
           discord_id
           twitter_id
           alternate_gamertag
-          teams {
+      team {
             id
             name
             logo_url
@@ -34,17 +32,14 @@ export const GET_PLAYERS = gql`
             player_rank_score
             money_won
           }
-          regions {
+      region {
             id
             name
           }
         }
-      }
-      pageInfo {
-        hasNextPage
-        hasPreviousPage
-        startCursor
-        endCursor
+    players_aggregate(where: $where) {
+      aggregate {
+        count
       }
     }
   }
@@ -52,9 +47,8 @@ export const GET_PLAYERS = gql`
 
 // Query to get a single player by ID
 export const GET_PLAYER = gql`
-  query GetPlayer($nodeId: ID!) {
-    node(nodeId: $nodeId) {
-      ... on players {
+  query GetPlayer($id: uuid!) {
+    players_by_pk(id: $id) {
         id
         gamertag
         position
@@ -70,7 +64,7 @@ export const GET_PLAYER = gql`
         discord_id
         twitter_id
         alternate_gamertag
-        teams {
+      team {
           id
           name
           logo_url
@@ -83,10 +77,9 @@ export const GET_PLAYER = gql`
           player_rank_score
           money_won
         }
-        regions {
+      region {
           id
           name
-        }
       }
     }
   }
@@ -94,10 +87,8 @@ export const GET_PLAYER = gql`
 
 // Query to get all teams with pagination
 export const GET_TEAMS = gql`
-  query GetTeams($first: Int, $offset: Int, $filter: teamsFilter, $orderBy: [String!]) {
-    teamsCollection(first: $first, offset: $offset, filter: $filter, orderBy: $orderBy) {
-      edges {
-        node {
+  query GetTeams($limit: Int, $offset: Int, $where: teams_bool_exp, $order_by: [teams_order_by!]) {
+    teams(limit: $limit, offset: $offset, where: $where, order_by: $order_by) {
           id
           name
           logo_url
@@ -109,17 +100,14 @@ export const GET_TEAMS = gql`
           created_at
           player_rank_score
           money_won
-          regions {
+      region {
             id
             name
           }
         }
-      }
-      pageInfo {
-        hasNextPage
-        hasPreviousPage
-        startCursor
-        endCursor
+    teams_aggregate(where: $where) {
+      aggregate {
+        count
       }
     }
   }
@@ -127,9 +115,8 @@ export const GET_TEAMS = gql`
 
 // Query to get a single team by ID
 export const GET_TEAM = gql`
-  query GetTeam($nodeId: ID!) {
-    node(nodeId: $nodeId) {
-      ... on teams {
+  query GetTeam($id: uuid!) {
+    teams_by_pk(id: $id) {
         id
         name
         logo_url
@@ -141,10 +128,9 @@ export const GET_TEAM = gql`
         created_at
         player_rank_score
         money_won
-        regions {
+      region {
           id
           name
-        }
       }
     }
   }
@@ -152,10 +138,8 @@ export const GET_TEAM = gql`
 
 // Query to get matches with filtering and pagination
 export const GET_MATCHES = gql`
-  query GetMatches($first: Int, $offset: Int, $filter: matchesFilter, $orderBy: [String!]) {
-    matchesCollection(first: $first, offset: $offset, filter: $filter, orderBy: $orderBy) {
-      edges {
-        node {
+  query GetMatches($limit: Int, $offset: Int, $where: matches_bool_exp, $order_by: [matches_order_by!]) {
+    matches(limit: $limit, offset: $offset, where: $where, order_by: $order_by) {
           id
           event_id
           team_a_id
@@ -170,7 +154,7 @@ export const GET_MATCHES = gql`
           game_number
           team_b_name
           winner_name
-          events {
+      event {
             id
             name
             type
@@ -190,22 +174,17 @@ export const GET_MATCHES = gql`
             season_number
             prize_pool
           }
-          teams {
+      team_a {
+        id
+        name
+        logo_url
+      }
+      team_b {
             id
             name
             logo_url
-            region_id
-            current_rp
-            elo_rating
-            global_rank
-            leaderboard_tier
-            created_at
-            player_rank_score
-            money_won
           }
-          player_statsCollection {
-            edges {
-              node {
+      player_stats {
                 id
                 player_id
                 match_id
@@ -230,14 +209,9 @@ export const GET_MATCHES = gql`
                 updated_at
               }
             }
-          }
-        }
-      }
-      pageInfo {
-        hasNextPage
-        hasPreviousPage
-        startCursor
-        endCursor
+    matches_aggregate(where: $where) {
+      aggregate {
+        count
       }
     }
   }
@@ -245,9 +219,8 @@ export const GET_MATCHES = gql`
 
 // Query to get a specific match by ID
 export const GET_MATCH = gql`
-  query GetMatch($nodeId: ID!) {
-    node(nodeId: $nodeId) {
-      ... on matches {
+  query GetMatch($id: uuid!) {
+    matches_by_pk(id: $id) {
         id
         event_id
         team_a_id
@@ -262,7 +235,7 @@ export const GET_MATCH = gql`
         game_number
         team_b_name
         winner_name
-        events {
+      event {
           id
           name
           type
@@ -282,22 +255,17 @@ export const GET_MATCH = gql`
           season_number
           prize_pool
         }
-        teams {
+      team_a {
+        id
+        name
+        logo_url
+      }
+      team_b {
           id
           name
           logo_url
-          region_id
-          current_rp
-          elo_rating
-          global_rank
-          leaderboard_tier
-          created_at
-          player_rank_score
-          money_won
         }
-        player_statsCollection {
-          edges {
-            node {
+      player_stats {
               id
               player_id
               match_id
@@ -320,9 +288,6 @@ export const GET_MATCH = gql`
               plus_minus
               player_name
               updated_at
-            }
-          }
-        }
       }
     }
   }
@@ -330,10 +295,8 @@ export const GET_MATCH = gql`
 
 // Query to get events with filtering and pagination
 export const GET_EVENTS = gql`
-  query GetEvents($first: Int, $offset: Int, $filter: eventsFilter, $orderBy: [String!]) {
-    eventsCollection(first: $first, offset: $offset, filter: $filter, orderBy: $orderBy) {
-      edges {
-        node {
+  query GetEvents($limit: Int, $offset: Int, $where: events_bool_exp, $order_by: [events_order_by!]) {
+    events(limit: $limit, offset: $offset, where: $where, order_by: $order_by) {
           id
           name
           type
@@ -352,17 +315,14 @@ export const GET_EVENTS = gql`
           tier
           season_number
           prize_pool
-          regions {
+      region {
             id
             name
           }
         }
-      }
-      pageInfo {
-        hasNextPage
-        hasPreviousPage
-        startCursor
-        endCursor
+    events_aggregate(where: $where) {
+      aggregate {
+        count
       }
     }
   }
@@ -370,9 +330,8 @@ export const GET_EVENTS = gql`
 
 // Query to get a specific event by ID
 export const GET_EVENT = gql`
-  query GetEvent($nodeId: ID!) {
-    node(nodeId: $nodeId) {
-      ... on events {
+  query GetEvent($id: uuid!) {
+    events_by_pk(id: $id) {
         id
         name
         type
@@ -391,10 +350,9 @@ export const GET_EVENT = gql`
         tier
         season_number
         prize_pool
-        regions {
+      region {
           id
           name
-        }
       }
     }
   }
@@ -402,10 +360,8 @@ export const GET_EVENT = gql`
 
 // Query to get users (profiles) with pagination
 export const GET_USERS = gql`
-  query GetUsers($first: Int, $offset: Int, $filter: profilesFilter, $orderBy: [String!]) {
-    profilesCollection(first: $first, offset: $offset, filter: $filter, orderBy: $orderBy) {
-      edges {
-        node {
+  query GetUsers($limit: Int, $offset: Int, $where: profiles_bool_exp, $order_by: [profiles_order_by!]) {
+    profiles(limit: $limit, offset: $offset, where: $where, order_by: $order_by) {
           id
           email
           role
@@ -413,12 +369,9 @@ export const GET_USERS = gql`
           updated_at
           app_role
         }
-      }
-      pageInfo {
-        hasNextPage
-        hasPreviousPage
-        startCursor
-        endCursor
+    profiles_aggregate(where: $where) {
+      aggregate {
+        count
       }
     }
   }
@@ -426,16 +379,14 @@ export const GET_USERS = gql`
 
 // Query to get a specific user by ID
 export const GET_USER = gql`
-  query GetUser($nodeId: ID!) {
-    node(nodeId: $nodeId) {
-      ... on profiles {
+  query GetUser($id: uuid!) {
+    profiles_by_pk(id: $id) {
         id
         email
         role
         created_at
         updated_at
         app_role
-      }
     }
   }
 `

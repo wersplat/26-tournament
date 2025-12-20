@@ -18,11 +18,12 @@ import {
   RefreshCw
 } from "lucide-react";
 import { 
-  useGetTeamsQuery,
-  useGetPlayersQuery,
-  useDeleteTeamMutation
-} from "@/types/generated/graphql";
+  useAdminTeams,
+  useAdminPlayers
+} from "@/hooks/useAdminSupabase";
 import { TeamForm } from "./forms/team-form";
+import { adminService } from "@/services/admin-service";
+import { useAuth } from "@clerk/nextjs";
 
 export function AdminTeamsPage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -38,57 +39,47 @@ export function AdminTeamsPage() {
     isActive: boolean;
   } | null>(null);
 
-  const { data: teamsData, loading: teamsLoading, refetch: refetchTeams } = useGetTeamsQuery({
-    variables: { limit: 100, offset: 0 },
-    errorPolicy: 'all',
-  });
+  const { teams, loading: teamsLoading, refetch: refetchTeams } = useAdminTeams();
+  const { players, loading: playersLoading } = useAdminPlayers();
+  const { getToken } = useAuth();
 
-  const { data: playersData, loading: playersLoading } = useGetPlayersQuery({
-    variables: { limit: 200, offset: 0 },
-    errorPolicy: 'all',
-  });
-
-  const [deleteTeam, { loading: deleteLoading }] = useDeleteTeamMutation();
-
-  const teams = teamsData?.getTeams || [];
-  const players = playersData?.getPlayers || [];
-  const loading = teamsLoading || playersLoading || deleteLoading;
+  const loading = teamsLoading || playersLoading;
 
   // Filter teams based on search and filters
-  const filteredTeams = teams.filter(team => {
-    const matchesSearch = team.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (team.description && team.description.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesRegion = !filterRegion || team.region === filterRegion;
-    const matchesStatus = !filterStatus || 
-      (filterStatus === 'active' && team.isActive) || 
-      (filterStatus === 'inactive' && !team.isActive);
+  const filteredTeams = teams.filter((team: any) => {
+    const matchesSearch = team.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesRegion = !filterRegion || filterRegion === 'all' || team.region?.name === filterRegion;
+    // Status not in schema yet, assuming active for now or add field later
+    const isActive = true; 
+    const matchesStatus = !filterStatus || filterStatus === 'all' ||
+      (filterStatus === 'active' && isActive) || 
+      (filterStatus === 'inactive' && !isActive);
     
     return matchesSearch && matchesRegion && matchesStatus;
   });
 
   // Get unique regions for filter
-  const regions = [...new Set(teams.map(t => t.region).filter(Boolean))];
+  const regions = [...new Set(teams.map((t: any) => t.region?.name).filter(Boolean))];
 
   // Calculate team statistics
-  const teamsWithStats = filteredTeams.map(team => {
-    const teamPlayers = players.filter(p => p.teamName === team.name);
+  const teamsWithStats = filteredTeams.map((team: any) => {
+    const teamPlayers = players.filter((p: any) => p.team?.id === team.id);
     const averageRP = teamPlayers.length > 0 
-      ? Math.round(teamPlayers.reduce((sum, p) => sum + (p.currentRp || 0), 0) / teamPlayers.length)
+      ? Math.round(teamPlayers.reduce((sum: number, p: any) => sum + (p.player_rp || 0), 0) / teamPlayers.length)
       : 0;
     return {
       ...team,
       playerCount: teamPlayers.length,
       averageRP,
-      verifiedPlayers: teamPlayers.filter(p => p.isVerified).length
+      verifiedPlayers: teamPlayers.length // Assuming all verified for now or add field
     };
   });
 
   const handleDeleteTeam = async (teamId: string) => {
     if (confirm('Are you sure you want to delete this team?')) {
       try {
-        await deleteTeam({
-          variables: { id: teamId }
-        });
+        const token = await getToken();
+        await adminService.deleteTeam(teamId, token);
         refetchTeams();
       } catch (error) {
         console.error('Error deleting team:', error);
@@ -180,7 +171,7 @@ export function AdminTeamsPage() {
             <CardTitle className="text-sm font-medium">Active Teams</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{teams.filter(t => t.isActive).length}</div>
+            <div className="text-2xl font-bold">{teams.length}</div>
           </CardContent>
         </Card>
         
@@ -189,7 +180,7 @@ export function AdminTeamsPage() {
             <CardTitle className="text-sm font-medium">Total Players</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{players.filter(p => p.teamName).length}</div>
+            <div className="text-2xl font-bold">{players.filter((p: any) => p.team).length}</div>
           </CardContent>
         </Card>
         
@@ -199,7 +190,7 @@ export function AdminTeamsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {teams.length > 0 ? Math.round(players.filter(p => p.teamName).length / teams.length) : 0}
+              {teams.length > 0 ? Math.round(players.filter((p: any) => p.team).length / teams.length) : 0}
             </div>
           </CardContent>
         </Card>
@@ -230,8 +221,8 @@ export function AdminTeamsPage() {
                 <SelectValue placeholder="Filter by region" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Regions</SelectItem>
-                {regions.map((region) => (
+                <SelectItem value="all">All Regions</SelectItem>
+                {regions.map((region: any) => (
                   <SelectItem key={region} value={region}>
                     {region}
                   </SelectItem>
@@ -244,7 +235,7 @@ export function AdminTeamsPage() {
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Status</SelectItem>
+                <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="inactive">Inactive</SelectItem>
               </SelectContent>
@@ -277,18 +268,18 @@ export function AdminTeamsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {teamsWithStats.map((team) => (
+                  {teamsWithStats.map((team: any) => (
                     <TableRow key={team.id}>
                       <TableCell>
                         <div>
                           <div className="font-medium">{team.name}</div>
                           <div className="text-sm text-muted-foreground">
-                            {team.description || 'No description'}
+                            {/* team.description */}
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        {team.region || (
+                        {team.region?.name || (
                           <span className="text-muted-foreground">No region</span>
                         )}
                       </TableCell>
@@ -304,8 +295,8 @@ export function AdminTeamsPage() {
                         <div className="font-medium">{team.averageRP}</div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={team.isActive ? "default" : "secondary"}>
-                          {team.isActive ? "Active" : "Inactive"}
+                        <Badge variant="default">
+                          Active
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -313,7 +304,13 @@ export function AdminTeamsPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setEditingTeam(team)}
+                            onClick={() => setEditingTeam({
+                                id: team.id,
+                                name: team.name,
+                                logoUrl: team.logo_url,
+                                region: team.region?.name,
+                                isActive: true
+                            })}
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
@@ -336,4 +333,4 @@ export function AdminTeamsPage() {
       </Card>
     </div>
   );
-} 
+}

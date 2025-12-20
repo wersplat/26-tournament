@@ -1,18 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import { useGetPlayersQuery } from '@/types/generated/graphql';
+import { usePlayers } from '@/hooks/useGraphQL';
 
 /**
  * Component to test API connectivity with the backend
  */
 export default function ApiTest() {
-  const { loading, error, data } = useGetPlayersQuery({
-    variables: { limit: 5, offset: 0 },
-    errorPolicy: 'all',
-  });
+  const { players, loading, error } = usePlayers();
 
-  const topPlayers = data?.getPlayers || [];
+  const topPlayers = players.slice(0, 5);
 
   return (
     <div className="p-6 max-w-lg mx-auto bg-white rounded-xl shadow-md">
@@ -28,9 +24,9 @@ export default function ApiTest() {
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
           <p className="font-bold">Error</p>
-          <p>{error.message}</p>
+          <p>Error loading players</p>
           <p className="text-sm mt-2">
-            Make sure the GraphQL server is running at {process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:4000/graphql'}
+            Make sure the GraphQL server is running at {process.env.NEXT_PUBLIC_GRAPHQL_URL}
           </p>
         </div>
       )}
@@ -57,11 +53,11 @@ export default function ApiTest() {
                 </tr>
               </thead>
               <tbody>
-                {topPlayers.map((player, index) => (
+                {topPlayers.map((player: any, index: number) => (
                   <tr key={player.id} className="border-t">
                     <td className="py-2">{index + 1}</td>
                     <td className="py-2">{player.gamertag}</td>
-                    <td className="py-2">{player.currentRp || 0}</td>
+                    <td className="py-2">{player.player_rp || 0}</td>
                   </tr>
                 ))}
               </tbody>

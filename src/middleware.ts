@@ -1,24 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
-export function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl
-  if (!pathname.startsWith('/admin')) return NextResponse.next()
+const isProtectedRoute = createRouteMatcher(["/admin(.*)"]);
 
-  // Simple guard: require presence of Supabase access token cookie for admin area
-  // Note: full authorization is still enforced client-side; this prevents obvious anonymous access.
-  const hasToken = req.cookies.has('sb-access-token') || req.cookies.has('sb:token')
-  if (!hasToken) {
-    const url = req.nextUrl.clone()
-    url.pathname = '/login'
-    url.searchParams.set('redirect', pathname)
-    return NextResponse.redirect(url)
+export default clerkMiddleware(async (auth, req) => {
+  if (isProtectedRoute(req)) {
+     await auth.protect();
   }
-
-  return NextResponse.next()
-}
+  return NextResponse.next();
+});
 
 export const config = {
-  matcher: ['/admin/:path*'],
-}
-
-
+  matcher: [
+    // Skip Next.js internals and all static files, unless found in search params
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    // Always run for API routes
+    '/(api|trpc)(.*)',
+  ],
+};

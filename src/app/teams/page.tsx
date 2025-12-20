@@ -3,22 +3,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Users, Trophy, TrendingUp, MapPin } from 'lucide-react'
-import { useGetTeamsQuery } from '@/types/generated/graphql'
+import { usePublicTeams } from '@/hooks/useAdminSupabase'
 import { GraphQLWrapper } from '@/components/graphql-wrapper'
 
 // Force dynamic rendering to prevent SSR issues
 export const dynamic = 'force-dynamic';
 
 export default function TeamsPage() {
-  const { data, loading, error, refetch } = useGetTeamsQuery({
-    variables: {
-      pagination: {
-        limit: 50,
-        offset: 0
-      }
-    },
-    fetchPolicy: 'cache-and-network'
-  });
+  const { teams, loading, error, refetch } = usePublicTeams();
 
   return (
     <GraphQLWrapper loading={loading} error={error} onRetry={() => refetch()}>
@@ -34,24 +26,24 @@ export default function TeamsPage() {
 
         {/* Teams Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {data?.teams?.items && Array.isArray(data.teams.items) && data.teams.items.length > 0 ? (
-            data.teams.items.map((team: any) => (
+          {teams && Array.isArray(teams) && teams.length > 0 ? (
+            teams.map((team: any) => (
               <Card key={team.id} className="hover:shadow-lg transition-shadow duration-200">
                 <CardHeader className="pb-3">
                   <div className="flex items-center space-x-3">
-                    {team.logoUrl && (
+                    {team.logo_url && (
                       <img 
-                        src={team.logoUrl} 
+                        src={team.logo_url} 
                         alt={`${team.name} logo`}
                         className="w-12 h-12 rounded-lg object-cover"
                       />
                     )}
                     <div className="flex-1">
                       <CardTitle className="text-lg">{team.name}</CardTitle>
-                      {team.region && (
+                      {team.lg_conf && (
                         <div className="flex items-center text-sm text-muted-foreground mt-1">
                           <MapPin className="h-3 w-3 mr-1" />
-                          {team.region.name}
+                          Conference
                         </div>
                       )}
                     </div>
@@ -63,28 +55,28 @@ export default function TeamsPage() {
                     <div className="flex justify-between items-center">
                       <div className="flex items-center space-x-2">
                         <Trophy className="h-4 w-4 text-yellow-500" />
-                        <span className="text-sm font-medium">RP: {team.currentRp || 0}</span>
+                        <span className="text-sm font-medium">RP: {team.current_rp || 0}</span>
                       </div>
-                      {team.globalRank && (
+                      {team.global_rank && (
                         <Badge variant="outline" className="text-xs">
-                          Rank #{team.globalRank}
+                          Rank #{team.global_rank}
                         </Badge>
                       )}
                     </div>
 
                     {/* ELO Rating */}
-                    {team.eloRating && (
+                    {team.elo_rating && (
                       <div className="flex items-center space-x-2">
                         <TrendingUp className="h-4 w-4 text-green-500" />
-                        <span className="text-sm">ELO: {Math.round(team.eloRating)}</span>
+                        <span className="text-sm">ELO: {Math.round(team.elo_rating)}</span>
                       </div>
                     )}
 
                     {/* Tier Badge */}
-                    {team.leaderboardTier && (
+                    {team.leaderboard_tier && (
                       <div className="flex justify-end">
                         <Badge variant="secondary">
-                          {team.leaderboardTier} Tier
+                          {team.leaderboard_tier} Tier
                         </Badge>
                       </div>
                     )}
@@ -105,14 +97,9 @@ export default function TeamsPage() {
         </div>
 
         {/* Pagination Info */}
-        {data?.teams?.pagination && (
-          <div className="mt-8 text-center text-sm text-muted-foreground">
-            Showing {data.teams.pagination.limit} teams
-            {data.teams.pagination.total && (
-              <span> of {data.teams.pagination.total} total</span>
-            )}
-          </div>
-        )}
+        <div className="mt-8 text-center text-sm text-muted-foreground">
+            Showing {teams.length} teams
+        </div>
       </div>
     </GraphQLWrapper>
   )

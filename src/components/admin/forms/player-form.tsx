@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,27 +8,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Save, X, UserPlus, UserCheck } from "lucide-react";
-import { 
-  useCreatePlayerMutation, 
-  useUpdatePlayerMutation,
-  useGetTeamsQuery,
-  PlayerTier,
-  PlayerPosition,
-  SalaryTier
-} from "@/types/generated/graphql";
+import { useAdminTeams } from "@/hooks/useAdminSupabase";
+import { adminService } from "@/services/admin-service";
+import { useAuth } from "@clerk/nextjs";
 
 interface PlayerFormProps {
   player?: {
     id: string;
     gamertag: string;
     region?: string | null;
-    position?: PlayerPosition | null;
-    salaryTier?: SalaryTier | null;
+    position?: string | null;
+    salaryTier?: string | null;
     teamName?: string | null;
     isVerified?: boolean | null;
     currentRp?: number | null;
     peakRp?: number | null;
-    tier?: PlayerTier | null;
+    tier?: string | null;
   };
   onSuccess?: () => void;
   onCancel?: () => void;
@@ -47,61 +42,41 @@ export function PlayerForm({ player, onSuccess, onCancel, mode }: PlayerFormProp
     peakRp: player?.peakRp || 0,
     tier: player?.tier || undefined,
   });
-
-  const [createPlayer, { loading: createLoading }] = useCreatePlayerMutation();
-  const [updatePlayer, { loading: updateLoading }] = useUpdatePlayerMutation();
+  const [loading, setLoading] = useState(false);
+  const { getToken } = useAuth();
   
-  const { data: teamsData, loading: teamsLoading } = useGetTeamsQuery({
-    variables: { limit: 100, offset: 0 },
-    errorPolicy: 'all',
-  });
-
-  const teams = teamsData?.getTeams || [];
-  const loading = createLoading || updateLoading;
+  const { teams } = useAdminTeams();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     
     try {
+      const token = await getToken();
+      
       if (mode === 'create') {
-        // For create, we need a userId - this would typically come from the current user or be selected
-        const userId = "current-user-id"; // This should be dynamic based on your auth system
-        
-        await createPlayer({
-          variables: {
-            input: {
-              userId,
-              gamertag: formData.gamertag,
-              region: formData.region || undefined,
-              position: formData.position || undefined,
-              salaryTier: formData.salaryTier || undefined,
-              teamName: formData.teamName || undefined,
-              isVerified: formData.isVerified,
-            }
-          }
-        });
+        await adminService.createPlayer({
+          gamertag: formData.gamertag,
+          position: formData.position,
+          salary_tier: formData.salaryTier,
+          player_rp: formData.currentRp,
+          // region: formData.region, // Expects relation?
+          // team: formData.teamName ? { connect: { name: formData.teamName } } : undefined // Schema specific
+        }, token);
       } else {
-        await updatePlayer({
-          variables: {
-            id: player!.id,
-            input: {
-              gamertag: formData.gamertag,
-              region: formData.region || undefined,
-              position: formData.position || undefined,
-              salaryTier: formData.salaryTier || undefined,
-              teamName: formData.teamName || undefined,
-              isVerified: formData.isVerified,
-              currentRp: formData.currentRp,
-              peakRp: formData.peakRp,
-              tier: formData.tier || undefined,
-            }
-          }
-        });
+        await adminService.updatePlayer(player!.id, {
+          gamertag: formData.gamertag,
+          position: formData.position,
+          salary_tier: formData.salaryTier,
+          player_rp: formData.currentRp,
+        }, token);
       }
       
       onSuccess?.();
     } catch (error) {
       console.error('Error saving player:', error);
+    } finally {
+        setLoading(false);
     }
   };
 
@@ -197,13 +172,13 @@ export function PlayerForm({ player, onSuccess, onCancel, mode }: PlayerFormProp
           {/* Team Assignment */}
           <div className="space-y-2">
             <Label htmlFor="team" className="text-sm">Team</Label>
-            <Select value={formData.teamName || ''} onValueChange={(value) => handleInputChange('teamName', value)}>
+            <Select value={formData.teamName || 'none'} onValueChange={(value) => handleInputChange('teamName', value === 'none' ? '' : value)}>
               <SelectTrigger className="text-sm">
                 <SelectValue placeholder="Select team" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">No Team</SelectItem>
-                {teams.map((team) => (
+                <SelectItem value="none">No Team</SelectItem>
+                {teams.map((team: any) => (
                   <SelectItem key={team.id} value={team.name}>
                     {team.name}
                   </SelectItem>

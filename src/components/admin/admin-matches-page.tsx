@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useMatches, useTeams, usePlayers } from "@/hooks/useGraphQL";
+import { useAdminMatches, useAdminTeams, useAdminPlayers } from "@/hooks/useAdminSupabase";
 import { Loader2, Calendar, Clock, Users, Trophy, Plus, Edit, Trash2, Eye, Settings, Play, Pause, CheckCircle, Award } from "lucide-react";
 
 interface Match {
@@ -58,9 +58,9 @@ interface MatchStats {
 }
 
 export function AdminMatchesPage() {
-  const { matches: graphqlMatches, loading: matchesLoading } = useMatches();
-  const { teams, loading: teamsLoading } = useTeams();
-  const { players, loading: playersLoading } = usePlayers();
+  const { matches: graphqlMatches, loading: matchesLoading } = useAdminMatches();
+  const { teams, loading: teamsLoading } = useAdminTeams();
+  const { players, loading: playersLoading } = useAdminPlayers();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [selectedStage, setSelectedStage] = useState<string>("all");

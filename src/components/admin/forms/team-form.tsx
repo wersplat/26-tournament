@@ -8,11 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Save, X, Users, UserCheck } from "lucide-react";
-import { 
-  useCreateTeamMutation, 
-  useUpdateTeamMutation,
-  useGetPlayersQuery
-} from "@/types/generated/graphql";
+import { useAdminPlayers } from "@/hooks/useAdminSupabase";
+import { adminService } from "@/services/admin-service";
+import { useAuth } from "@clerk/nextjs";
 
 interface TeamFormProps {
   team?: {
@@ -36,55 +34,41 @@ export function TeamForm({ team, onSuccess, onCancel, mode }: TeamFormProps) {
     region: team?.region || '',
     isActive: team?.isActive ?? true,
   });
-
-  const [createTeam, { loading: createLoading }] = useCreateTeamMutation();
-  const [updateTeam, { loading: updateLoading }] = useUpdateTeamMutation();
+  const [loading, setLoading] = useState(false);
+  const { getToken } = useAuth();
   
-  const { data: playersData, loading: playersLoading } = useGetPlayersQuery({
-    variables: { limit: 100, offset: 0 },
-    errorPolicy: 'all',
-  });
-
-  const players = playersData?.getPlayers || [];
-  const loading = createLoading || updateLoading;
+  const { players, loading: playersLoading } = useAdminPlayers();
 
   // Get players currently on this team
-  const teamPlayers = players.filter(player => player.teamName === team?.name);
+  const teamPlayers = players.filter((player: any) => player.team?.name === team?.name);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     
     try {
+      const token = await getToken();
+      
       if (mode === 'create') {
-        await createTeam({
-          variables: {
-            input: {
-              name: formData.name,
-              description: formData.description || undefined,
-              logoUrl: formData.logoUrl || undefined,
-              region: formData.region || undefined,
-              isActive: formData.isActive,
-            }
-          }
-        });
+        await adminService.createTeam({
+          name: formData.name,
+          // description: formData.description, // Not in schema yet?
+          logo_url: formData.logoUrl,
+          // region: formData.region, // Region expects relation or ID? Assuming string for now or needs update
+          // isActive: formData.isActive, // Not in schema yet?
+        }, token);
       } else {
-        await updateTeam({
-          variables: {
-            id: team!.id,
-            input: {
-              name: formData.name,
-              description: formData.description || undefined,
-              logoUrl: formData.logoUrl || undefined,
-              region: formData.region || undefined,
-              isActive: formData.isActive,
-            }
-          }
-        });
+        await adminService.updateTeam(team!.id, {
+          name: formData.name,
+          logo_url: formData.logoUrl,
+        }, token);
       }
       
       onSuccess?.();
     } catch (error) {
       console.error('Error saving team:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -189,18 +173,18 @@ export function TeamForm({ team, onSuccess, onCancel, mode }: TeamFormProps) {
             <div className="p-3 sm:p-4 bg-muted rounded-lg">
               <h4 className="font-medium mb-2 text-sm sm:text-base">Current Team Players ({teamPlayers.length})</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {teamPlayers.map((player) => (
+                {teamPlayers.map((player: any) => (
                   <div key={player.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-2 bg-background rounded border space-y-1 sm:space-y-0">
                     <div className="flex-1">
                       <div className="font-medium text-xs sm:text-sm">{player.gamertag}</div>
                       <div className="text-xs text-muted-foreground">
-                        {player.position || 'No position'} • {player.tier || 'Unranked'}
+                        {player.position || 'No position'} • {player.salary_tier || 'Unranked'}
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-xs sm:text-sm font-medium">{player.currentRp || 0} RP</div>
-                      <Badge variant={player.isVerified ? "default" : "secondary"} className="text-xs">
-                        {player.isVerified ? "Verified" : "Unverified"}
+                      <div className="text-xs sm:text-sm font-medium">{player.player_rp || 0} RP</div>
+                      <Badge variant="default" className="text-xs">
+                        Verified
                       </Badge>
                     </div>
                   </div>

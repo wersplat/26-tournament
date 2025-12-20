@@ -18,7 +18,7 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { useGetPlayersQuery, PlayerTier as GraphQLPlayerTier } from '@/types/generated/graphql';
+import { usePlayers } from '@/hooks/useGraphQL';
 
 interface RankingsTableProps {
   initialLimit?: number;
@@ -26,28 +26,20 @@ interface RankingsTableProps {
 
 export function RankingsTable({ initialLimit = 10 }: RankingsTableProps) {
   const [sortBy, setSortBy] = useState<'currentRp' | 'peakRp'>('currentRp');
-  const [tier, setTier] = useState<GraphQLPlayerTier | undefined>(undefined);
-  const [limit] = useState(initialLimit);
+  const [tier, setTier] = useState<string | undefined>(undefined);
+  
+  const { players, loading, error, refetch } = usePlayers();
 
-  const { loading, error, data, refetch } = useGetPlayersQuery({
-    variables: {
-      limit,
-      offset: 0,
-      tier: tier || undefined,
-    },
-    errorPolicy: 'all',
-  });
-
-  const players = data?.getPlayers || [];
-
-  // Sort players based on selected criteria
-  const sortedPlayers = [...players].sort((a, b) => {
+  // Filter and Sort players
+  const filteredPlayers = players.filter((p: any) => !tier || tier === 'all' || p.salary_tier === tier);
+  const sortedPlayers = [...filteredPlayers].sort((a: any, b: any) => {
     if (sortBy === 'currentRp') {
-      return (b.currentRp || 0) - (a.currentRp || 0);
+      return (b.player_rp || 0) - (a.player_rp || 0);
     } else {
-      return (b.peakRp || 0) - (a.peakRp || 0);
+      // Assuming peakRp might not be available or using currentRp fallback
+      return (b.player_rp || 0) - (a.player_rp || 0);
     }
-  });
+  }).slice(0, initialLimit);
 
   const handleRefresh = () => {
     refetch();
@@ -74,18 +66,18 @@ export function RankingsTable({ initialLimit = 10 }: RankingsTableProps) {
           
           <Select
             value={tier || ''}
-            onValueChange={(value) => setTier(value ? value as GraphQLPlayerTier : undefined)}
+            onValueChange={(value) => setTier(value || undefined)}
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="All Tiers" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Tiers</SelectItem>
-              <SelectItem value={GraphQLPlayerTier.Bronze}>Bronze</SelectItem>
-              <SelectItem value={GraphQLPlayerTier.Silver}>Silver</SelectItem>
-              <SelectItem value={GraphQLPlayerTier.Gold}>Gold</SelectItem>
-              <SelectItem value={GraphQLPlayerTier.Platinum}>Platinum</SelectItem>
-              <SelectItem value={GraphQLPlayerTier.Diamond}>Diamond</SelectItem>
+              <SelectItem value="all">All Tiers</SelectItem>
+              <SelectItem value="Bronze">Bronze</SelectItem>
+              <SelectItem value="Silver">Silver</SelectItem>
+              <SelectItem value="Gold">Gold</SelectItem>
+              <SelectItem value="Platinum">Platinum</SelectItem>
+              <SelectItem value="Diamond">Diamond</SelectItem>
             </SelectContent>
           </Select>
           
@@ -98,7 +90,7 @@ export function RankingsTable({ initialLimit = 10 }: RankingsTableProps) {
       
       {error && (
         <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md">
-          {error.message}
+          Error loading rankings
         </div>
       )}
       
@@ -106,8 +98,8 @@ export function RankingsTable({ initialLimit = 10 }: RankingsTableProps) {
         <Table>
           <TableCaption>
             {tier 
-              ? `Top ${limit} players in ${tier} tier` 
-              : `Top ${limit} players globally`
+              ? `Top players in ${tier} tier` 
+              : `Top players globally`
             }
           </TableCaption>
           <TableHeader>
@@ -116,7 +108,6 @@ export function RankingsTable({ initialLimit = 10 }: RankingsTableProps) {
               <TableHead>Player</TableHead>
               <TableHead>Position</TableHead>
               <TableHead className="text-right">RP</TableHead>
-              <TableHead className="text-right">Peak RP</TableHead>
               <TableHead className="text-right">W/L</TableHead>
               <TableHead className="text-right">Win Rate</TableHead>
             </TableRow>
@@ -124,7 +115,7 @@ export function RankingsTable({ initialLimit = 10 }: RankingsTableProps) {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
+                <TableCell colSpan={6} className="h-24 text-center">
                   <div className="flex justify-center items-center h-full">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
                     <span className="ml-2">Loading...</span>
@@ -133,22 +124,21 @@ export function RankingsTable({ initialLimit = 10 }: RankingsTableProps) {
               </TableRow>
             ) : sortedPlayers.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
+                <TableCell colSpan={6} className="h-24 text-center">
                   No players found
                 </TableCell>
               </TableRow>
             ) : (
-              sortedPlayers.map((player, index) => (
+              sortedPlayers.map((player: any, index: number) => (
                 <TableRow key={player.id}>
                   <TableCell className="font-medium">{index + 1}</TableCell>
                   <TableCell>{player.gamertag}</TableCell>
                   <TableCell>
                     <span className={`inline-block px-2 py-1 rounded text-xs ${getPositionColor(player.position || undefined)}`}>
-                      {player.position || 'N/A'}
+                      {player.position ? player.position.replace('_', ' ') : 'N/A'}
                     </span>
                   </TableCell>
-                  <TableCell className="text-right">{player.currentRp || 0}</TableCell>
-                  <TableCell className="text-right">{player.peakRp || 0}</TableCell>
+                  <TableCell className="text-right">{player.player_rp || 0}</TableCell>
                   <TableCell className="text-right">0/0</TableCell>
                   <TableCell className="text-right">0%</TableCell>
                 </TableRow>
@@ -157,8 +147,6 @@ export function RankingsTable({ initialLimit = 10 }: RankingsTableProps) {
           </TableBody>
         </Table>
       </div>
-      
-
     </div>
   );
 }
@@ -173,7 +161,7 @@ function calculateWinRate(wins: number, losses: number): string {
 function getPositionColor(position?: string): string {
   if (!position) return 'bg-gray-200 text-gray-600';
   
-  switch (position.toLowerCase()) {
+  switch (position.toLowerCase().replace('_', ' ')) {
     case 'point guard':
       return 'bg-blue-400/20 text-blue-600';
     case 'shooting guard':
